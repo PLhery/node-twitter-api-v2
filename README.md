@@ -19,7 +19,7 @@ They caused me some frustration:
 
 ## Goals:
 
-- [ ] bearer token auth
+- [x] bearer token auth
 - [ ] token auth
 - [ ] link auth
 - [ ] read/write/DM aware typing
