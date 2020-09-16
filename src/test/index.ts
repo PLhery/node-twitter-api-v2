@@ -29,6 +29,9 @@ commander
       await client.get('https://api.twitter.com/1.1/search/tweets.json?q=@alkihis')
     );
 
+    const roClient = client.readOnly;
+    const rwClient = client.readWrite;
+
     console.log(
       'With v1',
       await client.v1.get('search/tweets.json', { q: 'alkihis' })

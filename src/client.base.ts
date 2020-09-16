@@ -38,10 +38,24 @@ export default abstract class TwitterApiBase {
    * Create a new TwitterApi object with three-legged OAuth 1.0a authentification.
    */
   constructor(tokens: TwitterApiTokens);
+  /**
+   * Create a clone of {instance}.
+   */
+  constructor(instance: TwitterApiBase);
 
-  public constructor(token?: TwitterApiTokens | string) {
+  public constructor(token?: TwitterApiTokens | string | TwitterApiBase) {
     if (typeof token === 'string') {
       this._bearerToken = token;
+    }
+    else if (token instanceof TwitterApiBase) {
+      this._accessToken = token._accessToken;
+      this._accessSecret = token._accessSecret;
+      this._consumerToken = token._consumerToken;
+      this._consumerSecret = token._consumerSecret;
+      this._oauth = token._oauth;
+      this._prefix = token._prefix;
+      this._bearerToken = token._bearerToken;
+      this._basicToken = token._basicToken;
     }
     else if (typeof token === 'object') {
       this._consumerToken = token.appKey;

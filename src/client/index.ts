@@ -25,6 +25,13 @@ export default class TwitterApi extends TwitterApiReadWrite {
     return this._v2 = new TwitterApiv2(this);
   }
 
+  /**
+   * Get a client with read/write rights.
+   */
+  public get readWrite() {
+    return new TwitterApiReadWrite(this);
+  }
+
   /* Static helpers */
   public static getErrors(error: any) {
     if (typeof error !== 'object')
