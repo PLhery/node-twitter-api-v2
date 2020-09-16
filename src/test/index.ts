@@ -31,7 +31,7 @@ commander
 
     console.log(
       'With v1',
-      await client.v1.get('search/tweets.json?q=@alkihis')
+      await client.v1.get('search/tweets.json', { q: 'alkihis' })
     );
   }
   else if (commander.appOnly) {
@@ -50,7 +50,12 @@ commander
     // Tweets
     console.log(
       'Tweets with v2',
-      await client.v2.get('tweets?ids=20,1306166445135605761&expansions=author_id&tweet.fields=public_metrics&user.fields=name,public_metrics')
+      await client.v2.get('tweets', {
+        ids: '20,1306166445135605761',
+        expansions: 'author_id',
+        'tweet.fields': 'public_metrics',
+        'user.fields': 'name,public_metrics',
+      })
     );
   }
   else if (commander.requestToken) {
