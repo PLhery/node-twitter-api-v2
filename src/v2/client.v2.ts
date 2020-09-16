@@ -1,4 +1,5 @@
 import { API_V2_PREFIX } from '../globals';
+import TwitterApiv2ReadOnly from './client.v2.read';
 import TwitterApiv2ReadWrite from './client.v2.write';
 
 /**
@@ -6,4 +7,11 @@ import TwitterApiv2ReadWrite from './client.v2.write';
  */
 export default class TwitterApiv2 extends TwitterApiv2ReadWrite {
   protected _prefix = API_V2_PREFIX;
+
+  /**
+   * Get a client with read/write rights.
+   */
+  public get readWrite() {
+    return new TwitterApiv2ReadWrite(this);
+  }
 }

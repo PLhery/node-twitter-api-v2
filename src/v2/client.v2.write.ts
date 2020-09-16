@@ -6,4 +6,11 @@ import TwitterApiv2ReadOnly from './client.v2.read';
  */
 export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   protected _prefix = API_V2_PREFIX;
+
+  /**
+   * Get a client with only read rights.
+   */
+  public get readOnly() {
+    return new TwitterApiv2ReadOnly(this);
+  }
 }
