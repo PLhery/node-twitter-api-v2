@@ -11,6 +11,6 @@ export default class TwitterApiv2 extends TwitterApiv2ReadWrite {
    * Get a client with read/write rights.
    */
   public get readWrite() {
-    return new TwitterApiv2ReadWrite(this);
+    return this as TwitterApiv2ReadWrite;
   }
 }

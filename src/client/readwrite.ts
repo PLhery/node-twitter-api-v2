@@ -26,6 +26,6 @@ export default class TwitterApiReadWrite extends TwitterApiReadOnly {
    * Get a client with read only rights.
    */
   public get readOnly() {
-    return new TwitterApiReadOnly(this);
+    return this as TwitterApiReadOnly;
   }
 }

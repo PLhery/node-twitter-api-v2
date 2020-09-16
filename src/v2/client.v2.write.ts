@@ -11,6 +11,6 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * Get a client with only read rights.
    */
   public get readOnly() {
-    return new TwitterApiv2ReadOnly(this);
+    return this as TwitterApiv2ReadOnly;
   }
 }

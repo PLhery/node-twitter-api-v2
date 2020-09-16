@@ -1,5 +1,7 @@
 import { IncomingHttpHeaders } from 'http';
 
+export type NumberString = number | string;
+export type BooleanString = boolean | string;
 
 export interface TwitterApiErrorData {
   errors: {

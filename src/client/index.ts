@@ -29,7 +29,7 @@ export default class TwitterApi extends TwitterApiReadWrite {
    * Get a client with read/write rights.
    */
   public get readWrite() {
-    return new TwitterApiReadWrite(this);
+    return this as TwitterApiReadWrite;
   }
 
   /* Static helpers */
