@@ -1,5 +1,4 @@
 import { API_V2_PREFIX } from '../globals';
-import TwitterApiv2ReadOnly from './client.v2.read';
 import TwitterApiv2ReadWrite from './client.v2.write';
 
 /**

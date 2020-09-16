@@ -1,28 +1,27 @@
-import TwitterApiBase from './client.base';
-import TwitterApiv1 from './v1/client.v1';
-import TwitterApiv2 from './v2/client.v2';
-import { AccessTokenResult, BearerTokenResult, RequestTokenResult, TwitterApiError } from './types';
+import TwitterApi from '.';
+import TwitterApiBase from '../client.base';
+import { AccessTokenResult, BearerTokenResult, RequestTokenResult } from '../types';
+import TwitterApiv1ReadOnly from '../v1/client.v1.read';
+import TwitterApiv2ReadOnly from '../v2/client.v2.read';
 
-
-// "Real" exported client for usage of TwitterApi.
 /**
  * Twitter v1.1 and v2 API client.
  */
-export default class TwitterApi extends TwitterApiBase {
-  protected _v1?: TwitterApiv1;
-  protected _v2?: TwitterApiv2;
+export default class TwitterApiReadOnly extends TwitterApiBase {
+  protected _v1?: TwitterApiv1ReadOnly;
+  protected _v2?: TwitterApiv2ReadOnly;
 
   /* Direct access to subclients */
   public get v1() {
     if (this._v1) return this._v1;
     
-    return this._v1 = new TwitterApiv1(this);
+    return this._v1 = new TwitterApiv1ReadOnly(this);
   }
 
   public get v2() {
     if (this._v2) return this._v2;
     
-    return this._v2 = new TwitterApiv2(this);
+    return this._v2 = new TwitterApiv2ReadOnly(this);
   }
 
   /* Authentification */
@@ -115,16 +114,5 @@ export default class TwitterApi extends TwitterApiBase {
     } finally {
       this._basicToken = undefined;
     } 
-  }
-
-  /* Static helpers */
-  public static getErrors(error: any) {
-    if (typeof error !== 'object')
-      return [];
-
-    if (!('data' in error))
-      return [];
-
-    return (error as TwitterApiError).data.errors ?? [];
   }
 }
