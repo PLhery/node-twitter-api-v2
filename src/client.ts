@@ -1,7 +1,7 @@
 import TwitterApiBase from './client.base';
 import TwitterApiv1 from './client.v1';
 import TwitterApiv2 from './client.v2';
-import { AccessTokenResult, BearerTokenResult, RequestTokenResult } from './types';
+import { AccessTokenResult, BearerTokenResult, RequestTokenResult, TwitterApiError } from './types';
 
 export default class TwitterApi extends TwitterApiBase {
   protected _v1?: TwitterApiv1;
@@ -110,5 +110,16 @@ export default class TwitterApi extends TwitterApiBase {
     } finally {
       this._basicToken = undefined;
     } 
+  }
+
+  /* Static helpers */
+  public static getErrors(error: any) {
+    if (typeof error !== 'object')
+      return [];
+
+    if (!('data' in error))
+      return [];
+
+    return (error as TwitterApiError).data.errors ?? [];
   }
 }

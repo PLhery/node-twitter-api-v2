@@ -346,15 +346,4 @@ export default abstract class TwitterApiBase {
       req.end();
     });
   }
-
-  /* Static helpers */
-  public static getErrors(error: any) {
-    if (typeof error !== 'object')
-      return [];
-
-    if (!('data' in error))
-      return [];
-
-    return (error as TwitterApiError).data.errors ?? [];
-  }
 }
