@@ -1,8 +1,13 @@
 import TwitterApiBase from './client.base';
-import TwitterApiv1 from './client.v1';
-import TwitterApiv2 from './client.v2';
+import TwitterApiv1 from './v1/client.v1';
+import TwitterApiv2 from './v2/client.v2';
 import { AccessTokenResult, BearerTokenResult, RequestTokenResult, TwitterApiError } from './types';
 
+
+// "Real" exported client for usage of TwitterApi.
+/**
+ * Twitter v1.1 and v2 API client.
+ */
 export default class TwitterApi extends TwitterApiBase {
   protected _v1?: TwitterApiv1;
   protected _v2?: TwitterApiv2;

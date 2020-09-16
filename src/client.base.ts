@@ -2,9 +2,11 @@ import { request, RequestOptions } from 'https';
 import { URLSearchParams } from 'url';
 import crypto from 'crypto';
 import OAuth from 'oauth-1.0a';
-import { TwitterApiError, TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
+import { TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
 
-
+/**
+ * Base class for Twitter instances
+ */
 export default abstract class TwitterApiBase {
   protected static readonly BODY_METHODS = new Set(['POST', 'PUT', 'PATCH']);
   protected static readonly JSON_1_1_ENDPOINTS = new Set([
