@@ -1,6 +1,7 @@
 import TwitterApi from '..';
 import commander from 'commander';
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
@@ -36,6 +37,28 @@ commander
     console.log(
       'With v1',
       await client.v1.get('search/tweets.json', { q: 'alkihis' })
+    );
+
+    const path = '/Users/alki/Pictures/universe-2742113.jpg';
+
+    console.log(
+      'Upload media (from path)',
+      await client.v1.uploadMedia(path)
+    );
+
+    console.log(
+      'Upload media (from buffer)',
+      await client.v1.uploadMedia(await fs.promises.readFile(path), 'jpg')
+    );
+
+    console.log(
+      'Upload media (from fileHandle)',
+      await client.v1.uploadMedia(await fs.promises.open(path, 'r'), 'jpg')
+    );
+
+    console.log(
+      'Upload media (from numbered fileHandle)',
+      await client.v1.uploadMedia(fs.openSync(path, 'r'), 'jpg')
     );
 
     // Send a tweet

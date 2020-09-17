@@ -2,6 +2,7 @@ import { request, RequestOptions } from 'https';
 import { URLSearchParams } from 'url';
 import crypto from 'crypto';
 import OAuth from 'oauth-1.0a';
+import FormData from 'form-data';
 import { TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
 
 /**
@@ -101,12 +102,12 @@ export default abstract class TwitterApiBase {
 
   /* Direct HTTP methods */
 
-  async get<T = any>(url: string, full_response?: false) : Promise<T>;
-  async get<T = any>(url: string, full_response: true) : Promise<TwitterResponse<T>>;
+  async get<T = any>(url: string, full_response?: false, prefix?: string) : Promise<T>;
+  async get<T = any>(url: string, full_response: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async get<T = any>(url: string, full_response = false) : Promise<T | TwitterResponse<T>> {
-    if (this._prefix)
-      url = this._prefix + url;
+  public async get<T = any>(url: string, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+    if (prefix)
+      url = prefix + url;
 
     const parameters: Record<string, string> = {};
     const parsed = new URL(url);
@@ -119,12 +120,12 @@ export default abstract class TwitterApiBase {
     return full_response ? resp : resp.data;
   }
 
-  async delete<T = any>(url: string, full_response?: false) : Promise<T>;
-  async delete<T = any>(url: string, full_response: true) : Promise<TwitterResponse<T>>;
+  async delete<T = any>(url: string, full_response?: false, prefix?: string) : Promise<T>;
+  async delete<T = any>(url: string, full_response: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async delete<T = any>(url: string, full_response = false) : Promise<T | TwitterResponse<T>> {
-    if (this._prefix)
-      url = this._prefix + url;
+  public async delete<T = any>(url: string, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+    if (prefix)
+      url = prefix + url;
 
     const parameters: Record<string, string> = {};
     const parsed = new URL(url);
@@ -137,34 +138,34 @@ export default abstract class TwitterApiBase {
     return full_response ? resp : resp.data;
   }
 
-  async post<T = any>(url: string, body?: Record<string, any>, full_response?: false) : Promise<T>;
-  async post<T = any>(url: string, body: Record<string, any> | undefined, full_response: true) : Promise<TwitterResponse<T>>;
+  async post<T = any>(url: string, body?: Record<string, any>, full_response?: false, prefix?: string) : Promise<T>;
+  async post<T = any>(url: string, body: Record<string, any> | undefined, full_response: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async post<T = any>(url: string, body?: Record<string, any>, full_response = false) : Promise<T | TwitterResponse<T>> {
-    if (this._prefix)
-      url = this._prefix + url;
+  public async post<T = any>(url: string, body?: Record<string, any>, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+    if (prefix)
+      url = prefix + url;
 
     const resp = await this.send<T>(url, 'POST', body);
     return full_response ? resp : resp.data;
   }
 
-  async put<T = any>(url: string, body?: Record<string, any>, full_response?: false) : Promise<T>;
-  async put<T = any>(url: string, body: Record<string, any> | undefined, full_response: true) : Promise<TwitterResponse<T>>;
+  async put<T = any>(url: string, body?: Record<string, any>, full_response?: false, prefix?: string) : Promise<T>;
+  async put<T = any>(url: string, body: Record<string, any> | undefined, full_response: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async put<T = any>(url: string, body?: Record<string, any>, full_response = false) : Promise<T | TwitterResponse<T>> {
-    if (this._prefix)
-      url = this._prefix + url;
+  public async put<T = any>(url: string, body?: Record<string, any>, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+    if (prefix)
+      url = prefix + url;
 
     const resp = await this.send<T>(url, 'PUT', body);
     return full_response ? resp : resp.data;
   }
 
-  async patch<T = any>(url: string, body?: Record<string, any>, full_response?: false) : Promise<T>;
-  async patch<T = any>(url: string, body: Record<string, any> | undefined, full_response: true) : Promise<TwitterResponse<T>>;
+  async patch<T = any>(url: string, body?: Record<string, any>, full_response?: false, prefix?: string) : Promise<T>;
+  async patch<T = any>(url: string, body: Record<string, any> | undefined, full_response: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async patch<T = any>(url: string, body?: Record<string, any>, full_response = false) : Promise<T | TwitterResponse<T>> {
-    if (this._prefix)
-      url = this._prefix + url;
+  public async patch<T = any>(url: string, body?: Record<string, any>, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+    if (prefix)
+      url = prefix + url;
 
     const resp = await this.send<T>(url, 'PATCH', body);
     return full_response ? resp : resp.data;
@@ -209,9 +210,18 @@ export default abstract class TwitterApiBase {
     parameters: Record<string, any> = {},
     headers?: Record<string, string>, 
   ) : Promise<TwitterResponse<T>> {
-    let body: string | undefined = undefined;
+    let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
+
+    // Delete undefined parameters
+    for (const parameter in parameters) {
+      if (parameters[parameter] === undefined)
+        delete parameters[parameter];
+    }
+
+    // OAuth signature should not include parameters when using multipart.
+    const isMultipart = TwitterApiBase.BODY_METHODS.has(method) && this.autoDetectBodyType(url) === 'form-data';
 
     if (this._bearerToken) {
       headers.Authorization = 'Bearer ' + this._bearerToken;
@@ -224,7 +234,7 @@ export default abstract class TwitterApiBase {
       const auth = this._oauth.authorize({
         url, 
         method,
-        data: parameters,
+        data: isMultipart ? {} : parameters,
       }, this.getOAuthAccessTokens());
 
       headers = { ...headers, ...this._oauth.toHeader(auth) };
@@ -248,10 +258,12 @@ export default abstract class TwitterApiBase {
       // Twitter API v2 always has JSON-encoded requests, right?
       return 'json';
     } 
+
+    if (url.startsWith('https://upload.twitter.com/1.1/media')) {
+      return 'form-data';
+    }
     
     const endpoint = url.split('.twitter.com/1.1/', 2)[1];
-
-    // TODO detect multipart endpoints
 
     if (TwitterApiBase.JSON_1_1_ENDPOINTS.has(endpoint)) {
       return 'json';
@@ -272,7 +284,7 @@ export default abstract class TwitterApiBase {
     mode: 'json' | 'url' | 'form-data'
   ) {
     if (mode === 'json') {
-      headers['content-type'] = 'application/json';
+      headers['content-type'] = 'application/json;charset=UTF-8';
       return JSON.stringify(parameters);
     }
     else if (mode === 'url') {
@@ -284,18 +296,32 @@ export default abstract class TwitterApiBase {
       return '';
     }
     else {
-      // TODO support multipart
-      headers['content-type'] = 'multipart/form-data';
-      throw new Error('Not yet implemeted');
+      const form = new FormData();
+
+      for (const parameter in parameters) {
+        form.append(parameter, parameters[parameter]);
+      }
+
+      const formHeaders = form.getHeaders();
+      for (const item in formHeaders) {
+        headers[item] = formHeaders[item];
+      }
+
+      return form.getBuffer();
     }
   }
 
-  protected httpSend<T = any>(url: string, options: RequestOptions, body?: string) : Promise<TwitterResponse<T>> {
+  protected httpSend<T = any>(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TwitterResponse<T>> {
     if (body) {
       options.headers = options.headers ?? {};
 
-      const encoder = new TextEncoder();
-      options.headers['content-length'] = encoder.encode(body).length;
+      if (typeof body === 'string') {
+        const encoder = new TextEncoder();
+        options.headers['content-length'] = encoder.encode(body).length;
+      }
+      else {
+        options.headers['content-length'] = body.length;
+      }
     } 
 
     const req = request(url, options);

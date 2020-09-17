@@ -18,3 +18,30 @@ export interface SendTweetParams {
 }
 
 // TODO include 'twitter-d' package to type users, tweets, etc?
+
+export interface InitMediaResult {
+  media_id: number;
+  media_id_string: string;
+  size: number;
+  expires_after_secs: number;
+  image: {
+    image_type: string;
+    w: number;
+    h: number;
+  };
+}
+
+export interface FinalizeMediaResult {
+  media_id: number;
+  media_id_string: string;
+  size: number,
+  expires_after_secs: number;
+  video?: {
+    video_type: string;
+  };
+  processing_info?: {
+    state: 'pending' | 'failed' | 'succeeded' | 'in_progress';
+    check_after_secs?: number;
+    progress_percent?: number;
+  };
+}
