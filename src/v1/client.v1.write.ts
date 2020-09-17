@@ -1,7 +1,10 @@
 import { API_V1_1_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
-import { FinalizeMediaResult, InitMediaResult, SendTweetParams } from './types.v1';
+import { FinalizeMediaResult, InitMediaResult, SendTweetParams, UploadMediaParams } from './types.v1';
 import fs from 'fs';
+
+const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
+const UPLOAD_ENDPOINT = 'media/upload.json';
 
 /**
  * Base Twitter v1 client with read/write rights.
@@ -35,33 +38,31 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   /**
-   * Upload a media (JPG/PNG/GIF/MP4) to Twitter.
+   * Upload a media (JPG/PNG/GIF/MP4) to Twitter and return the media_id to use in tweet send.
    * 
    * @param file If `string`, filename is supposed. 
    * A `Buffer` is a raw file. 
    * `fs.promises.FileHandle` or `number` are file pointers.
    * 
-   * @param type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif').
+   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif').
    * If filename is given, it could be guessed with file extension, otherwise this parameter is mandatory.
    * If type is not part of the enum, it will be used as mime type.
    * 
    * Type `longmp4` is **required** is you try to upload a video higher than 140 seconds.
    * 
-   * @param chunkLength Maximum chunk length sent to Twitter. Default goes to 1 MB.
+   * @param options.chunkLength Maximum chunk length sent to Twitter. Default goes to 1 MB.
+   * 
+   * @param options.additionalOwners Other user IDs allowed to use the returned media_id. Default goes to none.
+   * 
+   * @param options.maxConcurrentUploads Maximum uploaded chunks in the same time. Default goes to 3.
    */
-  public async uploadMedia(
-    file: string | Buffer | fs.promises.FileHandle | number, 
-    type?: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string, 
-    chunkLength = 1024 * 1024,
-    additionalOwners?: string,
-  ) {
-    const prefix = 'https://upload.twitter.com/1.1/';
-    const endpoint = 'media/upload.json';
-
+  public async uploadMedia(file: string | Buffer | fs.promises.FileHandle | number, options: Partial<UploadMediaParams> = {}) {
     let fileSize: number;
     let fileHandle: fs.promises.FileHandle | number | Buffer;
     let mimeType: string;
     let mediaCategory: string;
+    const chunkLength = options.chunkLength ?? (1024 * 1024);
+    const type = options.type;
 
     // Get the file handle (if not buffer)
     try {
@@ -123,55 +124,22 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       }
   
       // Finally! We can send INIT message.
-      const mediaData = await this.post<InitMediaResult>(endpoint, {
+      const mediaData = await this.post<InitMediaResult>(UPLOAD_ENDPOINT, {
         command: 'INIT',
         total_bytes: fileSize,
         media_type: mimeType,
         media_category: mediaCategory,
-        additional_owners: additionalOwners,
-      }, false, prefix);
+        additional_owners: options.additionalOwners,
+      }, false, UPLOAD_PREFIX);
   
-      // Send chunk by chunk
-      let chunkIndex = 0;
-  
-      // Creating a buffer for doing file stuff (if we don't have one)
-      const buffer = fileHandle instanceof Buffer ? undefined : Buffer.alloc(chunkLength);
-      // Sliced/filled buffer returned for each part
-      let readBuffer: Buffer;
-      // Needed to know when we should stop reading the file
-      let nread: number;
-      // Needed to use the buffer object (file handles always "remembers" file position)
-      let offset = 0;
-  
-      [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
-      offset += nread;
-  
-      // Read buffer until file is completely read
-      while (nread) {
-        // base64 encode (binary is a pain with https.request)
-        const encoded = readBuffer.slice(0, nread).toString('base64');
-  
-        // Sent part if part has something inside
-        if (encoded) {
-          await this.post(endpoint, {
-            command: 'APPEND',
-            media_id: mediaData.media_id_string,
-            segment_index: chunkIndex,
-            media_data: encoded,
-          }, false, prefix);
-  
-          chunkIndex++;
-        }
-  
-        [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
-        offset += nread;
-      }
+      // Upload the media chunk by chunk
+      await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
   
       // Finalize media
-      let fullMediaData = await this.post<FinalizeMediaResult>(endpoint, {
+      let fullMediaData = await this.post<FinalizeMediaResult>(UPLOAD_ENDPOINT, {
         command: 'FINALIZE',
         media_id: mediaData.media_id_string,
-      }, false, prefix);
+      }, false, UPLOAD_PREFIX);
   
       // Video is ready, return media_id
       if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
@@ -180,10 +148,10 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   
       // Must wait if video is still computed
       while (true) {
-        fullMediaData = await this.get(endpoint, {
+        fullMediaData = await this.get(UPLOAD_ENDPOINT, {
           command: 'STATUS',
           media_id: mediaData.media_id_string,
-        }, false, prefix);
+        }, false, UPLOAD_PREFIX);
   
         if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
           return fullMediaData.media_id_string;
@@ -212,6 +180,69 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
         fileHandle.close();
       }
     }
+  }
+
+  protected async mediaChunkedUpload(
+    fileHandle: Buffer | number | fs.promises.FileHandle, 
+    chunkLength: number, 
+    mediaId: string,
+    maxConcurrentUploads = 3,
+  ) {
+    // Send chunk by chunk
+    let chunkIndex = 0;
+
+    if (maxConcurrentUploads < 1) {
+      throw new RangeError('Bad maxConcurrentUploads parameter.');
+    }
+      
+    // Creating a buffer for doing file stuff (if we don't have one)
+    const buffer = fileHandle instanceof Buffer ? undefined : Buffer.alloc(chunkLength);
+    // Sliced/filled buffer returned for each part
+    let readBuffer: Buffer;
+    // Needed to know when we should stop reading the file
+    let nread: number;
+    // Needed to use the buffer object (file handles always "remembers" file position)
+    let offset = 0;
+
+    [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
+    offset += nread;
+
+    // Handle max concurrent uploads
+    const currentUploads = new Set<Promise<any>>();
+
+    // Read buffer until file is completely read
+    while (nread) {
+      // base64 encode (binary is a pain with https.request)
+      const encoded = readBuffer.slice(0, nread).toString('base64');
+
+      // Sent part if part has something inside
+      if (encoded) {
+        const request = this.post(UPLOAD_ENDPOINT, {
+          command: 'APPEND',
+          media_id: mediaId,
+          segment_index: chunkIndex,
+          media_data: encoded,
+        }, false, UPLOAD_PREFIX);
+
+        currentUploads.add(request);
+        request.then(() => {
+          currentUploads.delete(request);
+        });
+
+        chunkIndex++;
+      }
+
+      if (currentUploads.size >= maxConcurrentUploads) {
+        const first = [...currentUploads][0];
+        // Await for first to be finished
+        await first;
+      }
+
+      [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
+      offset += nread;
+    }
+
+    await Promise.all([...currentUploads]);
   }
 
   protected async readNextPartOf(file: number | Buffer | fs.promises.FileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {

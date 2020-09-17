@@ -45,3 +45,10 @@ export interface FinalizeMediaResult {
     progress_percent?: number;
   };
 }
+
+export interface UploadMediaParams {
+  type: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string;
+  chunkLength: number;
+  additionalOwners: string;
+  maxConcurrentUploads: number;
+}

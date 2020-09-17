@@ -48,17 +48,17 @@ commander
 
     console.log(
       'Upload media (from buffer)',
-      await client.v1.uploadMedia(await fs.promises.readFile(path), 'jpg')
+      await client.v1.uploadMedia(await fs.promises.readFile(path), { type: 'jpg' })
     );
 
     console.log(
       'Upload media (from fileHandle)',
-      await client.v1.uploadMedia(await fs.promises.open(path, 'r'), 'jpg')
+      await client.v1.uploadMedia(await fs.promises.open(path, 'r'), { type: 'jpg' })
     );
 
     console.log(
       'Upload media (from numbered fileHandle)',
-      await client.v1.uploadMedia(fs.openSync(path, 'r'), 'jpg')
+      await client.v1.uploadMedia(fs.openSync(path, 'r'), { type: 'jpg', maxConcurrentUploads: 1 })
     );
 
     // Send a tweet
