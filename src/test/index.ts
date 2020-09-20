@@ -89,12 +89,29 @@ commander
     console.log(
       'Tweets with v2',
       await client.v2.get('tweets', {
-        ids: '20,1306166445135605761',
+        ids: '20',
         expansions: 'author_id',
         'tweet.fields': 'public_metrics',
         'user.fields': 'name,public_metrics',
       })
     );
+
+    // Search 
+    const nodeJs = await client.search('nodeJS');
+    console.log('fetched tweets', nodeJs.tweets.length);
+
+    await nodeJs.fetchNext();
+    console.log(nodeJs.tweets.length);
+
+    let i = 0;
+    for await (const _ of nodeJs) {
+      if (i > 1000) {
+        console.log('Hit 1000 tweets', nodeJs.rateLimit);
+        break;
+      }
+
+      i++;
+    }
   }
   else if (commander.requestToken) {
     console.log(await getAuthLink(commander.requestToken));

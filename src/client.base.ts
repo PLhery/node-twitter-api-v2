@@ -363,7 +363,7 @@ export default abstract class TwitterApiBase {
           
           // Handle bad error codes
           const code = res.statusCode!;
-          if (code >= 400) {
+          if (code >= 400 || (typeof data === 'object' && 'errors' in data)) {
             reject({ 
               data, 
               headers: res.headers, 

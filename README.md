@@ -20,10 +20,10 @@ They caused me some frustration:
 ## Goals:
 
 - [x] bearer token auth
-- [ ] token auth
-- [ ] link auth
-- [ ] read/write/DM aware typing
-- [ ] get/post methods
+- [x] token auth
+- [x] link auth
+- [x] read/write/DM aware typing
+- [x] get/post methods
 - [ ] Twitter API V2 tweets methods
 - [ ] Twitter API V2 users methods
 - [ ] Auto pagination

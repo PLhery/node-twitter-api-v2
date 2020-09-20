@@ -24,10 +24,10 @@ export default abstract class TwitterApiSubClient extends TwitterApiBase {
   }
 
   public async get<T = any>(url: string, full_response?: boolean) : Promise<T | TwitterResponse<T>>;
-  public async get<T = any>(url: string, parameters?: Record<string, string>, full_response?: true, prefix?: string) : Promise<TwitterResponse<T>>;
-  public async get<T = any>(url: string, parameters?: Record<string, string>, full_response?: false | undefined, prefix?: string) : Promise<T>;
+  public async get<T = any>(url: string, parameters?: Record<string, string | undefined>, full_response?: false, prefix?: string) : Promise<T>;
+  public async get<T = any>(url: string, parameters?: Record<string, string | undefined>, full_response?: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async get<T = any>(url: string, parameters?: Record<string, string> | boolean, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+  public async get<T = any>(url: string, parameters?: Record<string, string | undefined> | boolean, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
     if (typeof parameters === 'boolean') {
       full_response = parameters;
       parameters = undefined;
@@ -39,10 +39,10 @@ export default abstract class TwitterApiSubClient extends TwitterApiBase {
 
 
   public async delete<T = any>(url: string, full_response?: boolean) : Promise<T | TwitterResponse<T>>;
-  public async delete<T = any>(url: string, parameters?: Record<string, string>, full_response?: true, prefix?: string) : Promise<TwitterResponse<T>>;
-  public async delete<T = any>(url: string, parameters?: Record<string, string>, full_response?: false | undefined, prefix?: string) : Promise<T>;
+  public async delete<T = any>(url: string, parameters?: Record<string, string | undefined>, full_response?: false, prefix?: string) : Promise<T>;
+  public async delete<T = any>(url: string, parameters?: Record<string, string | undefined>, full_response?: true, prefix?: string) : Promise<TwitterResponse<T>>;
 
-  public async delete<T = any>(url: string, parameters?: Record<string, string> | boolean, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
+  public async delete<T = any>(url: string, parameters?: Record<string, string | undefined> | boolean, full_response = false, prefix = this._prefix) : Promise<T | TwitterResponse<T>> {
     if (typeof parameters === 'boolean') {
       full_response = parameters;
       parameters = undefined;

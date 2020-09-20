@@ -3,6 +3,7 @@ import TwitterApiBase from '../client.base';
 import { AccessTokenResult, BearerTokenResult, RequestTokenResult } from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
+import { Tweetv2SearchParams } from '../v2/types.v2';
 
 /**
  * Twitter v1.1 and v2 API client.
@@ -24,6 +25,14 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     return this._v2 = new TwitterApiv2ReadOnly(this);
   }
 
+
+  /* Shortcuts to endpoints */
+
+  public search(what: string, options?: Partial<Tweetv2SearchParams>) {
+    return this.v2.search(what, options);
+  }
+
+  
   /* Authentification */
   /**
    * Generate the OAuth request token link for user-based OAuth 1.0 auth.
