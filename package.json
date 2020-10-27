@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Twitter api v1 and v2 client for node",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
