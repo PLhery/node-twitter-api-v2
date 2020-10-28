@@ -1,8 +1,42 @@
 # Twitter API V2
 
-WIP
+Twitter api V1 and V2 client for node
 
-Twitter api v2 (and v1 in the future) client for node
+## How to use
+
+```typescript
+import TwitterApi, { TwitterErrors } from 'twitter-api-v2';
+
+// bearer token auth (with V2)
+const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
+
+// token auth
+const twitterClient = new TwitterApi({
+   appKey: '<YOUR-TWITTER-APP-TOKEN>',
+   appSecret: '<YOUR-TWITTER-APP-SECERT>',
+   accessToken: '<YOUR-TWITTER-APP-TOKEN>',
+   accessSecret: '<YOUR-TWITTER-APP-SECERT>',
+ });
+
+// link auth
+const twitterClient = new TwitterApi({
+  appKey: '<YOUR-TWITTER-APP-TOKEN>',
+  appSecret: '<YOUR-TWITTER-APP-SECERT>',
+});
+
+const authLink = await twitterClient.generateAuthLink();
+// ... redirected to https://website.com?oauth_token=XXX&oauth_verifier=XXX
+const { usertoken, userSecret } = twitterClient.login('<THE_OAUTH_VERIFIER>');
+
+// Tell typescript it's a readonly app
+const twitterClient = new TwitterApi(xxx).readOnly;
+
+// Manually call the API
+const tweets = await twitterClient.v2.get('tweets/search/recent', {query: 'nodeJS', max_results: '100'});
+const tweets = await twitterClient.v1.tweet('Hello, this is a test.'),
+const tweets = await twitterClient.v1.uploadMedia(await fs.promises.readFile(path), { type: 'jpg' })
+const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
+```
 
 ## Why?
 
@@ -33,35 +67,14 @@ They caused me some frustration:
 import TwitterApi, { TwitterErrors } from 'twitter-api-v2';
 
 // bearer token auth (with V2)
-const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
-
-// token auth
-const twitterClient = new TwitterApi({
-   appKey: '<YOUR-TWITTER-APP-TOKEN>',
-   appSecret: '<YOUR-TWITTER-APP-SECERT>',
-   accesToken: '<YOUR-TWITTER-APP-TOKEN>',
-   accessSecret: '<YOUR-TWITTER-APP-SECERT>',
- });
-
-// link auth
-const twitterClient = new TwitterApi({
-  appKey: '<YOUR-TWITTER-APP-TOKEN>',
-  appSecret: '<YOUR-TWITTER-APP-SECERT>',
-});
+const twitterClient = new TwitterApi(tokens);
 
 const authLink = await twitterClient.generateAuthLink();
 // ... redirected to https://website.com?oauth_token=XXX&oauth_verifier=XXX
 const { usertoken, userSecret } = twitterClient.login('<THE_OAUTH_TOKEN>', '<THE_OAUTH_VERIFIER>');
 
-// Tell typescript it's a readonly app
-const twitterClient = new TwitterApi(xxx).readOnly;
-
 // Search for tweets
 const tweets = await twitterClient.tweets.search('nodeJS', { max_results: 100 });
-
-// Or do it your way (however, with no result typed)
-const tweets = await twitterClient.v2.get('tweets/search/recent', {query: 'nodeJS', max_results: '100'});
-const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
 
 // Auto-paginate
 // (also checks if rate limits will be enough after the first request)
