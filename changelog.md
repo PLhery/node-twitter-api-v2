@@ -1,3 +1,7 @@
+0.2.3
+-----
+- Fix npm package (was not built)
+
 0.2.1
 -----
 - Export typescript definitions

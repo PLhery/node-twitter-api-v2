@@ -1,16 +1,18 @@
 {
   "name": "twitter-api-v2",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "Twitter api v1 and v2 client for node",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run build"
   },
   "repository": "github:plhery/node-twitter-api",
   "author": "Paul-Louis Hery <paullouis.hery+twitterapi@gmail.com> (https://twitter.com/plhery)",
   "license": "Apache-2.0",
+  "files": ["dist"],
   "devDependencies": {
     "@types/node": "^14.6.4",
     "commander": "^6.1.0",
