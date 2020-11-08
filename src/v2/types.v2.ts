@@ -4,7 +4,7 @@ export interface Tweetv2SearchParams extends Partial<Tweetv2FieldsParams> {
   end_time?: string;
   /** ISO date string */
   start_time?: string;
-  max_results?: string;
+  max_results?: number | string;
   next_token?: string;
   query: string;
   since_id?: string;
