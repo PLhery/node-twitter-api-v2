@@ -2,10 +2,6 @@ import { TwitterRateLimit } from '../types';
 import TwitterApiv2ReadOnly from './client.v2.read';
 import { Tweetv2SearchParams, Tweetv2SearchResult } from './types.v2';
 
-export interface PaginatorParams {
-  query: Partial<Tweetv2SearchParams>;
-}
-
 /**
  * Represents a Twitter search with v2 API.
  * 
@@ -38,45 +34,40 @@ export default class TweetPaginator {
     protected _realData: Tweetv2SearchResult, 
     protected _rateLimit: TwitterRateLimit, 
     protected _instance: TwitterApiv2ReadOnly, 
-    protected _options: PaginatorParams
+    protected _queryParams: Partial<Tweetv2SearchParams>
   ) { }
 
   /**
    * Next page.
    */
   async next(maxResults?: number) {
-    const untilId = this._realData.meta.oldest_id;
-    const query = { ...this._options.query };
-    query.until_id = untilId;
+    const queryParams = {
+      ...this._queryParams,
+      until_id: this._realData.meta.oldest_id,
+      ...(maxResults ? { max_results: maxResults } : {})
+    };
 
-    if (maxResults) {
-      query.max_results = String(maxResults);
-    }
-
-    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', query, true);
-    return new TweetPaginator(result.data, result.rateLimit!, this._instance, { query });
+    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+    return new TweetPaginator(result.data, result.rateLimit!, this._instance, queryParams);
   }
 
   /**
    * Next page, but store it in current instance.
    */
   async fetchNext(maxResults?: number) {
-    const untilId = this._realData.meta.oldest_id;
-    const query = { ...this._options.query };
-    query.until_id = untilId;
+    const queryParams = {
+      ...this._queryParams,
+      until_id: this._realData.meta.oldest_id,
+      ...(maxResults ? { max_results: maxResults } : {})
+    };
 
-    if (maxResults) {
-      query.max_results = String(maxResults);
-    }
-
-    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', query, true);
+    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
     const result = response.data;
     this._rateLimit = response.rateLimit!;
     this._realData.meta.oldest_id = result.meta.oldest_id;
     this._realData.meta.result_count += result.meta.result_count;
     this._realData.meta.next_token = result.meta.next_token;
     this._realData.data.push(...result.data);
-
 
     return this;
   }
@@ -86,16 +77,18 @@ export default class TweetPaginator {
    * as long as rate limit is not hit and Twitter has some results 
    */
   async fetchLast(count: number) {
-    const untilId = this._realData.meta.oldest_id;
-    const query = { ...this._options.query };
-    query.until_id = untilId;
-    query.max_results = '100';
+
+    const queryParams = {
+      ...this._queryParams,
+      until_id: this._realData.meta.oldest_id,
+      max_results: 100
+    };
 
     let resultCount = 0;
 
     // Break at rate limit limit
     while (resultCount < count && this._isRateLimitOk) {
-      const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', query, true);
+      const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
       const result = response.data;
 
       this._rateLimit = response.rateLimit!;
@@ -105,8 +98,9 @@ export default class TweetPaginator {
       this._realData.data.push(...result.data);
       resultCount += result.data.length;
 
-      if (!result.data.length || !result.meta.next_token)
+      if (!result.data.length || !result.meta.next_token) {
         break;
+      }
     }
 
     return this;
@@ -116,23 +110,25 @@ export default class TweetPaginator {
    * Previous page (new tweets)
    */
   async previous() {
-    const sinceId = this._realData.meta.newest_id;
-    const query = { ...this._options.query };
-    query.since_id = sinceId;
+    const queryParams = {
+      ...this._queryParams,
+      sinceId: this._realData.meta.newest_id,
+    };
 
-    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', query, true);
-    return new TweetPaginator(result.data, result.rateLimit!, this._instance, { query });
+    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+    return new TweetPaginator(result.data, result.rateLimit!, this._instance, queryParams);
   }
 
   /**
    * Previous page, but in current instance.
    */
   async fetchPrevious() {
-    const sinceId = this._realData.meta.newest_id;
-    const query = { ...this._options.query };
-    query.since_id = sinceId;
+    const queryParams = {
+      ...this._queryParams,
+      sinceId: this._realData.meta.newest_id,
+    };
 
-    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', query, true);
+    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
     const result = response.data;
     this._rateLimit = response.rateLimit!;
     this._realData.meta.newest_id = result.meta.newest_id;
