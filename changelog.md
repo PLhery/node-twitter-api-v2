@@ -1,3 +1,9 @@
+0.3.0
+-----
+- Add the four API v2 user endpoints
+- Improve type definitions
+- Minor v2 search refactor
+
 0.2.3
 -----
 - Fix npm package (was not built)
