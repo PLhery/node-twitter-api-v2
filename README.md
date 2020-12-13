@@ -31,10 +31,22 @@ const { usertoken, userSecret } = twitterClient.login('<THE_OAUTH_VERIFIER>');
 // Tell typescript it's a readonly app
 const twitterClient = new TwitterApi(xxx).readOnly;
 
-// Manually call the API
-const tweets = await twitterClient.v2.get('tweets/search/recent', {query: 'nodeJS', max_results: '100'});
-const tweets = await twitterClient.v1.tweet('Hello, this is a test.'),
-const tweets = await twitterClient.v1.uploadMedia(await fs.promises.readFile(path), { type: 'jpg' })
+// Play with the built in methods
+
+await twitterClient.v2.userByUsername('plhery').data.id;
+await twitterClient.v1.tweet('Hello, this is a test.');
+await twitterClient.v1.uploadMedia(await fs.promises.readFile(path), { type: 'jpg' })
+
+// the search utils
+
+const results = await twitterClient.v2.search('hello');
+console.log(results.tweets); // 10 tweets
+await results.fetchNext(100);
+await results.fetchNext(100);
+console.log(results.tweets, results.rateLimit); // 210 tweets
+
+// Or manually call the API
+await twitterClient.v2.get('tweets/search/recent', {query: 'nodeJS', max_results: '100'});
 const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
 ```
 
@@ -59,7 +71,7 @@ They caused me some frustration:
 - [x] read/write/DM aware typing
 - [x] get/post methods
 - [ ] Twitter API V2 tweets methods
-- [ ] Twitter API V2 users methods
+- [x] Twitter API V2 users methods
 - [ ] Auto pagination
 - [ ] Error code enums
 
