@@ -33,7 +33,8 @@ const twitterClient = new TwitterApi(xxx).readOnly;
 
 // Play with the built in methods
 
-await twitterClient.v2.userByUsername('plhery').data.id;
+const user = await twitterClient.v2.userByUsername('plhery');
+const followers = await twitterClient.v2.followers(user.data.id);
 await twitterClient.v1.tweet('Hello, this is a test.');
 await twitterClient.v1.uploadMedia(await fs.promises.readFile(path), { type: 'jpg' })
 

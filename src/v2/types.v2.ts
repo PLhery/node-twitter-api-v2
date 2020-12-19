@@ -62,6 +62,13 @@ export interface UsersV2Params {
   'user.fields': string;
 }
 
+export interface FollowersV2Params {
+  expansions: 'pinned_tweet_id';
+  max_results: number;
+  pagination_token: string;
+  'tweet.fields': string;
+  'user.fields': string;
+}
 
 export interface User {
   id: string;
@@ -109,3 +116,14 @@ export interface UsersResult {
     tweets: Tweet[]; // pinned tweets
   }
 }
+
+
+export interface FollowersResult {
+  data: User[];
+  meta: {
+    result_count: number;
+    previous_token?: string;
+    next_token?: string;
+  }
+}
+
