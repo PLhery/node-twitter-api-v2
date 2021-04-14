@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 import type { IncomingMessage, ClientRequest } from 'http';
-import { EStreamParserEvent, ETwitterStreamEvent } from '../types';
-import TweetStreamParser from './TweetStreamParser';
+import { ETwitterStreamEvent } from '../types';
+import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
-export default class TweetStream extends EventEmitter {
+export class TweetStream extends EventEmitter {
   protected parser = new TweetStreamParser();
 
   constructor(
@@ -64,3 +64,5 @@ export default class TweetStream extends EventEmitter {
     }
   }
 }
+
+export default TweetStream;

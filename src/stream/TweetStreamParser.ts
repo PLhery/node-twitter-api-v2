@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { EStreamParserEvent } from '../types';
 
 export default class TweetStreamParser extends EventEmitter {
   protected currentMessage = '';
@@ -44,4 +43,9 @@ export default class TweetStreamParser extends EventEmitter {
 
     this.currentMessage = chunk.slice(start, size);
   }
+}
+
+export enum EStreamParserEvent {
+  ParsedData = 'parsed data',
+  ParseError = 'parse error',
 }

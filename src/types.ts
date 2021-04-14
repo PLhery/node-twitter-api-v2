@@ -71,8 +71,3 @@ export enum ETwitterStreamEvent {
   TweetParseError = 'data tweet parse error',
   Error = 'stream error',
 }
-
-export enum EStreamParserEvent {
-  ParsedData = 'parsed data',
-  ParseError = 'parse error',
-}

@@ -111,4 +111,112 @@ try {
 
 This lib supports streaming for v1 and v2 API.
 
+### Using streaming
 
+For both V1 and V2 APIs, streaming methods returns a `TwitterStream` object.
+
+Each event of `TwitterStream` is stored into a TypeScript `enum`.
+
+```ts
+import { TwitterError, ETwitterStreamEvent, TwitterStream } from 'twitter-api-v2';
+
+const client = ...; // (create a client)
+
+let stream: TwitterStream;
+try {
+  // For example, can be any stream function
+  stream = await client.v1.sampleByStream();
+} catch (e) {
+  // Thrown if connection to Twitter couln't be etablished.
+  if (e instanceof TwitterError && e.payload) {
+    // See TwitterErrorPayload interface.
+    const { request, rawResponse, response } = e.payload;
+    console.log(response?.data);
+  }
+}
+
+// Awaits for a tweet
+stream.on(
+  // Emitted when Node.js {response} emits a 'error' event (contains its payload).
+  ETwitterStreamEvent.ConnectionError,
+  err => console.log('Connection error!', err),
+);
+
+stream.on(
+  // Emitted when Node.js {response} is closed by remote or using .close().
+  ETwitterStreamEvent.ConnectionClosed,
+  () => console.log('Connection has been closed.'),
+);
+
+stream.on(
+  // Emitted when a Twitter payload (a tweet or not, given the endpoint).
+  ETwitterStreamEvent.Data,
+  eventData => console.log('Twitter has sent something:', eventData),
+);
+
+stream.on(
+  // Emitted when a Twitter sent a signal to maintain connection active
+  ETwitterStreamEvent.DataKeepAlive,
+  () => console.log('Twitter has a keep-alive packet.'),
+);
+```
+
+### Using API v1.1
+
+#### Filter endpoint
+
+Method: **`v1.filterByStream`**.
+
+Endpoint: `statuses/filter.json`.
+
+```ts
+const client = ...; // (create a OAuth 1.0a client)
+
+const streamFilter = await client.v1.filterByStream({
+  // See FilterStreamParams interface.
+  track: 'JavaScript',
+  follow: [1842984n, '1850485928354'],
+});
+
+// Event data will be tweets of v1 API.
+```
+
+#### Sample endpoint
+
+Method: **`v1.sampleByStream`**.
+
+Endpoint: `statuses/sample.json`.
+
+```ts
+const client = ...; // (create a OAuth 1.0a client)
+
+const streamFilter = await client.v1.sampleByStream();
+
+// Event data will be tweets of v1 API.
+```
+
+### API v2
+
+API v2 does not have specific method for its endpoints for now. Please see next part - how to make a custom request.
+
+### Make a custom request
+
+If you know endpoint and parameters (or you don't want them to be parsed),
+you can make raw requests using shortcuts by HTTP methods:
+- `getStream()`
+- `postStream()`
+- `putStream()`
+- `deleteStream()`
+- `patchStream()`
+or using raw request handler:
+- `sendStream()`
+
+NOTE: **Be careful to select the good API prefix for version 1.1. 1.1 does not use the same URL for classic endpoints and streaming endpoints**.
+You can access quicky to a instance with the streaming prefix using `v1.stream`.
+
+```ts
+// For v1
+const streamFilter = await client.v1.stream.getStream('statuses/filter.json', { track: 'JavaScript,TypeScript' });
+// For v2
+const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
+```
