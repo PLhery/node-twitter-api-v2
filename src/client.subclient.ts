@@ -1,4 +1,5 @@
 import TwitterApiBase from './client.base';
+import TweetStream from './stream/TweetStream';
 import { TwitterResponse } from './types';
 
 /**
@@ -33,7 +34,7 @@ export default abstract class TwitterApiSubClient extends TwitterApiBase {
       full_response = parameters;
       parameters = undefined;
     }
-    
+
     const resp = await this.send<T>(prefix + url, 'GET', parameters);
     return full_response ? resp : resp.data;
   }
@@ -52,5 +53,29 @@ export default abstract class TwitterApiSubClient extends TwitterApiBase {
 
     const resp = await this.send<T>(prefix + url, 'DELETE', parameters);
     return full_response ? resp : resp.data;
+  }
+
+  public async getStream(url: string, prefix?: string) : Promise<TweetStream>;
+  public async getStream(url: string, parameters: Record<string, string | number | undefined>, prefix?: string) : Promise<TweetStream>;
+
+  public getStream(url: string, parameters?: Record<string, string | number | undefined> | string, prefix = this._prefix) : Promise<TweetStream> {
+    if (typeof parameters === 'string') {
+      prefix = parameters;
+      parameters = undefined;
+    }
+
+    return this.sendStream(prefix + url, 'GET', parameters);
+  }
+
+  public async deleteStream(url: string, prefix?: string) : Promise<TweetStream>;
+  public async deleteStream(url: string, parameters: Record<string, string | number | undefined>, prefix?: string) : Promise<TweetStream>;
+
+  public deleteStream(url: string, parameters?: Record<string, string | number | undefined> | string, prefix = this._prefix) : Promise<TweetStream> {
+    if (typeof parameters === 'string') {
+      prefix = parameters;
+      parameters = undefined;
+    }
+
+    return this.sendStream(prefix + url, 'DELETE', parameters);
   }
 }

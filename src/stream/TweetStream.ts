@@ -19,6 +19,10 @@ export default class TweetStream extends EventEmitter {
   protected initEventsFromRequest() {
     this.res.on('error', (err: any) => {
       this.emit(ETwitterStreamEvent.ConnectionError, err);
+      this.emit(ETwitterStreamEvent.Error, {
+        type: ETwitterStreamEvent.ConnectionError,
+        error: err,
+      });
     });
 
     this.res.on('close', () => {
@@ -26,6 +30,10 @@ export default class TweetStream extends EventEmitter {
     });
 
     this.res.on('data', chunk => {
+      if (chunk === '\r\n') {
+        return this.emit(ETwitterStreamEvent.DataKeepAlive);
+      }
+
       this.parser.push(chunk);
     });
   }
@@ -37,6 +45,10 @@ export default class TweetStream extends EventEmitter {
 
     this.parser.on(EStreamParserEvent.ParseError, (error: any) => {
       this.emit(ETwitterStreamEvent.TweetParseError, error);
+      this.emit(ETwitterStreamEvent.Error, {
+        type: ETwitterStreamEvent.TweetParseError,
+        error,
+      });
     });
   }
 

@@ -1,4 +1,4 @@
-import { request, RequestOptions } from 'http';
+import { request, RequestOptions } from 'https';
 import { URLSearchParams } from 'url';
 import crypto from 'crypto';
 import OAuth from 'oauth-1.0a';
@@ -245,7 +245,13 @@ export default abstract class TwitterApiBase {
     return { parsed, parameters };
   }
 
-  protected send<T = any>(
+  /**
+   * Send a new request and returns a wrapped `Promise<TwitterResponse<T>`.
+   *
+   * The request URL should not contains a query string, prefers using `parameters` for GET request.
+   * If you need to pass a body AND query string parameter, duplicate parameters in the body.
+   */
+  send<T = any>(
     url: string,
     method: string,
     // must be changed for chunked media upload if sent as binary
@@ -260,7 +266,13 @@ export default abstract class TwitterApiBase {
     }, args.body);
   }
 
-  protected sendStream(
+  /**
+   * Send a new request, then creates a stream from its as a `Promise<TwitterStream>`.
+   *
+   * The request URL should not contains a query string, prefers using `parameters` for GET request.
+   * If you need to pass a body AND query string parameter, duplicate parameters in the body.
+   */
+  sendStream(
     url: string,
     method: string,
     parameters: Record<string, any> = {},
@@ -530,6 +542,10 @@ export default abstract class TwitterApiBase {
           }));
         });
       });
+
+      if (body) {
+        req.write(body);
+      }
 
       req.end();
     });

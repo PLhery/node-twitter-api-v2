@@ -2,6 +2,8 @@ import TwitterApi from '..';
 import commander from 'commander';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import { ETwitterStreamEvent } from '../types';
+import { TwitterError } from '../errors/request.errors';
 
 const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
@@ -11,6 +13,7 @@ commander
   .option('--classic', 'Run OAuth 1.0a tests')
   .option('--allow-write', 'Run write OAuth 1.0a tests (default: only read)')
   .option('--app-only', 'Run OAuth2 app-only tests')
+  .option('--streaming', 'Run OAuth1.0a + 2 tests')
 .parse(process.argv);
 
 (async () => {
@@ -117,6 +120,68 @@ commander
   }
   else if (commander.requestToken) {
     console.log(await getAuthLink(commander.requestToken));
+  }
+  else if (commander.streaming) {
+    // OAuth 1.0a
+    const clientOauth = new TwitterApi({
+      appKey: ENV.CONSUMER_TOKEN!,
+      appSecret: ENV.CONSUMER_SECRET!,
+      accessToken: ENV.OAUTH_TOKEN!,
+      accessSecret: ENV.OAUTH_SECRET!,
+    });
+
+    const streamv1Filter = await clientOauth.v1.filterByStream({ track: 'gens' });
+
+    await new Promise<void>((resolve, reject) => {
+      let numberOfTweets = 0;
+
+      // Awaits for a tweet
+      streamv1Filter.on(ETwitterStreamEvent.ConnectionError, reject);
+      streamv1Filter.on(ETwitterStreamEvent.ConnectionClosed, reject);
+      streamv1Filter.on(ETwitterStreamEvent.Data, event => {
+        console.log('v1 DATA received !', event?.id ?? event);
+        numberOfTweets++;
+
+        if (numberOfTweets >= 5) {
+          resolve();
+        }
+      });
+      streamv1Filter.on(ETwitterStreamEvent.DataKeepAlive, () => console.log('Received keep alive event'));
+    });
+
+    streamv1Filter.close();
+
+    // OAuth2
+    const clientBearer = await getAppClient();
+
+    const streamv2Filter = await clientBearer.v2.getStream('tweets/sample/stream')
+      .catch((err: any) => {
+        if (err instanceof TwitterError) {
+          console.log(err.payload?.response?.data);
+        }
+
+        return Promise.reject(err?.stack);
+      });
+
+    await new Promise<void>((resolve, reject) => {
+      let numberOfTweets = 0;
+
+      // Awaits for a tweet
+      streamv2Filter.on(ETwitterStreamEvent.ConnectionError, reject);
+      streamv2Filter.on(ETwitterStreamEvent.ConnectionClosed, reject);
+      streamv2Filter.on(ETwitterStreamEvent.Data, event => {
+        console.log('v2 DATA received !', event?.id ?? event);
+        numberOfTweets++;
+
+        if (numberOfTweets >= 5) {
+          resolve();
+        }
+      });
+      streamv2Filter.on(ETwitterStreamEvent.DataKeepAlive, () => console.log('Received keep alive event'));
+    });
+
+    streamv2Filter.close();
+    console.log('New stream API ok.');
   }
 })().catch(e => {
   console.error('Unexcepted error:', e);

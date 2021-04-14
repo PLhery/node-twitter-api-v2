@@ -69,6 +69,7 @@ export enum ETwitterStreamEvent {
   DataKeepAlive = 'data keep-alive',
   Data = 'data event content',
   TweetParseError = 'data tweet parse error',
+  Error = 'stream error',
 }
 
 export enum EStreamParserEvent {

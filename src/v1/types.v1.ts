@@ -1,5 +1,7 @@
 import { BooleanString, NumberString } from '../types';
 
+type TypeOrArrayOf<T> = T | T[];
+
 export interface SendTweetParams {
   status: string;
   in_reply_to_status_id?: string;
@@ -15,6 +17,30 @@ export interface SendTweetParams {
   enable_dmcommands?: BooleanString;
   fail_dmcommands?: BooleanString;
   card_uri?: string;
+}
+
+/**
+ * See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/basic-stream-parameters
+ * for detailed documentation.
+ */
+export interface FilterStreamParams {
+  /** A list of user IDs, indicating the users to return statuses for in the stream. */
+  follow: TypeOrArrayOf<(string | BigInt)>;
+  /** Keywords to track. */
+  track: TypeOrArrayOf<string>;
+  /** Specifies a set of bounding boxes to track. */
+  locations: TypeOrArrayOf<{ lng: string, lat: string }>;
+  /** Specifies whether stall warnings should be delivered. */
+  stall_warnings: boolean;
+
+  [otherParameter: string]: any;
+}
+
+export interface SampleStreamParams {
+  /** Specifies whether stall warnings should be delivered. */
+  stall_warnings: boolean;
+
+  [otherParameter: string]: any;
 }
 
 // TODO include 'twitter-d' package to type users, tweets, etc?
