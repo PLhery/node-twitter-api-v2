@@ -1,7 +1,14 @@
-import { IncomingHttpHeaders } from 'http';
+import type { IncomingHttpHeaders, IncomingMessage, ClientRequest } from 'http';
 
 export type NumberString = number | string;
 export type BooleanString = boolean | string;
+
+export interface TwitterErrorPayload<T = any> {
+  request: ClientRequest;
+  rawResponse?: IncomingMessage;
+  response?: TwitterResponse<T>;
+  error?: Error;
+}
 
 export interface TwitterApiErrorData {
   errors: {
@@ -54,4 +61,17 @@ export interface AccessTokenResult {
 export interface BearerTokenResult {
   token_type: 'bearer';
   access_token: string;
+}
+
+export enum ETwitterStreamEvent {
+  ConnectionError = 'connection error',
+  ConnectionClosed = 'connection closed',
+  DataKeepAlive = 'data keep-alive',
+  Data = 'data event content',
+  TweetParseError = 'data tweet parse error',
+}
+
+export enum EStreamParserEvent {
+  ParsedData = 'parsed data',
+  ParseError = 'parse error',
 }

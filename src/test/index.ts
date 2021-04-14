@@ -20,12 +20,14 @@ commander
   }
   else if (commander.classic) {
     // OAuth 1.0a
-    const client = new TwitterApi({ 
-      appKey: ENV.CONSUMER_TOKEN!, 
-      appSecret: ENV.CONSUMER_SECRET!, 
+    const client = new TwitterApi({
+      appKey: ENV.CONSUMER_TOKEN!,
+      appSecret: ENV.CONSUMER_SECRET!,
       accessToken: ENV.OAUTH_TOKEN!,
       accessSecret: ENV.OAUTH_SECRET!,
     });
+
+    console.log(client);
 
     console.log(
       await client.get('https://api.twitter.com/1.1/search/tweets.json?q=@alkihis')
@@ -39,7 +41,7 @@ commander
       await client.v1.get('search/tweets.json', { q: 'alkihis' })
     );
 
-    const path = '/Users/alki/Pictures/universe-2742113.jpg';
+    const path = '/Users/alki/Desktop/llolo.gif';
 
     console.log(
       'Upload media (from path)',
@@ -96,7 +98,7 @@ commander
       })
     );
 
-    // Search 
+    // Search
     const nodeJs = await client.search('nodeJS');
     console.log('fetched tweets', nodeJs.tweets.length);
 
@@ -126,18 +128,18 @@ commander
 
 // Test auth 1.0a flow
 function getAuthLink(callback: string) {
-  let requestClient = new TwitterApi({ 
-    appKey: ENV.CONSUMER_TOKEN!, 
-    appSecret: ENV.CONSUMER_SECRET!, 
+  let requestClient = new TwitterApi({
+    appKey: ENV.CONSUMER_TOKEN!,
+    appSecret: ENV.CONSUMER_SECRET!,
   });
 
   return requestClient.generateAuthLink(callback);
 }
 
 function getAccessClient(verifier: string) {
-  let requestClient = new TwitterApi({ 
-    appKey: ENV.CONSUMER_TOKEN!, 
-    appSecret: ENV.CONSUMER_SECRET!, 
+  let requestClient = new TwitterApi({
+    appKey: ENV.CONSUMER_TOKEN!,
+    appSecret: ENV.CONSUMER_SECRET!,
     accessToken: ENV.OAUTH_TOKEN!,
     accessSecret: ENV.OAUTH_SECRET!,
   });
@@ -153,9 +155,9 @@ function getAppClient() {
     return Promise.resolve(requestClient);
   }
   else {
-    requestClient = new TwitterApi({ 
-      appKey: ENV.CONSUMER_TOKEN!, 
-      appSecret: ENV.CONSUMER_SECRET!, 
+    requestClient = new TwitterApi({
+      appKey: ENV.CONSUMER_TOKEN!,
+      appSecret: ENV.CONSUMER_SECRET!,
     });
     return requestClient.appLogin();
   }

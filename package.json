@@ -12,18 +12,20 @@
   "repository": "github:plhery/node-twitter-api",
   "author": "Paul-Louis Hery <paullouis.hery+twitterapi@gmail.com> (https://twitter.com/plhery)",
   "license": "Apache-2.0",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
-    "@types/node": "^14.6.4",
-    "commander": "^6.1.0",
+    "@types/node": "^14.14.37",
+    "commander": "^6.2.1",
     "dotenv": "^8.2.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.2.4"
   },
   "bugs": {
     "url": "https://github.com/plhery/node-twitter-api/issues"
   },
   "dependencies": {
-    "form-data": "^3.0.0",
+    "form-data": "^3.0.1",
     "oauth-1.0a": "^2.2.6"
   }
 }

@@ -1,9 +1,11 @@
-import { request, RequestOptions } from 'https';
+import { request, RequestOptions } from 'http';
 import { URLSearchParams } from 'url';
 import crypto from 'crypto';
 import OAuth from 'oauth-1.0a';
 import FormData from 'form-data';
 import { TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
+import TweetStream from './stream/TweetStream';
+import { RateLimitError, TwitterError } from './errors/request.errors';
 
 /**
  * Base class for Twitter instances
@@ -109,12 +111,7 @@ export default abstract class TwitterApiBase {
     if (prefix)
       url = prefix + url;
 
-    const parameters: Record<string, string> = {};
-    const parsed = new URL(url);
-
-    for (const [item, value] of parsed.searchParams) {
-      parameters[item] = value;
-    }
+    const { parsed, parameters } = this.parseUrl(url);
 
     const resp = await this.send<T>(parsed.origin + parsed.pathname, 'GET', parameters);
     return full_response ? resp : resp.data;
@@ -127,12 +124,7 @@ export default abstract class TwitterApiBase {
     if (prefix)
       url = prefix + url;
 
-    const parameters: Record<string, string> = {};
-    const parsed = new URL(url);
-
-    for (const [item, value] of parsed.searchParams) {
-      parameters[item] = value;
-    }
+    const { parsed, parameters } = this.parseUrl(url);
 
     const resp = await this.send<T>(parsed.origin + parsed.pathname, 'DELETE', parameters);
     return full_response ? resp : resp.data;
@@ -171,6 +163,45 @@ export default abstract class TwitterApiBase {
     return full_response ? resp : resp.data;
   }
 
+  /** Stream request helpers */
+
+  public async getStream(url: string, prefix = this._prefix) : Promise<TweetStream> {
+    if (prefix)
+      url = prefix + url;
+
+    const { parsed, parameters } = this.parseUrl(url);
+    return this.sendStream(parsed.origin + parsed.pathname, 'GET', parameters);
+  }
+
+  public async deleteStream(url: string, prefix = this._prefix) : Promise<TweetStream> {
+    if (prefix)
+      url = prefix + url;
+
+    const { parsed, parameters } = this.parseUrl(url);
+    return this.sendStream(parsed.origin + parsed.pathname, 'DELETE', parameters);
+  }
+
+  public async postStream(url: string, body?: Record<string, any>, prefix = this._prefix) : Promise<TweetStream> {
+    if (prefix)
+      url = prefix + url;
+
+    return this.sendStream(url, 'POST', body);
+  }
+
+  public async putStream(url: string, body?: Record<string, any>, prefix = this._prefix) : Promise<TweetStream> {
+    if (prefix)
+      url = prefix + url;
+
+    return this.sendStream(url, 'PUT', body);
+  }
+
+  public async patchStream(url: string, body?: Record<string, any>, prefix = this._prefix) : Promise<TweetStream> {
+    if (prefix)
+      url = prefix + url;
+
+    return this.sendStream(url, 'PATCH', body);
+  }
+
 
   /* Token helpers */
 
@@ -191,7 +222,7 @@ export default abstract class TwitterApiBase {
   }
 
   protected getOAuthAccessTokens() {
-    if (!this._accessSecret || !this._accessToken)  
+    if (!this._accessSecret || !this._accessToken)
       return;
 
     return {
@@ -203,13 +234,53 @@ export default abstract class TwitterApiBase {
 
   /* Request helpers */
 
+  protected parseUrl(url: string) {
+    const parameters: Record<string, string> = {};
+    const parsed = new URL(url);
+
+    for (const [item, value] of parsed.searchParams) {
+      parameters[item] = value;
+    }
+
+    return { parsed, parameters };
+  }
+
   protected send<T = any>(
-    url: string, 
-    method: string, 
+    url: string,
+    method: string,
     // must be changed for chunked media upload if sent as binary
     parameters: Record<string, any> = {},
-    headers?: Record<string, string>, 
+    headers?: Record<string, string>,
   ) : Promise<TwitterResponse<T>> {
+    const args = this.getHttpRequestArgs(url, method, parameters, headers);
+
+    return this.httpSend(args.url, {
+      method: args.method,
+      headers: args.headers,
+    }, args.body);
+  }
+
+  protected sendStream(
+    url: string,
+    method: string,
+    parameters: Record<string, any> = {},
+    headers?: Record<string, string>,
+  ) : Promise<TweetStream> {
+    const args = this.getHttpRequestArgs(url, method, parameters, headers);
+
+    return this.httpStream(args.url, {
+      method: args.method,
+      headers: args.headers,
+    }, args.body);
+  }
+
+  protected getHttpRequestArgs(
+    url: string,
+    method: string,
+    // must be changed for chunked media upload if sent as binary
+    parameters: Record<string, any> = {},
+    headers?: Record<string, string>,
+  ) {
     let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
@@ -232,7 +303,7 @@ export default abstract class TwitterApiBase {
     }
     else if (this._consumerSecret && this._oauth) {
       const auth = this._oauth.authorize({
-        url, 
+        url,
         method,
         data: isMultipart ? {} : parameters,
       }, this.getOAuthAccessTokens());
@@ -247,22 +318,24 @@ export default abstract class TwitterApiBase {
       url += this.constructGetParams(parameters);
     }
 
-    return this.httpSend<T>(url, {
+    return {
+      url,
       method,
       headers,
-    }, body);
+      body,
+    };
   }
 
   protected autoDetectBodyType(url: string) : 'json' | 'url' | 'form-data' {
     if (url.includes('.twitter.com/2')) {
       // Twitter API v2 always has JSON-encoded requests, right?
       return 'json';
-    } 
+    }
 
     if (url.startsWith('https://upload.twitter.com/1.1/media')) {
       return 'form-data';
     }
-    
+
     const endpoint = url.split('.twitter.com/1.1/', 2)[1];
 
     if (TwitterApiBase.JSON_1_1_ENDPOINTS.has(endpoint)) {
@@ -272,15 +345,15 @@ export default abstract class TwitterApiBase {
   }
 
   protected constructGetParams(parameters: Record<string, string>) {
-    if (Object.keys(parameters).length) 
+    if (Object.keys(parameters).length)
       return '?' + new URLSearchParams(parameters).toString();
 
     return '';
   }
 
   protected constructBodyParams(
-    parameters: Record<string, any>, 
-    headers: Record<string, string>, 
+    parameters: Record<string, any>,
+    headers: Record<string, string>,
     mode: 'json' | 'url' | 'form-data'
   ) {
     if (mode === 'json') {
@@ -290,7 +363,7 @@ export default abstract class TwitterApiBase {
     else if (mode === 'url') {
       headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
-      if (Object.keys(parameters).length) 
+      if (Object.keys(parameters).length)
         return new URLSearchParams(parameters).toString();
 
       return '';
@@ -322,7 +395,7 @@ export default abstract class TwitterApiBase {
       else {
         options.headers['content-length'] = body.length;
       }
-    } 
+    }
 
     const req = request(url, options);
 
@@ -360,13 +433,13 @@ export default abstract class TwitterApiBase {
 
             data = response_form_entries;
           }
-          
+
           // Handle bad error codes
           const code = res.statusCode!;
           if (code >= 400 || (typeof data === 'object' && 'errors' in data)) {
-            reject({ 
-              data, 
-              headers: res.headers, 
+            reject({
+              data,
+              headers: res.headers,
               rateLimit,
               code,
               error: true,
@@ -384,6 +457,79 @@ export default abstract class TwitterApiBase {
       if (body) {
         req.write(body);
       }
+
+      req.end();
+    });
+  }
+
+  protected httpStream(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TweetStream> {
+    if (body) {
+      options.headers = options.headers ?? {};
+
+      if (typeof body === 'string') {
+        const encoder = new TextEncoder();
+        options.headers['content-length'] = encoder.encode(body).length;
+      }
+      else {
+        options.headers['content-length'] = body.length;
+      }
+    }
+
+    const req = request(url, options);
+    let responseAsText = '';
+
+    return new Promise((resolve, reject) => {
+      req.on('error', err => {
+        reject(new TwitterError('Request failed', {
+          request: req,
+          error: err,
+        }));
+      });
+
+      req.on('response', res => {
+        const code = res.statusCode!;
+
+        if (code < 400) {
+          // HTTP code ok, consume stream
+          resolve(new TweetStream(req, res));
+          return;
+        }
+
+        // Consume request and throw error
+
+        let rateLimit: TwitterRateLimit | undefined = undefined;
+        if (res.headers['x-rate-limit-limit']) {
+          rateLimit = {
+            limit: Number(res.headers['x-rate-limit-limit']),
+            remaining: Number(res.headers['x-rate-limit-remaining']),
+            reset: Number(res.headers['x-rate-limit-reset']),
+          };
+        }
+
+        res.on('data', chunk => responseAsText += chunk);
+        res.on('end', () => {
+          let data: any = responseAsText;
+
+          if (responseAsText.length && res.headers['content-type']?.includes('application/json')) {
+            data = JSON.parse(data);
+          }
+
+          // Throw the right errors
+          const tError = code === 420 || code === 429
+            ? RateLimitError
+            : TwitterError;
+
+          reject(new tError('Response error', {
+            request: req,
+            rawResponse: res,
+            response: {
+              data,
+              headers: res.headers,
+              rateLimit,
+            },
+          }));
+        });
+      });
 
       req.end();
     });

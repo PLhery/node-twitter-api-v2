@@ -6,7 +6,6 @@ import {
   FollowersV2Params,
   Tweetv2SearchParams,
   Tweetv2SearchResult,
-  User,
   UserResult,
   UsersResult,
   UsersV2Params
