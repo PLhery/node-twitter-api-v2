@@ -21,3 +21,5 @@ node_modules/
 # IDE
 .idea
 .vscode
+
+*.DS_Store
