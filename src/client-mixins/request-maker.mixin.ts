@@ -327,19 +327,18 @@ class RequestParamHelpers {
   }
 }
 
+type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData };
+type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
-type TStreamResponseResolver = (value: TweetStream) => void;
 type TRequestRejecter = (error: TwitterApiRequestError) => void;
 type TResponseRejecter = (error: TwitterApiError) => void;
 
 export class RequestHandlerHelper<T> {
   protected static readonly FORM_ENCODED_ENDPOINTS = 'https://api.twitter.com/oauth/';
-  protected req: ClientRequest;
+  protected req!: ClientRequest;
   protected responseData = '';
 
-  constructor(protected requestData: TRequestFullData) {
-    this.req = request(requestData.url, requestData.options);
-  }
+  constructor(protected requestData: TRequestFullData) {}
 
   get href() {
     return this.req.host + this.req.path;
@@ -427,13 +426,13 @@ export class RequestHandlerHelper<T> {
     };
   }
 
-  protected registerStreamResponseHandler(resolve: TStreamResponseResolver, reject: TResponseRejecter) {
+  protected registerStreamResponseHandler(resolve: TReadyRequestResolver, reject: TResponseRejecter) {
     return (res: IncomingMessage) => {
       const code = res.statusCode!;
 
       if (code < 400) {
         // HTTP code ok, consume stream
-        resolve(new TweetStream(this.req, res, this.requestData));
+        resolve({ req: this.req, res, requestData: this.requestData });
       }
       else {
         // Handle response normally, can only rejects
@@ -442,7 +441,13 @@ export class RequestHandlerHelper<T> {
     };
   }
 
+  protected buildRequest() {
+    this.req = request(this.requestData.url, this.requestData.options);
+  }
+
   makeRequest() {
+    this.buildRequest();
+
     return new Promise<TwitterResponse<T>>((resolve, reject) => {
       const req = this.req;
 
@@ -459,8 +464,15 @@ export class RequestHandlerHelper<T> {
     });
   }
 
-  makeRequestAsStream() {
-    return new Promise<TweetStream>((resolve, reject) => {
+  async makeRequestAsStream() {
+    const { req, res, requestData } = await this.makeRequestAndResolveWhenReady();
+    return new TweetStream(req, res, requestData);
+  }
+
+  makeRequestAndResolveWhenReady() {
+    this.buildRequest();
+
+    return new Promise<TRequestReadyPayload>((resolve, reject) => {
       const req = this.req;
 
       // Handle request errors
