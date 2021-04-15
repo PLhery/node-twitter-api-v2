@@ -1,9 +1,8 @@
 import TwitterApi from '.';
 import TwitterApiBase from '../client.base';
-import { AccessTokenResult, BearerTokenResult, RequestTokenResult } from '../types';
+import type { AccessTokenResult, BearerTokenResult, RequestTokenResult, Tweetv2SearchParams } from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
-import { Tweetv2SearchParams } from '../v2/types.v2';
 
 /**
  * Twitter v1.1 and v2 API client.

@@ -71,6 +71,8 @@ They caused me some frustration:
 - [x] link auth
 - [x] read/write/DM aware typing
 - [x] get/post methods
+- [x] custom http methods
+- [x] streaming
 - [ ] Twitter API V2 tweets methods
 - [x] Twitter API V2 users methods
 - [ ] Auto pagination
@@ -96,7 +98,7 @@ const manyTweets = await twitterClient.tweets.search('nodeJS').fetchLast(10000);
 // Manage errors
 try {
   const manyTweets = await twitterClient.tweets.search('nodeJS').fetchLast(100000000);
-} catch(e) {
+} catch (e) {
   if (e.errorCode === TwitterErrors.RATE_LIMIT_EXCEEDED) {
     console.log('please try again later!');
   } else {
@@ -104,3 +106,7 @@ try {
   }
 }
 ```
+
+## Streaming
+
+See [Streaming part](./doc/streaming.md).
