@@ -1,6 +1,6 @@
 import { API_V1_1_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
-import { FinalizeMediaResult, InitMediaResult, SendTweetParams, UploadMediaParams } from './types.v1';
+import type { FinalizeMediaV1Result, InitMediaV1Result, SendTweetV1Params, UploadMediaV1Params } from '../types';
 import fs from 'fs';
 
 const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
@@ -22,14 +22,14 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   /**
    * Post a new tweet.
    */
-  public tweet(status: string, payload: Partial<SendTweetParams> = {}) {
+  public tweet(status: string, payload: Partial<SendTweetV1Params> = {}) {
     return this.post('statuses/update.json', { status, ...payload });
   }
 
   /**
    * Reply to an existing tweet.
    */
-  public reply(status: string, in_reply_to_status_id: string, payload: Partial<SendTweetParams> = {}) {
+  public reply(status: string, in_reply_to_status_id: string, payload: Partial<SendTweetV1Params> = {}) {
     return this.tweet(status, {
       auto_populate_reply_metadata: true,
       in_reply_to_status_id,
@@ -44,7 +44,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * A `Buffer` is a raw file. 
    * `fs.promises.FileHandle` or `number` are file pointers.
    * 
-   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif').
+   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif').
    * If filename is given, it could be guessed with file extension, otherwise this parameter is mandatory.
    * If type is not part of the enum, it will be used as mime type.
    * 
@@ -56,9 +56,9 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * 
    * @param options.maxConcurrentUploads Maximum uploaded chunks in the same time. Default goes to 3.
    */
-  public async uploadMedia(file: string | Buffer | fs.promises.FileHandle | number, options: Partial<UploadMediaParams> = {}) {
+  public async uploadMedia(file: string | Buffer | fs.promises.FileHandle | number, options: Partial<UploadMediaV1Params> = {}) {
     let fileSize: number;
-    let fileHandle: fs.promises.FileHandle | number | Buffer;
+    let fileHandle: fs.promises.FileHandle | number | Buffer;
     let mimeType: string;
     let mediaCategory: string;
     const chunkLength = options.chunkLength ?? (1024 * 1024);
@@ -108,7 +108,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
         if (type === 'gif') mimeType = 'image/gif';
         if (type === 'jpg') mimeType = 'image/jpeg';
         if (type === 'png') mimeType = 'image/png';
-        if (type === 'mp4' || type === 'longmp4') mimeType = 'video/mp4';
+        if (type === 'mp4' || type === 'longmp4') mimeType = 'video/mp4';
         else mimeType = type;
       }
       else {
@@ -124,7 +124,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       }
   
       // Finally! We can send INIT message.
-      const mediaData = await this.post<InitMediaResult>(
+      const mediaData = await this.post<InitMediaV1Result>(
         UPLOAD_ENDPOINT,
         {
           command: 'INIT',
@@ -142,7 +142,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
   
       // Finalize media
-      let fullMediaData = await this.post<FinalizeMediaResult>(
+      let fullMediaData = await this.post<FinalizeMediaV1Result>(
         UPLOAD_ENDPOINT,
         {
           command: 'FINALIZE',

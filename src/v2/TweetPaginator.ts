@@ -1,6 +1,6 @@
 import { TwitterRateLimit } from '../types';
 import TwitterApiv2ReadOnly from './client.v2.read';
-import { Tweetv2SearchParams, Tweetv2SearchResult } from './types.v2';
+import type { Tweetv2SearchParams, Tweetv2SearchResult } from '../types';
 
 /**
  * Represents a Twitter search with v2 API.

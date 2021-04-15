@@ -2,7 +2,7 @@ import TwitterApiSubClient from '../client.subclient';
 import { API_V1_1_PREFIX, API_V1_1_STREAM_PREFIX } from '../globals';
 import { arrayWrap } from '../helpers';
 import TwitterApiv1 from '../v1/client.v1';
-import { FilterStreamParams, SampleStreamParams } from './types.v1';
+import type { FilterStreamV1Params, SampleStreamV1Params } from '../types';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -13,20 +13,20 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   /**
    * Correspond to Twitter's stream.twitter.com/statuses/filter.
    */
-  filterByStream(params: Partial<FilterStreamParams> = {}) {
+  filterByStream(params: Partial<FilterStreamV1Params> = {}) {
     const parameters: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(params)) {
       if (key === 'follow') {
-        const follow = value as FilterStreamParams['follow'];
+        const follow = value as FilterStreamV1Params['follow'];
         parameters.follow = arrayWrap(follow).map(item => item.toString()).join(',');
       }
       else if (key === 'track') {
-        const track = value as FilterStreamParams['track'];
+        const track = value as FilterStreamV1Params['track'];
         parameters.track = arrayWrap(track).join(',');
       }
       else if (key === 'locations') {
-        const locations = value as FilterStreamParams['locations'];
+        const locations = value as FilterStreamV1Params['locations'];
         parameters.locations = arrayWrap(locations).map(loc => `${loc.lng},${loc.lat}`).join(',');
       }
       else if (key === 'stall_warnings') {
@@ -44,7 +44,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   /**
    * Correspond to Twitter's stream.twitter.com/statuses/sample.
    */
-   sampleByStream(params: Partial<SampleStreamParams> = {}) {
+   sampleByStream(params: Partial<SampleStreamV1Params> = {}) {
     const parameters: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(params)) {

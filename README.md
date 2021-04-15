@@ -118,9 +118,9 @@ For both V1 and V2 APIs, streaming methods returns a `TwitterStream` object.
 Each event of `TwitterStream` is stored into a TypeScript `enum`.
 
 ```ts
-import { ETwitterStreamEvent, TweetStream } from 'twitter-api-v2';
+import { ETwitterStreamEvent, TweetStream, TwitterApi } from 'twitter-api-v2';
 
-const client = ...; // (create a client)
+const client = new TwitterApi(); // (create a client)
 
 let stream: TweetStream;
 try {

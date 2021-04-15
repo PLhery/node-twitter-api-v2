@@ -1,4 +1,4 @@
-import { TwitterApiError, TwitterRateLimit, TwitterResponse } from '../types';
+import { ETwitterApiError, TwitterApiError, TwitterApiRequestError, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import { URLSearchParams } from 'url';
 import FormData from 'form-data';
@@ -8,7 +8,8 @@ import crypto from 'crypto';
 import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
 
-export type TRequestQuery = Record<string, string | number | undefined>;
+export type TRequestQuery = Record<string, string | number | boolean | undefined>;
+export type TRequestStringQuery = Record<string, string>;
 export type TRequestBody = Record<string, any> | Buffer;
 
 interface IWriteAuthHeadersArgs {
@@ -137,11 +138,12 @@ export abstract class ClientRequestMaker {
     return headers;
   }
 
-  protected getHttpRequestArgs({ url, method, query = {}, body: rawBody = {}, headers }: IGetHttpRequestArgs) {
+  protected getHttpRequestArgs({ url, method, query: rawQuery = {}, body: rawBody = {}, headers }: IGetHttpRequestArgs) {
     let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
 
+    const query = RequestParamHelpers.formatQueryToString(rawQuery);
     url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
 
     // Delete undefined parameters
@@ -199,6 +201,21 @@ class RequestParamHelpers {
     'collections/entries/curate',
   ]);
 
+  static formatQueryToString(query: TRequestQuery) {
+    const formattedQuery: TRequestStringQuery = {};
+
+    for (const prop in query) {
+      if (typeof query[prop] === 'string') {
+        formattedQuery[prop] = query[prop] as string;
+      }
+      else if (typeof query[prop] !== 'undefined') {
+        formattedQuery[prop] = String(query[prop]);
+      }
+    }
+
+    return formattedQuery;
+  }
+
   static autoDetectBodyType(url: string) : 'json' | 'url' | 'form-data' {
     if (url.includes('.twitter.com/2')) {
       // Twitter API v2 always has JSON-encoded requests, right?
@@ -217,9 +234,9 @@ class RequestParamHelpers {
     return 'url';
   }
 
-  static constructGetParams(parameters: TRequestQuery) {
-    if (Object.keys(parameters).length)
-      return '?' + new URLSearchParams(parameters as Record<string, string>).toString();
+  static constructGetParams(query: TRequestQuery) {
+    if (Object.keys(query).length)
+      return '?' + new URLSearchParams(query as Record<string, string>).toString();
 
     return '';
   }
@@ -311,6 +328,7 @@ class RequestParamHelpers {
 
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
 type TStreamResponseResolver = (value: TweetStream) => void;
+type TRequestRejecter = (error: TwitterApiRequestError) => void;
 type TResponseRejecter = (error: TwitterApiError) => void;
 
 class RequestHandlerHelper<T> {
@@ -339,6 +357,19 @@ class RequestHandlerHelper<T> {
     }
 
     return rateLimit;
+  }
+
+  protected registerRequestErrorHandler(reject: TRequestRejecter) {
+    return (requestError: Error) => {
+      reject({
+        type: ETwitterApiError.Request,
+        error: true,
+        raw: {
+          request: this.req,
+        },
+        requestError,
+      });
+    };
   }
 
   protected registerResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
@@ -370,11 +401,16 @@ class RequestHandlerHelper<T> {
         const code = res.statusCode!;
         if (code >= 400 || (typeof data === 'object' && 'errors' in data)) {
           reject({
+            type: ETwitterApiError.Response,
             data,
             headers: res.headers,
             rateLimit,
             code,
             error: true,
+            raw: {
+              request: this.req,
+              response: res,
+            },
           });
         }
 
@@ -407,7 +443,7 @@ class RequestHandlerHelper<T> {
       const req = this.req;
 
       // Handle request errors
-      req.on('error', reject);
+      req.on('error', this.registerRequestErrorHandler(reject));
 
       req.on('response', this.registerResponseHandler(resolve, reject));
 
@@ -424,7 +460,7 @@ class RequestHandlerHelper<T> {
       const req = this.req;
 
       // Handle request errors
-      req.on('error', reject);
+      req.on('error', this.registerRequestErrorHandler(reject));
 
       req.on('response', this.registerStreamResponseHandler(resolve, reject));
 
