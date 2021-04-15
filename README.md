@@ -135,8 +135,8 @@ try {
   else if (e.type === ETwitterApiError.Response) {
     // Thrown if Twitter responds with a bad HTTP status
     console.log(
-      'Twitter didnt accept your request. HTTP code:', 
-      e.code, 
+      'Twitter didnt accept your request. HTTP code:',
+      e.code,
       ', parsed response data:',
       e.data,
     );
@@ -167,6 +167,9 @@ stream.on(
   ETwitterStreamEvent.DataKeepAlive,
   () => console.log('Twitter has a keep-alive packet.'),
 );
+
+// Be sure to close the stream where you don't want to consume data anymore from it
+stream.close();
 ```
 
 ### Specific API v1.1 implementations

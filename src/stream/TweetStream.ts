@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import type { IncomingMessage, ClientRequest } from 'http';
+import { TRequestFullData } from '../client-mixins/request-maker.mixin';
 import { ETwitterStreamEvent } from '../types';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
@@ -9,6 +10,8 @@ export class TweetStream extends EventEmitter {
   constructor(
     protected req: ClientRequest,
     protected res: IncomingMessage,
+    // TODO: Maybe use requestData to implement auto-reconnect on fail?
+    protected requestData: TRequestFullData,
   ) {
     super();
 

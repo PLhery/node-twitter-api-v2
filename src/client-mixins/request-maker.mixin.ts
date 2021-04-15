@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
 
+export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
 export type TRequestQuery = Record<string, string | number | boolean | undefined>;
 export type TRequestStringQuery = Record<string, string>;
 export type TRequestBody = Record<string, any> | Buffer;
@@ -176,8 +177,8 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, body);
     }
 
-    return new RequestHandlerHelper<T>(request(url, options))
-      .makeRequest(body);
+    return new RequestHandlerHelper<T>({ url, options, body })
+      .makeRequest();
   }
 
   protected httpStream(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TweetStream> {
@@ -185,8 +186,8 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, body);
     }
 
-    return new RequestHandlerHelper(request(url, options))
-      .makeRequestAsStream(body);
+    return new RequestHandlerHelper({ url, options, body })
+      .makeRequestAsStream();
   }
 }
 
@@ -331,11 +332,14 @@ type TStreamResponseResolver = (value: TweetStream) => void;
 type TRequestRejecter = (error: TwitterApiRequestError) => void;
 type TResponseRejecter = (error: TwitterApiError) => void;
 
-class RequestHandlerHelper<T> {
+export class RequestHandlerHelper<T> {
   protected static readonly FORM_ENCODED_ENDPOINTS = 'https://api.twitter.com/oauth/';
+  protected req: ClientRequest;
   protected responseData = '';
 
-  constructor(protected req: ClientRequest) {}
+  constructor(protected requestData: TRequestFullData) {
+    this.req = request(requestData.url, requestData.options);
+  }
 
   get href() {
     return this.req.host + this.req.path;
@@ -429,7 +433,7 @@ class RequestHandlerHelper<T> {
 
       if (code < 400) {
         // HTTP code ok, consume stream
-        resolve(new TweetStream(this.req, res));
+        resolve(new TweetStream(this.req, res, this.requestData));
       }
       else {
         // Handle response normally, can only rejects
@@ -438,7 +442,7 @@ class RequestHandlerHelper<T> {
     };
   }
 
-  makeRequest(body?: any) {
+  makeRequest() {
     return new Promise<TwitterResponse<T>>((resolve, reject) => {
       const req = this.req;
 
@@ -447,15 +451,15 @@ class RequestHandlerHelper<T> {
 
       req.on('response', this.registerResponseHandler(resolve, reject));
 
-      if (body) {
-        req.write(body);
+      if (this.requestData.body) {
+        req.write(this.requestData.body);
       }
 
       req.end();
     });
   }
 
-  makeRequestAsStream(body?: any) {
+  makeRequestAsStream() {
     return new Promise<TweetStream>((resolve, reject) => {
       const req = this.req;
 
@@ -464,8 +468,8 @@ class RequestHandlerHelper<T> {
 
       req.on('response', this.registerStreamResponseHandler(resolve, reject));
 
-      if (body) {
-        req.write(body);
+      if (this.requestData.body) {
+        req.write(this.requestData.body);
       }
 
       req.end();

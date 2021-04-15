@@ -112,8 +112,8 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
 
   /* Direct HTTP methods */
 
-  async get<T = any>(url: string, query?: TRequestQuery, args?: TClientRequestArgsDataResponse) : Promise<T>;
-  async get<T = any>(url: string, query?: TRequestQuery, args?: TClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
+  async get<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsDataResponse) : Promise<T>;
+  async get<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
 
   public async get<T = any>(url: string, query: TRequestQuery = {}, { fullResponse, prefix = this._prefix }: TGetClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
     if (prefix)
@@ -128,8 +128,8 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     return fullResponse ? resp : resp.data;
   }
 
-  async delete<T = any>(url: string, query?: TRequestQuery, args?: TClientRequestArgsDataResponse) : Promise<T>;
-  async delete<T = any>(url: string, query?: TRequestQuery, args?: TClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
+  async delete<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsDataResponse) : Promise<T>;
+  async delete<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
 
   public async delete<T = any>(url: string, query: TRequestQuery = {}, { fullResponse, prefix = this._prefix }: TGetClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
     if (prefix)
