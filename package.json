@@ -12,7 +12,9 @@
   "repository": "github:plhery/node-twitter-api",
   "author": "Paul-Louis Hery <paullouis.hery+twitterapi@gmail.com> (https://twitter.com/plhery)",
   "license": "Apache-2.0",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/node": "^14.6.4",
     "commander": "^6.1.0",
