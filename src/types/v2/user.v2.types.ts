@@ -1,6 +1,6 @@
 // Users
-import { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
-import { TweetV2 } from './tweet.v2.types';
+import type { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
+import type { TweetV2 } from './tweet.v2.types';
 
 export interface UsersV2Params {
   expansions: 'pinned_tweet_id';

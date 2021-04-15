@@ -1,4 +1,5 @@
-import { BooleanString, NumberString } from '../shared.types';
+import type { BooleanString, NumberString } from '../shared.types';
+import type fs from 'fs';
 
 export interface SendTweetV1Params {
   status: string;
@@ -16,6 +17,8 @@ export interface SendTweetV1Params {
   fail_dmcommands?: BooleanString;
   card_uri?: string;
 }
+
+export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;
 
 export interface InitMediaV1Result {
   media_id: number;

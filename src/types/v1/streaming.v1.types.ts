@@ -1,4 +1,4 @@
-import { TypeOrArrayOf } from '../shared.types';
+import type { TypeOrArrayOf } from '../shared.types';
 
 /**
  * See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/basic-stream-parameters

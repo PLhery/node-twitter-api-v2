@@ -1,5 +1,5 @@
-import { TwitterResponse } from '../types';
-import { ClientRequest, IncomingMessage } from 'http';
+import type { TwitterResponse } from '../types';
+import type { ClientRequest, IncomingMessage } from 'http';
 
 export type TRequestError = TwitterApiRequestError | TwitterApiError;
 

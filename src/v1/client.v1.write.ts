@@ -1,6 +1,12 @@
 import { API_V1_1_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
-import type { FinalizeMediaV1Result, InitMediaV1Result, SendTweetV1Params, UploadMediaV1Params } from '../types';
+import type {
+  FinalizeMediaV1Result,
+  InitMediaV1Result,
+  SendTweetV1Params,
+  TUploadableMedia,
+  UploadMediaV1Params
+} from '../types';
 import fs from 'fs';
 
 const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
@@ -56,73 +62,13 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * 
    * @param options.maxConcurrentUploads Maximum uploaded chunks in the same time. Default goes to 3.
    */
-  public async uploadMedia(file: string | Buffer | fs.promises.FileHandle | number, options: Partial<UploadMediaV1Params> = {}) {
-    let fileSize: number;
-    let fileHandle: fs.promises.FileHandle | number | Buffer;
-    let mimeType: string;
-    let mediaCategory: string;
+  public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params> = {}) {
     const chunkLength = options.chunkLength ?? (1024 * 1024);
-    const type = options.type;
+
+    const { fileHandle, mediaCategory, fileSize, mimeType } = await this.getUploadMediaRequirements(file, options);
 
     // Get the file handle (if not buffer)
     try {
-      if (typeof file === 'string') {
-        fileHandle = await fs.promises.open(file, 'r');
-      }
-      else if (typeof file === 'number') {
-        fileHandle = file;
-      }
-      else if (typeof file === 'object' && !(file instanceof Buffer)) {
-        fileHandle = file;
-      }
-      else if (!(file instanceof Buffer)) {  
-        throw new Error('Given file is not valid, please check its type.');
-      }
-      else {
-        fileHandle = file;
-      }
-  
-      // Get the file size
-      if (typeof fileHandle === 'number') {
-        const stats = await new Promise((resolve, reject) => {
-          fs.fstat(fileHandle as number, (err, stats) => {
-            if (err) reject(err);
-            resolve(stats);
-          });
-        }) as fs.Stats;
-  
-        fileSize = stats.size;
-      }
-      else if (fileHandle instanceof Buffer) {
-        fileSize = fileHandle.length;
-      }
-      else {
-        fileSize = (await fileHandle.stat()).size;
-      }
-  
-      // Get the mimetype
-      if (typeof file === 'string' && !type) {
-        mimeType = this.getMimeByName(file);
-      }
-      else if (typeof type === 'string') {
-        if (type === 'gif') mimeType = 'image/gif';
-        if (type === 'jpg') mimeType = 'image/jpeg';
-        if (type === 'png') mimeType = 'image/png';
-        if (type === 'mp4' || type === 'longmp4') mimeType = 'video/mp4';
-        else mimeType = type;
-      }
-      else {
-        throw new Error('You must specify type if file is a file handle or Buffer.');
-      }
-  
-      // Get the media category
-      if (type === 'longmp4') {
-        mediaCategory = 'amplify_video';
-      }
-      else {
-        mediaCategory = this.getMediaCategoryByMime(mimeType);
-      }
-  
       // Finally! We can send INIT message.
       const mediaData = await this.post<InitMediaV1Result>(
         UPLOAD_ENDPOINT,
@@ -137,10 +83,10 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           prefix: UPLOAD_PREFIX,
         },
       );
-  
+
       // Upload the media chunk by chunk
       await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
-  
+
       // Finalize media
       let fullMediaData = await this.post<FinalizeMediaV1Result>(
         UPLOAD_ENDPOINT,
@@ -152,12 +98,12 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           prefix: UPLOAD_PREFIX,
         },
       );
-  
+
       // Video is ready, return media_id
       if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
         return fullMediaData.media_id_string;
       }
-  
+
       // Must wait if video is still computed
       while (true) {
         fullMediaData = await this.get(
@@ -170,15 +116,15 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
             prefix: UPLOAD_PREFIX,
           },
         );
-  
+
         if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
           return fullMediaData.media_id_string;
         }
-  
+
         if (fullMediaData.processing_info.state === 'failed') {
           throw new Error('Failed to process the media.');
         }
-  
+
         if (fullMediaData.processing_info.check_after_secs) {
           const secs = fullMediaData.processing_info.check_after_secs;
           // Await for secs seconds
@@ -197,6 +143,81 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       else if (typeof fileHandle! === 'object' && !(fileHandle instanceof Buffer)) {
         fileHandle.close();
       }
+    }
+  }
+
+  protected async getUploadMediaRequirements(file: TUploadableMedia, { type }: Partial<UploadMediaV1Params> = {}) {
+    let fileSize: number;
+    let fileHandle: fs.promises.FileHandle | number | Buffer;
+    let mimeType: string;
+    let mediaCategory: string;
+
+    // Get the file handle (if not buffer)
+    try {
+      if (typeof file === 'string') {
+        fileHandle = await fs.promises.open(file, 'r');
+      } else if (typeof file === 'number') {
+        fileHandle = file;
+      } else if (typeof file === 'object' && !(file instanceof Buffer)) {
+        fileHandle = file;
+      } else if (!(file instanceof Buffer)) {
+        throw new Error('Given file is not valid, please check its type.');
+      } else {
+        fileHandle = file;
+      }
+
+      // Get the file size
+      if (typeof fileHandle === 'number') {
+        const stats = await new Promise((resolve, reject) => {
+          fs.fstat(fileHandle as number, (err, stats) => {
+            if (err) reject(err);
+            resolve(stats);
+          });
+        }) as fs.Stats;
+
+        fileSize = stats.size;
+      } else if (fileHandle instanceof Buffer) {
+        fileSize = fileHandle.length;
+      } else {
+        fileSize = (await fileHandle.stat()).size;
+      }
+
+      // Get the mimetype
+      if (typeof file === 'string' && !type) {
+        mimeType = this.getMimeByName(file);
+      } else if (typeof type === 'string') {
+        if (type === 'gif') mimeType = 'image/gif';
+        if (type === 'jpg') mimeType = 'image/jpeg';
+        if (type === 'png') mimeType = 'image/png';
+        if (type === 'mp4' || type === 'longmp4') mimeType = 'video/mp4';
+        else mimeType = type;
+      } else {
+        throw new Error('You must specify type if file is a file handle or Buffer.');
+      }
+
+      // Get the media category
+      if (type === 'longmp4') {
+        mediaCategory = 'amplify_video';
+      } else {
+        mediaCategory = this.getMediaCategoryByMime(mimeType);
+      }
+
+      return {
+        fileHandle,
+        mediaCategory,
+        fileSize,
+        mimeType,
+      };
+    } catch (e) {
+      // Close file if any
+      if (typeof file === 'number') {
+        fs.close(file, () => {});
+      }
+      else if (typeof fileHandle! === 'object' && !(fileHandle instanceof Buffer)) {
+        fileHandle.close();
+      }
+
+      throw e;
     }
   }
 
