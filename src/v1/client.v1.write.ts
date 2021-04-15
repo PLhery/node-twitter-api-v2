@@ -124,22 +124,34 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       }
   
       // Finally! We can send INIT message.
-      const mediaData = await this.post<InitMediaResult>(UPLOAD_ENDPOINT, {
-        command: 'INIT',
-        total_bytes: fileSize,
-        media_type: mimeType,
-        media_category: mediaCategory,
-        additional_owners: options.additionalOwners,
-      }, false, UPLOAD_PREFIX);
+      const mediaData = await this.post<InitMediaResult>(
+        UPLOAD_ENDPOINT,
+        {
+          command: 'INIT',
+          total_bytes: fileSize,
+          media_type: mimeType,
+          media_category: mediaCategory,
+          additional_owners: options.additionalOwners,
+        },
+        {
+          prefix: UPLOAD_PREFIX,
+        },
+      );
   
       // Upload the media chunk by chunk
       await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
   
       // Finalize media
-      let fullMediaData = await this.post<FinalizeMediaResult>(UPLOAD_ENDPOINT, {
-        command: 'FINALIZE',
-        media_id: mediaData.media_id_string,
-      }, false, UPLOAD_PREFIX);
+      let fullMediaData = await this.post<FinalizeMediaResult>(
+        UPLOAD_ENDPOINT,
+        {
+          command: 'FINALIZE',
+          media_id: mediaData.media_id_string,
+        },
+        {
+          prefix: UPLOAD_PREFIX,
+        },
+      );
   
       // Video is ready, return media_id
       if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
@@ -148,10 +160,16 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   
       // Must wait if video is still computed
       while (true) {
-        fullMediaData = await this.get(UPLOAD_ENDPOINT, {
-          command: 'STATUS',
-          media_id: mediaData.media_id_string,
-        }, false, UPLOAD_PREFIX);
+        fullMediaData = await this.get(
+          UPLOAD_ENDPOINT,
+          {
+            command: 'STATUS',
+            media_id: mediaData.media_id_string,
+          },
+          {
+            prefix: UPLOAD_PREFIX,
+          },
+        );
   
         if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
           return fullMediaData.media_id_string;
@@ -183,7 +201,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   protected async mediaChunkedUpload(
-    fileHandle: Buffer | number | fs.promises.FileHandle, 
+    fileHandle: Buffer | number | fs.promises.FileHandle,
     chunkLength: number, 
     mediaId: string,
     maxConcurrentUploads = 3,
@@ -217,12 +235,16 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
       // Sent part if part has something inside
       if (encoded) {
-        const request = this.post(UPLOAD_ENDPOINT, {
-          command: 'APPEND',
-          media_id: mediaId,
-          segment_index: chunkIndex,
-          media_data: encoded,
-        }, false, UPLOAD_PREFIX);
+        const request = this.post(
+          UPLOAD_ENDPOINT,
+          {
+            command: 'APPEND',
+            media_id: mediaId,
+            segment_index: chunkIndex,
+            media_data: encoded,
+          },
+          { prefix: UPLOAD_PREFIX },
+        );
 
         currentUploads.add(request);
         request.then(() => {
@@ -244,7 +266,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     await Promise.all([...currentUploads]);
   }
 
-  protected async readNextPartOf(file: number | Buffer | fs.promises.FileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {
+  protected async readNextPartOf(file: number | Buffer | fs.promises.FileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {
     if (file instanceof Buffer) {
       const rt = file.slice(bufferOffset, bufferOffset + chunkLength);
       return [rt, rt.length];

@@ -19,7 +19,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   public async search(query: string, options: Partial<Tweetv2SearchParams> = {}) {
     const queryParams = {...options, query};
-    const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/recent', queryParams,true);
+    const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
 
     return new TweetPaginator(initialRq.data, initialRq.rateLimit!, this, queryParams);
   }
@@ -38,7 +38,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public users(userIds: string | string[], options: Partial<UsersV2Params> = {}) {
     const ids = Array.isArray(userIds) ? userIds.join(',') : userIds;
-    return this.get<UsersResult>(`users`, {...options, ids});
+    return this.get<UsersResult>(`users`, { ...options, ids });
   }
 
   /**
@@ -55,7 +55,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public usersByUsernames(usernames: string | string[], options: Partial<UsersV2Params> = {}) {
     usernames = Array.isArray(usernames) ? usernames.join(',') : usernames;
-    return this.get<UsersResult>(`users/by`, {...options, usernames});
+    return this.get<UsersResult>(`users/by`, { ...options, usernames });
   }
 
   /**

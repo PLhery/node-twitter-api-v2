@@ -3,7 +3,6 @@ import commander from 'commander';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import { ETwitterStreamEvent } from '../types';
-import { TwitterError } from '../errors/request.errors';
 
 const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
@@ -156,10 +155,6 @@ commander
 
     const streamv2Filter = await clientBearer.v2.getStream('tweets/sample/stream')
       .catch((err: any) => {
-        if (err instanceof TwitterError) {
-          console.log(err.payload?.response?.data);
-        }
-
         return Promise.reject(err?.stack);
       });
 

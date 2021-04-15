@@ -47,7 +47,7 @@ export default class TweetPaginator {
       ...(maxResults ? { max_results: maxResults } : {})
     };
 
-    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
     return new TweetPaginator(result.data, result.rateLimit!, this._instance, queryParams);
   }
 
@@ -61,7 +61,7 @@ export default class TweetPaginator {
       ...(maxResults ? { max_results: maxResults } : {})
     };
 
-    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
     const result = response.data;
     this._rateLimit = response.rateLimit!;
     this._realData.meta.oldest_id = result.meta.oldest_id;
@@ -88,7 +88,7 @@ export default class TweetPaginator {
 
     // Break at rate limit limit
     while (resultCount < count && this._isRateLimitOk) {
-      const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+      const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
       const result = response.data;
 
       this._rateLimit = response.rateLimit!;
@@ -115,7 +115,7 @@ export default class TweetPaginator {
       sinceId: this._realData.meta.newest_id,
     };
 
-    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+    const result = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
     return new TweetPaginator(result.data, result.rateLimit!, this._instance, queryParams);
   }
 
@@ -128,7 +128,7 @@ export default class TweetPaginator {
       sinceId: this._realData.meta.newest_id,
     };
 
-    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, true);
+    const response = await this._instance.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
     const result = response.data;
     this._rateLimit = response.rateLimit!;
     this._realData.meta.newest_id = result.meta.newest_id;
