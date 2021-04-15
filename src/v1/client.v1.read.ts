@@ -11,26 +11,20 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
 
   /**
-   * Correspond to Twitter's stream.twitter.com/statuses/filter.
+   * Returns public statuses that match one or more filter predicates.
+   * Multiple parameters may be specified which allows most clients to use a single connection to the Streaming API.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
    */
-  filterByStream(params: Partial<FilterStreamV1Params> = {}) {
+  filterStream(params: Partial<FilterStreamV1Params> = {}) {
     const parameters: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(params)) {
-      if (key === 'follow') {
-        const follow = value as FilterStreamV1Params['follow'];
-        parameters.follow = arrayWrap(follow).map(item => item.toString()).join(',');
-      }
-      else if (key === 'track') {
-        const track = value as FilterStreamV1Params['track'];
-        parameters.track = arrayWrap(track).join(',');
+      if (key === 'follow' || key === 'track') {
+        parameters[key] = value.toString();
       }
       else if (key === 'locations') {
         const locations = value as FilterStreamV1Params['locations'];
         parameters.locations = arrayWrap(locations).map(loc => `${loc.lng},${loc.lat}`).join(',');
-      }
-      else if (key === 'stall_warnings') {
-        parameters.stall_warnings = String(value);
       }
       else {
         parameters[key] = value;
@@ -42,22 +36,13 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * Correspond to Twitter's stream.twitter.com/statuses/sample.
+   * Returns a small random sample of all public statuses.
+   * The Tweets returned by the default access level are the same, so if two different clients connect to this endpoint, they will see the same Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
    */
-   sampleByStream(params: Partial<SampleStreamV1Params> = {}) {
-    const parameters: Record<string, string> = {};
-
-    for (const [key, value] of Object.entries(params)) {
-      if (key === 'stall_warnings') {
-        parameters.stall_warnings = String(value);
-      }
-      else {
-        parameters[key] = value;
-      }
-    }
-
+  sampleStream(params: Partial<SampleStreamV1Params> = {}) {
     const streamClient = this.stream;
-    return streamClient.getStream('statuses/sample.json', parameters);
+    return streamClient.getStream('statuses/sample.json', params);
   }
 
   /**

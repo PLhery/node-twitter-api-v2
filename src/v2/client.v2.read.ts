@@ -86,6 +86,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
 
   /* Streaming API */
+
   /**
    * Streams Tweets in real-time based on a specific set of filter rules.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
@@ -103,16 +104,10 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * Streams Tweets in real-time based on a specific set of filter rules.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
+   * Streams about 1% of all Tweets in real-time.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
    */
-  public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
-  public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
-  public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
-    return this.post<StreamingV2UpdateRulesResult>(
-      'tweets/search/stream/rules',
-      options,
-      { query },
-    );
+  public sampleStream(options: Partial<Tweetv2FieldsParams> = {}) {
+    return this.getStream('tweets/sample/stream', options);
   }
 }

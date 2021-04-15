@@ -1,8 +1,7 @@
-import TwitterApi from '..';
+import { TwitterApi, ETwitterStreamEvent } from '..';
 import commander from 'commander';
 import dotenv from 'dotenv';
 import fs from 'fs';
-import { ETwitterStreamEvent } from '../types';
 
 const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
