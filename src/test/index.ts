@@ -128,7 +128,7 @@ commander
       accessSecret: ENV.OAUTH_SECRET!,
     });
 
-    const streamv1Filter = await clientOauth.v1.filterByStream({ track: 'gens' });
+    const streamv1Filter = await clientOauth.v1.filterStream({ track: 'gens' });
 
     await new Promise<void>((resolve, reject) => {
       let numberOfTweets = 0;

@@ -10,6 +10,8 @@ import type { FilterStreamV1Params, SampleStreamV1Params } from '../types';
 export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
 
+  /* Streaming API */
+
   /**
    * Returns public statuses that match one or more filter predicates.
    * Multiple parameters may be specified which allows most clients to use a single connection to the Streaming API.

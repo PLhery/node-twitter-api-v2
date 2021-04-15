@@ -113,25 +113,33 @@ This lib supports streaming for v1 and v2 API.
 
 ### Using streaming
 
-For both V1 and V2 APIs, streaming methods returns a `TwitterStream` object.
+For both V1 and V2 APIs, streaming methods returns a `TweetStream` object.
 
-Each event of `TwitterStream` is stored into a TypeScript `enum`.
+Each event of `TweetStream` is stored into a TypeScript `enum`.
 
 ```ts
-import { ETwitterStreamEvent, TweetStream, TwitterApi } from 'twitter-api-v2';
+import { ETwitterStreamEvent, TweetStream, TwitterApi, ETwitterApiError } from 'twitter-api-v2';
 
 const client = new TwitterApi(); // (create a client)
 
 let stream: TweetStream;
 try {
   // For example, can be any stream function
-  stream = await client.v1.sampleByStream();
+  stream = await client.v1.sampleStream();
 } catch (e) {
-  // Thrown if connection to Twitter couln't be etablished.
-  if (e instanceof TwitterError && e.payload) {
-    // See TwitterErrorPayload interface.
-    const { request, rawResponse, response } = e.payload;
-    console.log(response?.data);
+  // e is either a TwitterApiRequestError or a TwitterApiError
+  if (e.type === ETwitterApiError.Request) {
+    // Thrown if request fails (network error).
+    console.log('Request failed.', e.requestError);
+  }
+  else if (e.type === ETwitterApiError.Response) {
+    // Thrown if Twitter responds with a bad HTTP status
+    console.log(
+      'Twitter didnt accept your request. HTTP code:', 
+      e.code, 
+      ', parsed response data:',
+      e.data,
+    );
   }
 }
 
@@ -161,18 +169,22 @@ stream.on(
 );
 ```
 
-### Using API v1.1
+### Specific API v1.1 implementations
+
+API v1.1 streaming-related endpoints works only with classic OAuth1.0a authentification.
 
 #### Filter endpoint
 
-Method: **`v1.filterByStream`**.
+Method: **`v1.filterStream`**.
 
 Endpoint: `statuses/filter.json`.
+
+Level: **Read-only**.
 
 ```ts
 const client = ...; // (create a OAuth 1.0a client)
 
-const streamFilter = await client.v1.filterByStream({
+const streamFilter = await client.v1.filterStream({
   // See FilterStreamParams interface.
   track: 'JavaScript',
   follow: [1842984n, '1850485928354'],
@@ -183,21 +195,104 @@ const streamFilter = await client.v1.filterByStream({
 
 #### Sample endpoint
 
-Method: **`v1.sampleByStream`**.
+Method: **`v1.sampleStream`**.
 
 Endpoint: `statuses/sample.json`.
+
+Level: **Read-only**.
 
 ```ts
 const client = ...; // (create a OAuth 1.0a client)
 
-const streamFilter = await client.v1.sampleByStream();
+const stream = await client.v1.sampleStream();
 
 // Event data will be tweets of v1 API.
 ```
 
-### API v2
+### Specific API v2 implementations
 
-API v2 does not have specific method for its endpoints for now. Please see next part - how to make a custom request.
+API v2 streaming-related endpoints works only with Bearer OAuth2 authentification.
+
+#### Search endpoint
+
+Method: **`v2.searchStream`**.
+
+Endpoint: `tweets/search/stream`.
+
+Level: **Read-only**.
+
+```ts
+const client = ...; // (create a Bearer OAuth2 client)
+
+const stream = await client.v2.searchStream();
+
+// Event data will be tweets of v2 API.
+```
+
+#### Search endpoint - Get applied rules
+
+Method: **`v2.streamRules`**.
+
+Endpoint: `tweets/search/stream/rules (GET)`.
+
+Level: **Read-only**.
+
+Returns: **`StreamingV2GetRulesResult`**.
+
+```ts
+const client = ...; // (create a Bearer OAuth2 client)
+
+const rules = await client.v2.streamRules();
+
+// Log every rule ID
+console.log(rules.data.map(rule => rule.id));
+```
+
+#### Search endpoint - Add or delete rules
+
+Method: **`v2.updateStreamRules`**.
+
+Endpoint: `tweets/search/stream/rules (POST)`.
+
+Level: **Read-write**.
+
+Takes: **`StreamingV2UpdateRulesParams`**.
+Returns: **`StreamingV2UpdateRulesResult`**.
+
+```ts
+const client = ...; // (create a Bearer OAuth2 client)
+
+// Add rules
+const addedRules = await client.v2.updateStreamRules({
+  add: [
+    { value: 'JavaScript', tag: 'js' },
+    { value: 'TypeScript', tag: 'ts' },
+  ],
+});
+
+// Delete rules
+const deleteRules = await client.v2.updateStreamRules({
+  delete: {
+    ids: ['281646', '1534843'],
+  },
+});
+```
+
+#### Sample endpoint
+
+Method: **`v2.sampleStream`**.
+
+Endpoint: `tweets/sample/stream`.
+
+Level: **Read-only**.
+
+```ts
+const client = ...; // (create a Bearer OAuth2 client)
+
+const stream = await client.v2.sampleStream();
+
+// Event data will be tweets of v2 API.
+```
 
 ### Make a custom request
 
@@ -212,7 +307,7 @@ or using raw request handler:
 - `sendStream()`
 
 NOTE: **Be careful to select the good API prefix for version 1.1. 1.1 does not use the same URL for classic endpoints and streaming endpoints**.
-You can access quicky to a instance with the streaming prefix using `v1.stream`.
+You can access quicky to an instance with the streaming prefix using `v1.stream`.
 
 ```ts
 // For v1
