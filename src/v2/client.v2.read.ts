@@ -10,15 +10,8 @@ import type {
   UserV2Result,
   UsersV2Result,
   UsersV2Params,
-  StreamingV2AddRulesParams,
-  StreamingV2DeleteRulesParams,
   StreamingV2GetRulesParams,
   StreamingV2GetRulesResult,
-  StreamingV2UpdateRulesAddResult,
-  StreamingV2UpdateRulesDeleteResult,
-  StreamingV2UpdateRulesParams,
-  StreamingV2UpdateRulesQuery,
-  StreamingV2UpdateRulesResult,
 } from '../types';
 
 /**
