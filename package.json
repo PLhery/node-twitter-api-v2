@@ -1,6 +1,6 @@
 {
   "name": "twitter-api-v2",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Twitter api v1 and v2 client for node",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,3 +1,9 @@
+0.4.0
+-----
+- Add V1 and V2 streaming V2 endpoints
+- Add V2 followers and following endpoints
+- Refactor / various fixes
+
 0.3.0
 -----
 - Add the four API v2 user endpoints
