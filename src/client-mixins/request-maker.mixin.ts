@@ -9,7 +9,7 @@ import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
 
 export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
-export type TRequestQuery = Record<string, string | number | boolean | undefined>;
+export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
 export type TRequestStringQuery = Record<string, string>;
 export type TRequestBody = Record<string, any> | Buffer;
 

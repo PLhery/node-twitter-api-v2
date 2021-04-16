@@ -73,6 +73,8 @@ Method: **`v1.filterStream`**.
 
 Endpoint: `statuses/filter.json`.
 
+Reference: https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
+
 Level: **Read-only**.
 
 ```ts
@@ -92,6 +94,8 @@ const streamFilter = await client.v1.filterStream({
 Method: **`v1.sampleStream`**.
 
 Endpoint: `statuses/sample.json`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
 
 Level: **Read-only**.
 
@@ -113,6 +117,8 @@ Method: **`v2.searchStream`**.
 
 Endpoint: `tweets/search/stream`.
 
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
+
 Level: **Read-only**.
 
 ```ts
@@ -128,6 +134,8 @@ const stream = await client.v2.searchStream();
 Method: **`v2.streamRules`**.
 
 Endpoint: `tweets/search/stream/rules (GET)`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
 
 Level: **Read-only**.
 
@@ -147,6 +155,8 @@ console.log(rules.data.map(rule => rule.id));
 Method: **`v2.updateStreamRules`**.
 
 Endpoint: `tweets/search/stream/rules (POST)`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
 
 Level: **Read-write**.
 
@@ -177,6 +187,8 @@ const deleteRules = await client.v2.updateStreamRules({
 Method: **`v2.sampleStream`**.
 
 Endpoint: `tweets/sample/stream`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
 
 Level: **Read-only**.
 

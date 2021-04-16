@@ -47,13 +47,45 @@ describe('Tweets endpoints for v2 API', () => {
 
     // Test if iterator correctly fetch tweets (silent)
     let i = 0;
-    for await (const _ of nodeJs) {
+    const ids = [];
+
+    for await (const tweet of nodeJs) {
+      ids.push(tweet.id);
       if (i > 1000) {
         break;
       }
 
       i++;
     }
+
+    // Check for duplicates
+    expect(ids).to.have.length(new Set(ids).size);
+  }).timeout(60 * 1000);
+
+  it('Fetch user timeline and consume 600 tweets', async () => {
+    const jackTimeline = await client.v2.userTimeline('12');
+
+    const originalLength = jackTimeline.tweets.length;
+    expect(jackTimeline.tweets.length).to.be.greaterThan(0);
+
+    await jackTimeline.fetchNext();
+    expect(jackTimeline.tweets.length).to.be.greaterThan(originalLength);
+
+    // Test if iterator correctly fetch tweets (silent)
+    let i = 0;
+    const ids = [];
+
+    for await (const tweet of jackTimeline) {
+      ids.push(tweet.id);
+      if (i > 600) {
+        break;
+      }
+
+      i++;
+    }
+
+    // Check for duplicates
+    expect(ids).to.have.length(new Set(ids).size);
   }).timeout(60 * 1000);
 });
 

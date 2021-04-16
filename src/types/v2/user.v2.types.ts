@@ -1,6 +1,9 @@
 // Users
 import type { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
-import type { TweetV2 } from './tweet.v2.types';
+import { TweetV2 } from './tweet.definition.v2';
+import { DataAndIncludeV2, DataAndMetaV2, DataV2 } from './shared.v2.types';
+
+// - Params -
 
 export interface UsersV2Params {
   expansions: 'pinned_tweet_id';
@@ -15,6 +18,32 @@ export interface FollowersV2Params {
   'tweet.fields': string;
   'user.fields': string;
 }
+
+// - Results -
+
+export type UserV2Result = DataAndIncludeV2<UserV2, { tweets?: TweetV2[] }>;
+export type UsersV2Result = DataAndIncludeV2<UserV2[], { tweets?: TweetV2[] }>;
+
+export type FollowersV2Result = DataAndMetaV2<UserV2[], {
+  result_count: number;
+  previous_token?: string;
+  next_token?: string;
+}>;
+
+export type UserV2FollowResult = DataV2<{
+  following: boolean;
+  pending_follow: boolean;
+}>;
+
+export type UserV2UnfollowResult = DataV2<{
+  following: boolean;
+}>;
+
+export type UserV2BlockResult = DataV2<{
+  blocking: boolean;
+}>;
+
+// - Entities -
 
 export interface UserV2 {
   id: string;
@@ -47,27 +76,4 @@ export interface UserV2 {
     listed_count?: number;
   },
   pinned_tweet_id?: string;
-}
-
-export interface UserV2Result {
-  data: UserV2;
-  includes?: {
-    tweets: TweetV2[]; // pinned tweet
-  }
-}
-
-export interface UsersV2Result {
-  data: UserV2[]
-  includes?: {
-    tweets: TweetV2[]; // pinned tweets
-  }
-}
-
-export interface FollowersV2Result {
-  data: UserV2[];
-  meta: {
-    result_count: number;
-    previous_token?: string;
-    next_token?: string;
-  }
 }

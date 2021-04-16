@@ -85,6 +85,13 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     this._prefix = prefix;
   }
 
+  public cloneWithPrefix(prefix: string): this {
+    const clone = (this.constructor as any)(this);
+    (clone as TwitterApiBase).setPrefix(prefix);
+
+    return clone;
+  }
+
   public getActiveTokens() {
     if (this._bearerToken) {
       return {
@@ -115,7 +122,11 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   async get<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsDataResponse) : Promise<T>;
   async get<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
 
-  public async get<T = any>(url: string, query: TRequestQuery = {}, { fullResponse, prefix = this._prefix }: TGetClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
+  public async get<T = any>(
+    url: string,
+    query: TRequestQuery = {},
+    { fullResponse, prefix = this._prefix, ...rest }: TGetClientRequestArgs = {},
+  ) : Promise<T | TwitterResponse<T>> {
     if (prefix)
       url = prefix + url;
 
@@ -123,6 +134,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       url,
       method: 'GET',
       query,
+      ...rest,
     });
 
     return fullResponse ? resp : resp.data;
@@ -131,7 +143,11 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   async delete<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsDataResponse) : Promise<T>;
   async delete<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
 
-  public async delete<T = any>(url: string, query: TRequestQuery = {}, { fullResponse, prefix = this._prefix }: TGetClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
+  public async delete<T = any>(
+    url: string,
+    query: TRequestQuery = {},
+    { fullResponse, prefix = this._prefix, ...rest }: TGetClientRequestArgs = {},
+  ) : Promise<T | TwitterResponse<T>> {
     if (prefix)
       url = prefix + url;
 
@@ -139,6 +155,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       url,
       method: 'DELETE',
       query,
+      ...rest
     });
 
     return fullResponse ? resp : resp.data;

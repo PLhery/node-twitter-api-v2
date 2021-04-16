@@ -1,5 +1,50 @@
 import type { BooleanString, NumberString } from '../shared.types';
 import type fs from 'fs';
+import { UserV1 } from './user.v1.types';
+import { CoordinateV1, PlaceV1, TweetEntitiesV1, TweetExtendedEntitiesV1 } from './entities.v1.types';
+
+// - Entity -
+
+export interface TweetV1 {
+  created_at: string;
+  id: number;
+  id_str: string;
+  text: string;
+  source: string;
+  truncated: boolean;
+  in_reply_to_status_id: number | null;
+  in_reply_to_status_id_str: string | null;
+  in_reply_to_user_id: number | null;
+  in_reply_to_user_id_str: string | null;
+  in_reply_to_screen_name: string | null;
+  user: UserV1;
+  coordinates: CoordinateV1 | null;
+  place: PlaceV1 | null;
+  quoted_status_id: number;
+  quoted_status_id_str: string;
+  is_quote_status: boolean;
+  quoted_status?: TweetV1;
+  retweeted_status?: TweetV1;
+  quote_count?: number;
+  reply_count?: number;
+  retweet_count: number;
+  favorite_count: number;
+  entities: TweetEntitiesV1;
+  extended_entities: TweetExtendedEntitiesV1;
+  favorited: boolean | null;
+  retweeted: boolean;
+  possibly_sensitive: boolean | null;
+  filter_level: 'none' | 'low' | 'medium' | 'high';
+  lang: string;
+
+  // Additionnal attributes
+  current_user_retweet?: { id: number, id_str: string };
+  withheld_copyright?: boolean;
+  withheld_in_countries?: string[];
+  withheld_scope?: string;
+}
+
+// - Params -
 
 export interface SendTweetV1Params {
   status: string;
@@ -18,7 +63,16 @@ export interface SendTweetV1Params {
   card_uri?: string;
 }
 
+export interface UploadMediaV1Params {
+  type: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string;
+  chunkLength: number;
+  additionalOwners: string;
+  maxConcurrentUploads: number;
+}
+
 export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;
+
+// - Results -
 
 export interface InitMediaV1Result {
   media_id: number;
@@ -47,9 +101,4 @@ export interface FinalizeMediaV1Result {
   };
 }
 
-export interface UploadMediaV1Params {
-  type: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string;
-  chunkLength: number;
-  additionalOwners: string;
-  maxConcurrentUploads: number;
-}
+

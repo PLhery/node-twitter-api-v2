@@ -4,7 +4,7 @@
 
 // -- Get stream rules --
 
-import { DataAndMeta, Meta, SentMeta } from './shared.v2.types';
+import { DataAndMetaV2, MetaV2, SentMeta } from './shared.v2.types';
 
 export interface StreamingV2GetRulesParams {
   /** Comma-separated list of rule IDs. If omitted, all rules are returned. */
@@ -20,10 +20,7 @@ export interface StreamingV2Rule {
   tag?: string;
 }
 
-export interface StreamingV2GetRulesResult {
-  data: StreamingV2Rule[];
-  meta: SentMeta;
-}
+export type StreamingV2GetRulesResult = DataAndMetaV2<StreamingV2Rule[], SentMeta>;
 
 // -- Add / delete stream rules --
 
@@ -65,7 +62,7 @@ export interface StreamingV2UpdateRulesQuery {
   dry_run: boolean;
 }
 
-export type StreamingV2UpdateRulesAddResult = DataAndMeta<StreamingV2Rule, {
+export type StreamingV2UpdateRulesAddResult = DataAndMetaV2<StreamingV2Rule[], {
   /** The time when the request body was returned. */
   sent: string;
   summary: {
@@ -74,7 +71,7 @@ export type StreamingV2UpdateRulesAddResult = DataAndMeta<StreamingV2Rule, {
   };
 }>;
 
-export type StreamingV2UpdateRulesDeleteResult = Meta<SentMeta & {
+export type StreamingV2UpdateRulesDeleteResult = MetaV2<SentMeta & {
   summary: {
     deleted: number;
     not_deleted: number;

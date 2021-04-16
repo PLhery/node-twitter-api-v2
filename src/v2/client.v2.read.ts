@@ -1,31 +1,129 @@
 import TwitterApiSubClient from '../client.subclient';
-import { API_V2_PREFIX } from '../globals';
-import TweetPaginator from './TweetPaginator';
+import { API_V2_LABS_PREFIX, API_V2_PREFIX } from '../globals';
 import type {
-  FollowersV2Result,
-  FollowersV2Params,
-  Tweetv2FieldsParams,
-  Tweetv2SearchParams,
-  Tweetv2SearchResult,
-  UserV2Result,
-  UsersV2Result,
-  UsersV2Params,
-  StreamingV2GetRulesParams,
-  StreamingV2GetRulesResult,
+  FollowersV2Result, FollowersV2Params, Tweetv2FieldsParams,
+  Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
+  UsersV2Result, UsersV2Params, StreamingV2GetRulesParams,
+  StreamingV2GetRulesResult, TweetV2LookupResult,
+  TweetV2LookupParams, TweetV2UserTimelineParams,
+  TweetV2UserTimelineResult,
 } from '../types';
+import {
+  TweetSearchAllV2Paginator,
+  TweetSearchRecentV2Paginator,
+  TweetUserMentionTimelineV2Paginator,
+  TweetUserTimelineV2Paginator,
+} from '../paginators';
+import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 
 /**
  * Base Twitter v2 client with only read right.
  */
 export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V2_PREFIX;
+  protected _labs?: TwitterApiv2LabsReadOnly;
 
+  /* Sub-clients */
+
+  /**
+   * Get a client for v2 labs endpoints.
+   */
+  public get labs() {
+    if (this._labs) return this._labs;
+
+    return this._labs = new TwitterApiv2LabsReadOnly(this);
+  }
+
+  /* Tweets */
+
+  /**
+   * The recent search endpoint returns Tweets from the last seven days that match a search query.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
+   */
   public async search(query: string, options: Partial<Tweetv2SearchParams> = {}) {
     const queryParams = {...options, query};
     const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
 
-    return new TweetPaginator(initialRq.data, initialRq.rateLimit!, this, queryParams);
+    return new TweetSearchRecentV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
   }
+
+  /**
+   * The full-archive search endpoint returns the complete history of public Tweets matching a search query;
+   * since the first Tweet was created March 26, 2006.
+   *
+   * This endpoint is only available to those users who have been approved for the Academic Research product track.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
+   */
+  public async searchAll(query: string, options: Partial<Tweetv2SearchParams> = {}) {
+    const queryParams = {...options, query};
+    const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/all', queryParams, { fullResponse: true });
+
+    return new TweetSearchAllV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns a variety of information about a single Tweet specified by the requested ID.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
+   */
+  public singleTweet(tweetId: string, options: Partial<Tweetv2FieldsParams> = {}) {
+    return this.get<TweetV2LookupResult>(`tweets/${tweetId}`, options);
+  }
+
+  /**
+   * Returns a variety of information about tweets specified by list of IDs.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+   */
+  public tweets(tweetIds: string | string[], options: Partial<TweetV2LookupParams> = {}) {
+    return this.get<TweetV2LookupResult>('tweets', { ids: tweetIds, ...options });
+  }
+
+  /**
+   * Returns Tweets composed by a single user, specified by the requested user ID.
+   * By default, the most recent ten Tweets are returned per request.
+   * Using pagination, the most recent 3,200 Tweets can be retrieved.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
+   */
+  public async userTimeline(userId: string, options: Partial<TweetV2UserTimelineParams> = {}) {
+    const initialRq = await this.get<TweetV2UserTimelineResult>(`users/${userId}/tweets`, options, { fullResponse: true });
+
+    return new TweetUserTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { userId },
+    });
+  }
+
+  /**
+   * Returns Tweets mentioning a single user specified by the requested user ID.
+   * By default, the most recent ten Tweets are returned per request.
+   * Using pagination, up to the most recent 800 Tweets can be retrieved.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions
+   */
+  public async userMentionTimeline(userId: string, options: Partial<TweetV2UserTimelineParams> = {}) {
+    const initialRq = await this.get<TweetV2UserTimelineResult>(`users/${userId}/mentions`, options, { fullResponse: true });
+
+    return new TweetUserMentionTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { userId },
+    });
+  }
+
+  /* Users */
 
   /**
    * Returns a variety of information about a single user specified by the requested ID.
@@ -76,7 +174,6 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   public following(userId: string, options: Partial<FollowersV2Params> = {}) {
     return this.get<FollowersV2Result>(`users/${userId}/following`, options);
   }
-
 
   /* Streaming API */
 

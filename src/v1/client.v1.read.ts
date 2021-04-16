@@ -2,13 +2,25 @@ import TwitterApiSubClient from '../client.subclient';
 import { API_V1_1_PREFIX, API_V1_1_STREAM_PREFIX } from '../globals';
 import { arrayWrap } from '../helpers';
 import TwitterApiv1 from '../v1/client.v1';
-import type { FilterStreamV1Params, SampleStreamV1Params } from '../types';
+import type { FilterStreamV1Params, SampleStreamV1Params, UserV1, VerifyCredentialsV1Params } from '../types';
 
 /**
  * Base Twitter v1 client with only read right.
  */
 export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
+
+  /* Users */
+
+  /**
+   * Returns an HTTP 200 OK response code and a representation of the requesting user if authentication was successful;
+   * returns a 401 status code and an error message if not.
+   * Use this method to test if supplied user credentials are valid.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-verify_credentials
+   */
+  public verifyCredentials(options: Partial<VerifyCredentialsV1Params> = {}) {
+    return this.get<UserV1>('account/verify_credentials', options);
+  }
 
   /* Streaming API */
 
@@ -17,7 +29,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * Multiple parameters may be specified which allows most clients to use a single connection to the Streaming API.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
    */
-  filterStream(params: Partial<FilterStreamV1Params> = {}) {
+  public filterStream(params: Partial<FilterStreamV1Params> = {}) {
     const parameters: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(params)) {
@@ -42,7 +54,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * The Tweets returned by the default access level are the same, so if two different clients connect to this endpoint, they will see the same Tweets.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
    */
-  sampleStream(params: Partial<SampleStreamV1Params> = {}) {
+  public sampleStream(params: Partial<SampleStreamV1Params> = {}) {
     const streamClient = this.stream;
     return streamClient.getStream('statuses/sample.json', params);
   }

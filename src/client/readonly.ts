@@ -3,6 +3,7 @@ import TwitterApiBase from '../client.base';
 import type { AccessTokenResult, BearerTokenResult, RequestTokenResult, Tweetv2SearchParams } from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
+import { UserV1 } from '../types';
 
 /**
  * Twitter v1.1 and v2 API client.
@@ -10,6 +11,7 @@ import TwitterApiv2ReadOnly from '../v2/client.v2.read';
 export default class TwitterApiReadOnly extends TwitterApiBase {
   protected _v1?: TwitterApiv1ReadOnly;
   protected _v2?: TwitterApiv2ReadOnly;
+  protected _currentUser?: UserV1;
 
   /* Direct access to subclients */
   public get v1() {
@@ -22,6 +24,21 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     if (this._v2) return this._v2;
     
     return this._v2 = new TwitterApiv2ReadOnly(this);
+  }
+
+  /**
+   * Fetch and cache current user.
+   * This method can only be called with a OAuth 1.0a user authentification.
+   *
+   * You can use this method to test if authentification was successful.
+   * Next calls to this methods will use the cached user, unless `forceFetch: true` is given.
+   */
+  public async currentUser(forceFetch = false) {
+    if (!forceFetch && this._currentUser) {
+      return this._currentUser;
+    }
+
+    return this._currentUser = await this.v1.verifyCredentials();
   }
 
 
@@ -46,7 +63,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * // Save tokenRequest.oauth_token_secret somewhere, it will be needed for next auth step.
    * ```
    */
-  public async generateAuthLink(oauth_callback = 'oob', x_auth_access_type?: 'read' | 'write') {
+  public async generateAuthLink(oauth_callback = 'oob', x_auth_access_type?: 'read' | 'write') {
     const oauth_result = await this.post<RequestTokenResult>(
       'https://api.twitter.com/oauth/request_token',
       { oauth_callback, x_auth_access_type }
