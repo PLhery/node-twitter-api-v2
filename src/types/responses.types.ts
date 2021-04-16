@@ -1,30 +1,4 @@
-import { IncomingHttpHeaders } from 'http';
-
-export type NumberString = number | string;
-export type BooleanString = boolean | string;
-
-export interface TwitterApiErrorData {
-  errors: {
-    message: string;
-    [name: string]: any;
-  }[];
-  title?: string;
-  detail?: string;
-  type?: string;
-}
-
-export interface TwitterApiError extends TwitterResponse<TwitterApiErrorData> {
-  error: true;
-  /** HTTP status code */
-  code: number;
-}
-
-export interface TwitterApiTokens {
-  appKey: string;
-  appSecret: string;
-  accessToken?: string;
-  accessSecret?: string;
-}
+import type { IncomingHttpHeaders } from 'http';
 
 export interface TwitterResponse<T> {
   headers: IncomingHttpHeaders;

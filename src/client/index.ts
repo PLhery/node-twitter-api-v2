@@ -8,7 +8,7 @@ import TwitterApiReadWrite from './readwrite';
 /**
  * Twitter v1.1 and v2 API client.
  */
-export default class TwitterApi extends TwitterApiReadWrite {
+export class TwitterApi extends TwitterApiReadWrite {
   protected _v1?: TwitterApiv1;
   protected _v2?: TwitterApiv2;
 
@@ -43,3 +43,5 @@ export default class TwitterApi extends TwitterApiReadWrite {
     return (error as TwitterApiError).data.errors ?? [];
   }
 }
+
+export default TwitterApi;

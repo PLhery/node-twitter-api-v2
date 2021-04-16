@@ -1,6 +1,7 @@
-import { BooleanString, NumberString } from '../types';
+import type { BooleanString, NumberString } from '../shared.types';
+import type fs from 'fs';
 
-export interface SendTweetParams {
+export interface SendTweetV1Params {
   status: string;
   in_reply_to_status_id?: string;
   auto_populate_reply_metadata?: BooleanString;
@@ -17,9 +18,9 @@ export interface SendTweetParams {
   card_uri?: string;
 }
 
-// TODO include 'twitter-d' package to type users, tweets, etc?
+export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;
 
-export interface InitMediaResult {
+export interface InitMediaV1Result {
   media_id: number;
   media_id_string: string;
   size: number;
@@ -31,7 +32,7 @@ export interface InitMediaResult {
   };
 }
 
-export interface FinalizeMediaResult {
+export interface FinalizeMediaV1Result {
   media_id: number;
   media_id_string: string;
   size: number,
@@ -40,14 +41,14 @@ export interface FinalizeMediaResult {
     video_type: string;
   };
   processing_info?: {
-    state: 'pending' | 'failed' | 'succeeded' | 'in_progress';
+    state: 'pending' | 'failed' | 'succeeded' | 'in_progress';
     check_after_secs?: number;
     progress_percent?: number;
   };
 }
 
-export interface UploadMediaParams {
-  type: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string;
+export interface UploadMediaV1Params {
+  type: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string;
   chunkLength: number;
   additionalOwners: string;
   maxConcurrentUploads: number;
