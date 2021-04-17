@@ -1,7 +1,7 @@
 # Basics
 
 > *For convenience, all the code examples in this documentation will be presented in TypeScript.*
-> Feel free to convert them to regular JavaScript. For Node.js, 
+> Feel free to convert them to regular JavaScript. For Node.js,
 > you might need to replace `import`s by `require()` calls.
 
 ## Client basics
@@ -12,34 +12,33 @@ The central idea around this package is to provide a type-safe, full-featured, r
 
 Here's the feature highlights of `twitter-api-v2`:
 - Support for v1.1 and **v2 of Twitter API**
-  
+
 - Make signed HTTP requests to Twitter with every Twitter required auth type:
-    - classic **OAuth 1.0a** authentification for user-context endpoints  
+    - classic **OAuth 1.0a** authentification for user-context endpoints
     - **OAuth2 Bearer token** for app-only endpoints
     - **Basic** HTTP Authorization, required for some auth endpoints
-  
-- Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`), 
+
+- Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`),
   that handle query string parse & format, automatic body formatting and more
-  
+
 - High-class support for stream endpoints, with easy data consumption and auto-reconnect on stream errors
-  
-- Automatic paginator for endpoints like user and tweet timelines, 
+
+- Automatic paginator for endpoints like user and tweet timelines,
   allowing payload consumption with modern asynchronous iterators until your rate-limit is hit
-  *(for now, available only on v2 tweet search)*
 
 - Convenient methods for authentication - generate auth links and ask for tokens to your users will be a breeze
 
 - Did I just say that `twitter-api-v2` can parse and provide rate limit helpers for you? Yes.
 
-- Media upload with API v1.1, including **long video support**,  automatic media type detection, 
+- Media upload with API v1.1, including **long video support**,  automatic media type detection,
   **chunked upload** and support for **concurrent uploads**
-  
-- Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses** 
+
+- Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
   *(WIP - not all public endpoints are available)*
-  
+
 - Type-safe wrapping of dedicated methods in 3 right level: *DM*/*Read-write*/*Read-only* (just like Twitter API do!) -
   you can declare a read-only client - you will only see the methods associated with read-only endpoints
-  
+
 - Last but not least, fully powered by native `Promise`s
 
 ### Create a client
@@ -61,7 +60,7 @@ Instanciate with your wanted authentification method.
 const userClient = new TwitterApi({
   appKey: 'consumerAppKey',
   appSecret: 'consumerAppSecret',
-  // Following access tokens are not required if you are 
+  // Following access tokens are not required if you are
   // at part 1 of user-auth process (ask for a request token)
   // or if you want a app-only client (see below)
   accessToken: 'accessOAuthToken',
@@ -106,9 +105,9 @@ const v2Client = client.v2;
 const v2LabsClient = client.v2.labs;
 ```
 
-Using the versionned client **auto-prefix requests** with default prefixes 
+Using the versionned client **auto-prefix requests** with default prefixes
 (for v1: `https://api.twitter.com/1.1/`, for v2: `https://api.twitter.com/2/`,
-for labs v2: `https://api.twitter.com/labs/2/`) 
+for labs v2: `https://api.twitter.com/labs/2/`)
 and gives you access to endpoint-wrapper methods!
 
 ### Use the endpoint-wrapper methods
@@ -117,7 +116,7 @@ See the documentation for (link) v1 client API or documentation for (link) v2 cl
 
 ### Use the direct HTTP methods wrappers
 
-If the endpoint-wrapper for your request has not been made yet, don't leave! 
+If the endpoint-wrapper for your request has not been made yet, don't leave!
 You can make requests on your own!
 
 - `.get` and `.delete`, that takes `(partialUrl: string, query?: TRequestQuery)` in parameters
@@ -135,12 +134,12 @@ client.v2.get('users/14/tweets');
 
 `twitter-api-v2` gives you a client that handles all the request signin boilerplate for you.
 
-Sometimes, you need to dive deep and make the request on your own. 
+Sometimes, you need to dive deep and make the request on your own.
 2 raw helpers allow you to make the request you want:
 - `.send`: Make a request, awaits its complete response, parse it and returns it
 - `.sendStream`: Make a requests, returns a stream when server responds OK
 
-**Warning**: When you use those methods, you need to prefix your requests (no auto-prefixing)! 
+**Warning**: When you use those methods, you need to prefix your requests (no auto-prefixing)!
 Make sure you use a URL that begins with `https://...` with raw request managers.
 
 #### .send
