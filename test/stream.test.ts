@@ -64,5 +64,30 @@ describe('Tweet stream API v2', () => {
     });
 
     expect(numberOfTweets).to.equal(5);
-  }).timeout(1000 * 20);
+  }).timeout(1000 * 120);
+
+  it('In 15 seconds, should have the same tweets registred by async iterator and event handler', async () => {
+    const clientBearer = await getAppClient();
+    const streamv2Filter = await clientBearer.v2.sampleStream();
+
+    const eventTweetIds = [] as string[];
+    const itTweetIds = [] as string[];
+
+    await Promise.race([
+      // 30 seconds timeout
+      new Promise(resolve => setTimeout(resolve, 15 * 1000)),
+      (async function() {
+        streamv2Filter.on(ETwitterStreamEvent.Data, tweet => eventTweetIds.push(tweet.data.id));
+
+        for await (const tweet of streamv2Filter) {
+          itTweetIds.push(tweet.data.id);
+        }
+      })(),
+    ]);
+
+    streamv2Filter.close();
+
+    expect(eventTweetIds).to.have.length(itTweetIds.length);
+    expect(eventTweetIds.every(id => itTweetIds.includes(id))).to.be.true;
+  }).timeout(1000 * 120);
 });

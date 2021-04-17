@@ -69,7 +69,7 @@ export abstract class ClientRequestMaker {
    * The request URL should not contains a query string, prefers using `parameters` for GET request.
    * If you need to pass a body AND query string parameter, duplicate parameters in the body.
    */
-  sendStream(options: IGetHttpRequestArgs) : Promise<TweetStream> {
+  sendStream<T = any>(options: IGetHttpRequestArgs) : Promise<TweetStream<T>> {
     const args = this.getHttpRequestArgs(options);
 
     return this.httpStream(
@@ -175,12 +175,12 @@ export abstract class ClientRequestMaker {
       .makeRequest();
   }
 
-  protected httpStream(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TweetStream> {
+  protected httpStream<T = any>(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TweetStream> {
     if (body) {
       RequestParamHelpers.setBodyLengthHeader(options, body);
     }
 
-    return new RequestHandlerHelper({ url, options, body })
+    return new RequestHandlerHelper<T>({ url, options, body })
       .makeRequestAsStream();
   }
 }
@@ -463,7 +463,7 @@ export class RequestHandlerHelper<T> {
 
   async makeRequestAsStream() {
     const { req, res, requestData } = await this.makeRequestAndResolveWhenReady();
-    return new TweetStream(req, res, requestData);
+    return new TweetStream<T>(req, res, requestData);
   }
 
   makeRequestAndResolveWhenReady() {

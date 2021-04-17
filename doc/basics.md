@@ -1,35 +1,10 @@
 # Basics
 
 > *For convenience, all the code examples in this documentation will be presented in TypeScript.*
-> Feel free to convert them to regular JavaScript. For Node.js,
+> Feel free to convert them to regular JavaScript. If you don't use a transpiler,
 > you might need to replace `import`s by `require()` calls.
 
 ## Client basics
-
-### Goals
-
-The central idea around this package is to provide a type-safe, full-featured, right protected, API client for Twitter.
-
-Here's the feature highlights of `twitter-api-v2`:
-- Support for v1.1 and **v2 of Twitter API**
-- Make signed HTTP requests to Twitter with every Twitter required auth type:
-  - classic **OAuth 1.0a** authentification for user-context endpoints
-  - **OAuth2 Bearer token** for app-only endpoints
-  - **Basic** HTTP Authorization, required for some auth endpoints
-- Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`),
-  that handle query string parse & format, automatic body formatting and more
-- High-class support for stream endpoints, with easy data consumption and auto-reconnect on stream errors
-- Automatic paginator for endpoints like user and tweet timelines,
-  allowing payload consumption with modern asynchronous iterators until your rate-limit is hit
-- Convenient methods for authentication - generate auth links and ask for tokens to your users will be a breeze
-- Did I just say that `twitter-api-v2` can parse and provide rate limit helpers for you? Yes.
-- Media upload with API v1.1, including **long video support**,  automatic media type detection,
-  **chunked upload** and support for **concurrent uploads**
-- Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
-  *(WIP - not all public endpoints are available)*
-- Type-safe wrapping of dedicated methods in 3 right level: *DM*/*Read-write*/*Read-only* (just like Twitter API do!) -
-  you can declare a read-only client - you will only see the methods associated with read-only endpoints
-- Last but not least, fully powered by native `Promise`s
 
 ### Create a client
 

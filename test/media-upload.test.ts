@@ -54,21 +54,21 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a GIF image from buffer', async () => {
     // Upload media (from buffer)
-    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: 'jpg' });
+    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: 'gif' });
     expect(fromBuffer).to.be.an('string');
     expect(fromBuffer).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
 
   it('Upload a GIF image from file handle', async () => {
     // Upload media (from fileHandle)
-    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(gifImg, 'r'), { type: 'jpg' })
+    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(gifImg, 'r'), { type: 'gif' })
     expect(fromHandle).to.be.an('string');
     expect(fromHandle).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
 
   it('Upload a GIF image from numbered file handle', async () => {
     // Upload media (from numbered fileHandle)
-    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(gifImg, 'r'), { type: 'jpg', maxConcurrentUploads: 1 });
+    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(gifImg, 'r'), { type: 'gif', maxConcurrentUploads: 1 });
     expect(fromNumberFh).to.be.an('string');
     expect(fromNumberFh).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);

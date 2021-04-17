@@ -61,6 +61,13 @@ stream.on(
 
 // Be sure to close the stream where you don't want to consume data anymore from it
 stream.close();
+
+// -- Alternative usage --
+
+// You can also use async iterator to iterate over tweets!
+for await (const { data } of stream) {
+  console.log('This is my tweet:', data);
+}
 ```
 
 ## Specific API v1.1 implementations

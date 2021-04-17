@@ -74,6 +74,11 @@ export interface TweetV2LookupResult {
   includes?: TweetV2Includes;
 }
 
+export interface TweetV2SingleResult {
+  data: TweetV2;
+  includes?: TweetV2Includes;
+}
+
 /// -- Replies --
 
 export interface TweetV2HideReplyResult {

@@ -1,6 +1,6 @@
 import TwitterApiSubClient from '../client.subclient';
 import { API_V2_PREFIX } from '../globals';
-import type {
+import {
   FollowersV2Result, FollowersV2Params, Tweetv2FieldsParams,
   Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
   UsersV2Result, UsersV2Params, StreamingV2GetRulesParams,
@@ -14,6 +14,8 @@ import type {
   StreamingV2UpdateRulesDeleteResult,
   StreamingV2UpdateRulesAddResult,
   StreamingV2UpdateRulesResult,
+  TweetV2,
+  TweetV2SingleResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -189,7 +191,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
    */
   public searchStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream('tweets/search/stream', options);
+    return this.getStream<TweetV2SingleResult>('tweets/search/stream', options);
   }
 
   /**
@@ -221,6 +223,6 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
    */
   public sampleStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream('tweets/sample/stream', options);
+    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options);
   }
 }

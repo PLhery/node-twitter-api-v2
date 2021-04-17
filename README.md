@@ -1,10 +1,50 @@
-# Twitter API V2
+# Twitter API v2
 
-Twitter api V1 and V2 client for node
+Strongly typed, full-featured, right protected, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
+
+## Goals
+
+Here's the feature highlights of `twitter-api-v2`:
+
+### Basics:
+- Support for v1.1 and **v2 of Twitter API**
+- Make signed HTTP requests to Twitter with every Twitter required auth type:
+  - classic **OAuth 1.0a** authentification for user-context endpoints
+  - **OAuth2 Bearer token** for app-only endpoints
+  - **Basic** HTTP Authorization, required for some auth endpoints or Entreprise API
+- Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`),
+  that handle query string parse & format, automatic body formatting and more
+- High-class support for stream endpoints, with easy data consumption and auto-reconnect on stream errors
+
+### Request helpers:
+- Automatic paginator for endpoints like user and tweet timelines,
+  allowing payload consumption with modern asynchronous iterators until your rate-limit is hit
+- Convenient methods for authentication - generate auth links and ask for tokens to your users will be a breeze
+- Media upload with API v1.1, including **long video & subtitles support**,  automatic media type detection,
+  **chunked upload** and support for **concurrent uploads**
+- Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
+  *(WIP - not all public endpoints are available)*
+- Bundled parsing of rate limit headers
+
+### Type-safe first:
+- **Typings for tweet, user, media entities (and more) are bundled in this package!**
+- Type-safe wrapping of dedicated methods in 3 right level: *DM*/*Read-write*/*Read-only* (just like Twitter API do!) -
+  you can declare a read-only client - you will only see the methods associated with read-only endpoints
+
+
+And last but not least, fully powered by native `Promise`s.
 
 ## How to use
 
-```typescript
+Install it through your favorite package manager:
+```bash
+yarn add twitter-api-v2
+# or
+npm i twitter-api-v2
+```
+
+
+```ts
 import TwitterApi, { TwitterErrors } from 'twitter-api-v2';
 
 // bearer token auth (with V2)
@@ -78,7 +118,7 @@ They caused me some frustration:
 - [x] Auto pagination
 - [ ] Error code enums
 
-```typescript
+```ts
 import TwitterApi, { TwitterErrors } from 'twitter-api-v2';
 
 // bearer token auth (with V2)
@@ -116,4 +156,4 @@ See [Authentification part](./auth.md) to know more and have a comprehensive gui
 
 ## Streaming
 
-See [Streaming part](./doc/streaming.md).
+APIs dedicated to streaming are available in [Streaming part](./doc/streaming.md).

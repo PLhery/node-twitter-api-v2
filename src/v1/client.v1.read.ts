@@ -2,7 +2,7 @@ import TwitterApiSubClient from '../client.subclient';
 import { API_V1_1_PREFIX, API_V1_1_STREAM_PREFIX } from '../globals';
 import { arrayWrap } from '../helpers';
 import TwitterApiv1 from '../v1/client.v1';
-import type {
+import {
   FilterStreamV1Params,
   SampleStreamV1Params,
   UserV1,
@@ -22,6 +22,7 @@ import type {
   TweetV1TimelineParams,
   TweetV1TimelineResult,
   TweetV1UserTimelineParams,
+  TweetV1,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 
@@ -133,7 +134,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     }
 
     const streamClient = this.stream;
-    return streamClient.postStream('statuses/filter.json', parameters);
+    return streamClient.postStream<TweetV1>('statuses/filter.json', parameters);
   }
 
   /**
@@ -143,7 +144,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public sampleStream(params: Partial<SampleStreamV1Params> = {}) {
     const streamClient = this.stream;
-    return streamClient.getStream('statuses/sample.json', params);
+    return streamClient.getStream<TweetV1>('statuses/sample.json', params);
   }
 
   /**
