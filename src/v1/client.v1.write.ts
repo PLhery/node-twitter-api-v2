@@ -92,21 +92,21 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Upload a media (JPG/PNG/GIF/MP4/WEBP) or subtitle (SRT) to Twitter and return the media_id to use in tweet/DM send.
-   * 
-   * @param file If `string`, filename is supposed. 
-   * A `Buffer` is a raw file. 
+   *
+   * @param file If `string`, filename is supposed.
+   * A `Buffer` is a raw file.
    * `fs.promises.FileHandle` or `number` are file pointers.
-   * 
+   *
    * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif' | 'srt' | 'webp').
    * If filename is given, it could be guessed with file extension, otherwise this parameter is mandatory.
    * If type is not part of the enum, it will be used as mime type.
-   * 
+   *
    * Type `longmp4` is **required** is you try to upload a video higher than 140 seconds.
-   * 
+   *
    * @param options.chunkLength Maximum chunk length sent to Twitter. Default goes to 1 MB.
-   * 
+   *
    * @param options.additionalOwners Other user IDs allowed to use the returned media_id. Default goes to none.
-   * 
+   *
    * @param options.maxConcurrentUploads Maximum uploaded chunks in the same time. Default goes to 3.
    *
    * @param options.target Target type `tweet` or `dm`. Defaults to `tweet`.
@@ -257,7 +257,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   protected async mediaChunkedUpload(
     fileHandle: TFileHandle,
-    chunkLength: number, 
+    chunkLength: number,
     mediaId: string,
     maxConcurrentUploads = 3,
   ) {
@@ -267,7 +267,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     if (maxConcurrentUploads < 1) {
       throw new RangeError('Bad maxConcurrentUploads parameter.');
     }
-      
+
     // Creating a buffer for doing file stuff (if we don't have one)
     const buffer = fileHandle instanceof Buffer ? undefined : Buffer.alloc(chunkLength);
     // Sliced/filled buffer returned for each part
@@ -286,7 +286,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     // Read buffer until file is completely read
     while (nread) {
       // base64 encode (binary is a pain with https.request)
-      const encoded = readBuffer.slice(0, nread).toString('base64');
+      const encoded = readBuffer.slice(0, nread);
 
       // Sent part if part has something inside
       if (encoded) {
@@ -296,7 +296,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
             command: 'APPEND',
             media_id: mediaId,
             segment_index: chunkIndex,
-            media_data: encoded,
+            media: encoded,
           },
           { prefix: UPLOAD_PREFIX },
         );
@@ -374,7 +374,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     if (name.endsWith('.gif')) return 'image/gif';
     if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return 'video/mp4';
     if (name.endsWith('.srt')) return 'text/plain';
-    
+
     return 'image/jpeg';
   }
 
