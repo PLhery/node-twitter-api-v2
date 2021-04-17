@@ -53,6 +53,14 @@ you can choose the right sub-client:
 
 Please see [Authentification part](./auth.md) of the doc.
 
+### Get current user
+
+If you want to access currently logged user (= you're logged with OAuth 1.0a context),
+you can use the method `.currentUser()`.
+
+This a shortcut to `.v1.verifyCredentials()` with a **cache that store user to avoid multiple API calls**.
+Its returns a `UserV1` object.
+
 ## Request basics
 
 The main goal of those clients is to make requests (right?). Let's see how we do it!

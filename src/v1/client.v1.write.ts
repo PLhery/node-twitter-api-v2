@@ -28,6 +28,8 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     return this as TwitterApiv1ReadOnly;
   }
 
+  /* Tweet API */
+
   /**
    * Post a new tweet.
    */
