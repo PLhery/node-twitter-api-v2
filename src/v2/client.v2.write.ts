@@ -1,13 +1,6 @@
 import { API_V2_PREFIX } from '../globals';
 import TwitterApiv2ReadOnly from './client.v2.read';
 import type {
-  StreamingV2AddRulesParams,
-  StreamingV2DeleteRulesParams,
-  StreamingV2UpdateRulesAddResult,
-  StreamingV2UpdateRulesDeleteResult,
-  StreamingV2UpdateRulesParams,
-  StreamingV2UpdateRulesQuery,
-  StreamingV2UpdateRulesResult,
   TweetV2HideReplyResult,
   UserV2BlockResult,
   UserV2FollowResult,
@@ -92,23 +85,5 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public unblock(loggedUserId: string, targetUserId: string) {
     return this.delete<UserV2BlockResult>(`users/${loggedUserId}/blocking/${targetUserId}`);
-  }
-
-  /* Streaming API */
-
-  /**
-   * Add or delete rules to your stream.
-   * To create one or more rules, submit an add JSON body with an array of rules and operators.
-   * Similarly, to delete one or more rules, submit a delete JSON body with an array of list of existing rule IDs.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
-   */
-  public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
-  public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
-  public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
-    return this.post<StreamingV2UpdateRulesResult>(
-      'tweets/search/stream/rules',
-      options,
-      { query },
-    );
   }
 }

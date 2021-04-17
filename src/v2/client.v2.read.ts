@@ -1,5 +1,5 @@
 import TwitterApiSubClient from '../client.subclient';
-import { API_V2_LABS_PREFIX, API_V2_PREFIX } from '../globals';
+import { API_V2_PREFIX } from '../globals';
 import type {
   FollowersV2Result, FollowersV2Params, Tweetv2FieldsParams,
   Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
@@ -7,6 +7,13 @@ import type {
   StreamingV2GetRulesResult, TweetV2LookupResult,
   TweetV2LookupParams, TweetV2UserTimelineParams,
   TweetV2UserTimelineResult,
+  StreamingV2AddRulesParams,
+  StreamingV2DeleteRulesParams,
+  StreamingV2UpdateRulesParams,
+  StreamingV2UpdateRulesQuery,
+  StreamingV2UpdateRulesDeleteResult,
+  StreamingV2UpdateRulesAddResult,
+  StreamingV2UpdateRulesResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -192,6 +199,22 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   public streamRules(options: Partial<StreamingV2GetRulesParams> = {}) {
     return this.get<StreamingV2GetRulesResult>('tweets/search/stream/rules', options);
   }
+
+  /**
+   * Add or delete rules to your stream.
+   * To create one or more rules, submit an add JSON body with an array of rules and operators.
+   * Similarly, to delete one or more rules, submit a delete JSON body with an array of list of existing rule IDs.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
+   */
+   public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
+   public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
+   public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
+     return this.post<StreamingV2UpdateRulesResult>(
+       'tweets/search/stream/rules',
+       options,
+       { query },
+     );
+   }
 
   /**
    * Streams about 1% of all Tweets in real-time.
