@@ -77,7 +77,11 @@ await twitterClient.v2.get('tweets/search/recent', { query: 'nodeJS', max_result
 const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
 ```
 
+### Basics
+
 You want **to know more about client usage? See [the Basics](./doc/basics.md)**!
+
+### Examples
 
 Wanna see that in action? Jump to [Examples part](./doc/examples.md).
 
@@ -86,8 +90,13 @@ Wanna see that in action? Jump to [Examples part](./doc/examples.md).
 Lost between the different ways to auth inside Twitter API?
 Don't know how to implement 3-legged OAuth flow?
 
-See [Authentification part](./auth.md) to know more and have a comprehensive guide a every Twitter authentification process.
+See [Authentification part](./doc/auth.md) to know more and have a comprehensive guide a every Twitter authentification process.
 
 ## Streaming
 
 APIs dedicated to streaming are available in [Streaming part](./doc/streaming.md).
+
+## Full package API
+
+Each Twitter endpoint > method association is described in details inside [the v1.1 comprehensive documentation](./doc/v1.md)
+and [the v2 comprehensive documentation](./doc/v2.md).
