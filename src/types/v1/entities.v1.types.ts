@@ -38,12 +38,7 @@ export interface MediaEntityV1 {
   indices: [number, number];
   media_url: string;
   media_url_https: string;
-  sizes: {
-    thumb: MediaSizeObjectV1;
-    large: MediaSizeObjectV1;
-    medium: MediaSizeObjectV1;
-    small: MediaSizeObjectV1;
-  };
+  sizes: MediaSizesV1;
   source_status_id: number;
   source_status_id_str: string;
   type: 'photo' | 'video' | 'animated_gif';
@@ -65,6 +60,13 @@ export interface AdditionalMediaInfoV1 {
   description: string;
   embeddable: boolean;
   monetizable: boolean;
+}
+
+export interface MediaSizesV1 {
+  thumb: MediaSizeObjectV1;
+  large: MediaSizeObjectV1;
+  medium: MediaSizeObjectV1;
+  small: MediaSizeObjectV1;
 }
 
 export interface MediaSizeObjectV1 {
@@ -117,5 +119,12 @@ export interface PlaceV1 {
   bounding_box: CoordinateV1;
   name: string;
   place_type: string;
-  attributes: any | null;
+  contained_within?: PlaceV1[];
+  geometry?: any;
+  polylines?: number[];
+  centroid?: number[];
+  attributes?: {
+    geotagCount: string;
+    [geoTagId: string]: string;
+  };
 }

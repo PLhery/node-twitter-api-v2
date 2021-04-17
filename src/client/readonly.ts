@@ -20,6 +20,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
   protected _currentUser?: UserV1;
 
   /* Direct access to subclients */
+
   public get v1() {
     if (this._v1) return this._v1;
     
@@ -56,6 +57,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
   
   /* Authentification */
+
   /**
    * Generate the OAuth request token link for user-based OAuth 1.0 auth.
    * 

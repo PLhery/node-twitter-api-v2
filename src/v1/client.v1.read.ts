@@ -2,7 +2,21 @@ import TwitterApiSubClient from '../client.subclient';
 import { API_V1_1_PREFIX, API_V1_1_STREAM_PREFIX } from '../globals';
 import { arrayWrap } from '../helpers';
 import TwitterApiv1 from '../v1/client.v1';
-import type { FilterStreamV1Params, SampleStreamV1Params, UserV1, VerifyCredentialsV1Params } from '../types';
+import type {
+  FilterStreamV1Params,
+  SampleStreamV1Params,
+  UserV1,
+  VerifyCredentialsV1Params,
+  AppRateLimitV1Result,
+  TAppRateLimitResourceV1,
+  HelpLanguageV1Result,
+  HelpConfigurationV1Result,
+  ReverseGeoCodeV1Params,
+  ReverseGeoCodeV1Result,
+  PlaceV1,
+  SearchGeoV1Params,
+  SearchGeoV1Result,
+} from '../types';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -62,10 +76,66 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   /**
    * Create a client that is prefixed with `https//stream.twitter.com` instead of classic API URL.
    */
-  public get stream() : this {
+  public get stream(): this {
     const copiedClient = new TwitterApiv1(this);
     copiedClient.setPrefix(API_V1_1_STREAM_PREFIX);
 
     return copiedClient as any;
+  }
+
+  /* Geo API */
+
+  /**
+   * Returns all the information about a known place.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/geo/place-information/api-reference/get-geo-id-place_id
+   */
+  public geoPlace(placeId: string) {
+    return this.get<PlaceV1>(`geo/id/${placeId}.json`);
+  }
+
+  /**
+   * Search for places that can be attached to a Tweet via POST statuses/update.
+   * This request will return a list of all the valid places that can be used as the place_id when updating a status.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/geo/places-near-location/api-reference/get-geo-search
+   */
+  public geoSearch(options: Partial<SearchGeoV1Params>) {
+    return this.get<SearchGeoV1Result>('geo/search.json', options);
+  }
+
+  /**
+   * Given a latitude and a longitude, searches for up to 20 places that can be used as a place_id when updating a status.
+   * This request is an informative call and will deliver generalized results about geography.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/geo/places-near-location/api-reference/get-geo-reverse_geocode
+   */
+  public geoReverseGeoCode(options: ReverseGeoCodeV1Params) {
+    return this.get<ReverseGeoCodeV1Result>('geo/reverse_geocode.json', options as Partial<ReverseGeoCodeV1Params>);
+  }
+
+  /* Developer utilities */
+
+  /**
+   * Returns the current rate limits for methods belonging to the specified resource families.
+   * Each API resource belongs to a "resource family" which is indicated in its method documentation.
+   * The method's resource family can be determined from the first component of the path after the resource version.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/developer-utilities/rate-limit-status/api-reference/get-application-rate_limit_status
+   */
+  public rateLimitStatuses(...resources: TAppRateLimitResourceV1[]) {
+    return this.get<AppRateLimitV1Result>('application/rate_limit_status.json', { resources });
+  }
+
+  /**
+   * Returns the list of languages supported by Twitter along with the language code supported by Twitter.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/developer-utilities/supported-languages/api-reference/get-help-languages
+   */
+  public supportedLanguages() {
+    return this.get<HelpLanguageV1Result[]>('help/languages.json');
+  }
+
+  /**
+   * Returns the current configuration used by Twitter including twitter.com slugs which are not usernames, maximum photo resolutions, and t.co shortened URL length.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/developer-utilities/configuration/api-reference/get-help-configuration
+   */
+  public twitterConfigurationLimits() {
+    return this.get<HelpConfigurationV1Result>('help/configuration.json');
   }
 }
