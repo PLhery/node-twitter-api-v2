@@ -285,18 +285,17 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
     // Read buffer until file is completely read
     while (nread) {
-      // base64 encode (binary is a pain with https.request)
-      const encoded = readBuffer.slice(0, nread);
+      const mediaBufferPart = readBuffer.slice(0, nread);
 
       // Sent part if part has something inside
-      if (encoded) {
+      if (mediaBufferPart.length) {
         const request = this.post(
           UPLOAD_ENDPOINT,
           {
             command: 'APPEND',
             media_id: mediaId,
             segment_index: chunkIndex,
-            media: encoded,
+            media: mediaBufferPart,
           },
           { prefix: UPLOAD_PREFIX },
         );
