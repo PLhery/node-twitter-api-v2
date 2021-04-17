@@ -2,17 +2,18 @@ import { API_V1_1_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
 import type {
   FinalizeMediaV1Result,
-  InitMediaV1Result, MediaMetadataV1Params, MediaSubtitleV1Param,
+  InitMediaV1Result,
+  MediaMetadataV1Params,
+  MediaSubtitleV1Param,
   SendTweetV1Params,
-  TUploadableMedia, TUploadTypeV1,
+  TUploadableMedia,
   UploadMediaV1Params
 } from '../types';
 import fs from 'fs';
+import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
 
 const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
 const UPLOAD_ENDPOINT = 'media/upload.json';
-
-type TFileHandle = fs.promises.FileHandle | number | Buffer;
 
 /**
  * Base Twitter v1 client with read/write rights.
@@ -129,9 +130,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           media_category: mediaCategory,
           additional_owners: options.additionalOwners,
         },
-        {
-          prefix: UPLOAD_PREFIX,
-        },
+        { prefix: UPLOAD_PREFIX },
       );
 
       // Upload the media chunk by chunk
@@ -144,47 +143,16 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           command: 'FINALIZE',
           media_id: mediaData.media_id_string,
         },
-        {
-          prefix: UPLOAD_PREFIX,
-        },
+        { prefix: UPLOAD_PREFIX },
       );
 
+      if (fullMediaData.processing_info && fullMediaData.processing_info.state !== 'succeeded') {
+        // Must wait if video is still computed
+        await this.awaitForMediaProcessingCompletion(fullMediaData);
+      }
+
       // Video is ready, return media_id
-      if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
-        return fullMediaData.media_id_string;
-      }
-
-      // Must wait if video is still computed
-      while (true) {
-        fullMediaData = await this.get(
-          UPLOAD_ENDPOINT,
-          {
-            command: 'STATUS',
-            media_id: mediaData.media_id_string,
-          },
-          {
-            prefix: UPLOAD_PREFIX,
-          },
-        );
-
-        if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
-          return fullMediaData.media_id_string;
-        }
-
-        if (fullMediaData.processing_info.state === 'failed') {
-          throw new Error('Failed to process the media.');
-        }
-
-        if (fullMediaData.processing_info.check_after_secs) {
-          const secs = fullMediaData.processing_info.check_after_secs;
-          // Await for secs seconds
-          await new Promise(resolve => setTimeout(resolve, secs * 1000));
-        }
-        else {
-          // No info; Await for 5 seconds
-          await new Promise(resolve => setTimeout(resolve, 5 * 1000));
-        }
-      }
+      return fullMediaData.media_id_string;
     } finally {
       // Close file if any
       if (typeof file === 'number') {
@@ -196,36 +164,46 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     }
   }
 
+  protected async awaitForMediaProcessingCompletion(fullMediaData: FinalizeMediaV1Result) {
+    while (true) {
+      fullMediaData = await this.get(
+        UPLOAD_ENDPOINT,
+        {
+          command: 'STATUS',
+          media_id: fullMediaData.media_id_string,
+        },
+        { prefix: UPLOAD_PREFIX },
+      );
+
+      if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
+        // Ok, completed!
+        return;
+      }
+
+      if (fullMediaData.processing_info.state === 'failed') {
+        throw new Error('Failed to process the media.');
+      }
+
+      if (fullMediaData.processing_info.check_after_secs) {
+        // Await for given seconds
+        await sleepSecs(fullMediaData.processing_info.check_after_secs);
+      }
+      else {
+        // No info; Await for 5 seconds
+        await sleepSecs(5);
+      }
+    }
+  }
+
   protected async getUploadMediaRequirements(file: TUploadableMedia, { type, target }: Partial<UploadMediaV1Params> = {}) {
     // Get the file handle (if not buffer)
     let fileHandle: TFileHandle;
 
     try {
-      if (typeof file === 'string') {
-        fileHandle = await fs.promises.open(file, 'r');
-      } else if (typeof file === 'number') {
-        fileHandle = file;
-      } else if (typeof file === 'object' && !(file instanceof Buffer)) {
-        fileHandle = file;
-      } else if (!(file instanceof Buffer)) {
-        throw new Error('Given file is not valid, please check its type.');
-      } else {
-        fileHandle = file;
-      }
-
-      // Get the file size
-      const fileSize = await this.getFileSizeFromFileHandle(fileHandle);
+      fileHandle = await getFileHandle(file);
 
       // Get the mimetype
-      let mimeType: string;
-
-      if (typeof file === 'string' && !type) {
-        mimeType = this.getMimeByName(file);
-      } else if (typeof type === 'string') {
-        mimeType = this.getMimeByType(type);
-      } else {
-        throw new Error('You must specify type if file is a file handle or Buffer.');
-      }
+      const mimeType = getMimeType(file, type);
 
       // Get the media category
       let mediaCategory: string;
@@ -233,13 +211,13 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       if (type === 'longmp4') {
         mediaCategory = 'amplify_video';
       } else {
-        mediaCategory = this.getMediaCategoryByMime(mimeType, target ?? 'tweet');
+        mediaCategory = getMediaCategoryByMime(mimeType, target ?? 'tweet');
       }
 
       return {
         fileHandle,
         mediaCategory,
-        fileSize,
+        fileSize: await getFileSizeFromFileHandle(fileHandle),
         mimeType,
       };
     } catch (e) {
@@ -277,7 +255,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     // Needed to use the buffer object (file handles always "remembers" file position)
     let offset = 0;
 
-    [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
+    [readBuffer, nread] = await readNextPartOf(fileHandle, chunkLength, offset, buffer);
     offset += nread;
 
     // Handle max concurrent uploads
@@ -313,85 +291,10 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
         await Promise.race([...currentUploads]);
       }
 
-      [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
+      [readBuffer, nread] = await readNextPartOf(fileHandle, chunkLength, offset, buffer);
       offset += nread;
     }
 
     await Promise.all([...currentUploads]);
-  }
-
-  protected async readNextPartOf(file: TFileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {
-    if (file instanceof Buffer) {
-      const rt = file.slice(bufferOffset, bufferOffset + chunkLength);
-      return [rt, rt.length];
-    }
-
-    if (!buffer) {
-      throw new Error('Well, we will need a buffer to store file content.');
-    }
-
-    let bytesRead: number;
-
-    if (typeof file === 'number') {
-      bytesRead = await new Promise((resolve, reject) => {
-        fs.read(file as number, buffer, 0, chunkLength, bufferOffset, (err, nread) => {
-          if (err) reject(err);
-          resolve(nread);
-        });
-      });
-    }
-    else {
-      const res = await file.read(buffer, 0, chunkLength, bufferOffset);
-      bytesRead = res.bytesRead;
-    }
-
-    return [buffer, bytesRead];
-  }
-
-  protected async getFileSizeFromFileHandle(fileHandle: TFileHandle) {
-    // Get the file size
-    if (typeof fileHandle === 'number') {
-      const stats = await new Promise((resolve, reject) => {
-        fs.fstat(fileHandle as number, (err, stats) => {
-          if (err) reject(err);
-          resolve(stats);
-        });
-      }) as fs.Stats;
-
-      return stats.size;
-    } else if (fileHandle instanceof Buffer) {
-      return fileHandle.length;
-    } else {
-      return (await fileHandle.stat()).size;
-    }
-  }
-
-  protected getMimeByName(name: string) {
-    if (name.endsWith('.jpeg') || name.endsWith('.jpg')) return 'image/jpeg';
-    if (name.endsWith('.png')) return 'image/png';
-    if (name.endsWith('.webp')) return 'image/webp';
-    if (name.endsWith('.gif')) return 'image/gif';
-    if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return 'video/mp4';
-    if (name.endsWith('.srt')) return 'text/plain';
-
-    return 'image/jpeg';
-  }
-
-  protected getMimeByType(type: TUploadTypeV1) {
-    if (type === 'gif') return 'image/gif';
-    if (type === 'jpg') return 'image/jpeg';
-    if (type === 'png') return 'image/png';
-    if (type === 'webp') return 'image/webp';
-    if (type === 'srt') return 'text/plain';
-    if (type === 'mp4' || type === 'longmp4') return 'video/mp4';
-
-    return type;
-  }
-
-  protected getMediaCategoryByMime(name: string, target: 'tweet' | 'dm') {
-    if (name === 'video/mp4') return target === 'tweet' ? 'TweetVideo' : 'DmVideo';
-    if (name === 'image/gif') return target === 'tweet' ? 'TweetGif' : 'DmGif';
-    if (name === 'text/plain') return 'Subtitles';
-    else return target === 'tweet' ? 'TweetImage' : 'DmImage';
   }
 }
