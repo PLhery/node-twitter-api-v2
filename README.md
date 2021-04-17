@@ -2,6 +2,18 @@
 
 Strongly typed, full-featured, right protected, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
+## Why?
+
+- The main libraries (twit/twitter) were not updated in a while
+- I don't think a Twitter library need many dependencies
+
+They caused me some frustration:
+- They don't support video upload in a simple way
+- They don't explain well the "link" auth process
+- They don't support yet Twitter API V2
+- They could have more helpers (for pagination, rate limit, ...)
+- Typings could make the difference between read/write app
+
 ## Goals
 
 Here's the feature highlights of `twitter-api-v2`:
@@ -43,109 +55,31 @@ yarn add twitter-api-v2
 npm i twitter-api-v2
 ```
 
+Here's is a quick example of usage:
 
 ```ts
-import TwitterApi, { TwitterErrors } from 'twitter-api-v2';
+import TwitterApi from 'twitter-api-v2';
 
-// bearer token auth (with V2)
+// Instanciate with desired auth type (here's Bearer v2 auth)
 const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
 
-// token auth
-const twitterClient = new TwitterApi({
-   appKey: '<YOUR-TWITTER-APP-TOKEN>',
-   appSecret: '<YOUR-TWITTER-APP-SECERT>',
-   accessToken: '<YOUR-TWITTER-APP-TOKEN>',
-   accessSecret: '<YOUR-TWITTER-APP-SECERT>',
- });
-
-// link auth
-const twitterClient = new TwitterApi({
-  appKey: '<YOUR-TWITTER-APP-TOKEN>',
-  appSecret: '<YOUR-TWITTER-APP-SECERT>',
-});
-
-const authLink = await twitterClient.generateAuthLink();
-// ... redirected to https://website.com?oauth_token=XXX&oauth_verifier=XXX
-const { accessToken, accessSecret } = twitterClient.login('<THE_OAUTH_VERIFIER>');
-
 // Tell typescript it's a readonly app
-const twitterClient = new TwitterApi(xxx).readOnly;
+const roClient = twitterClient.readOnly;
 
 // Play with the built in methods
-
-const user = await twitterClient.v2.userByUsername('plhery');
-const followers = await twitterClient.v2.followers(user.data.id);
+const user = await roClient.v2.userByUsername('plhery');
 await twitterClient.v1.tweet('Hello, this is a test.');
-await twitterClient.v1.uploadMedia(await fs.promises.readFile(path), { type: 'jpg' })
-
-// the search utils
-
-const results = await twitterClient.v2.search('hello');
-console.log(results.tweets); // 10 tweets
-await results.fetchNext(100);
-await results.fetchNext(100);
-console.log(results.tweets, results.rateLimit); // 210 tweets
+// You can upload media easily!
+await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
 
 // Or manually call the API
-await twitterClient.v2.get('tweets/search/recent', {query: 'nodeJS', max_results: '100'});
+await twitterClient.v2.get('tweets/search/recent', { query: 'nodeJS', max_results: 100 });
 const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
 ```
 
-## Why?
+You want **to know more about client usage? See [the Basics](./doc/basics.md)**!
 
-- The main libraries (twit/twitter) were not updated in a while
-
-- I don't think a Twitter library need many dependencies
-
-They caused me some frustration:
-- They don't support video upload in a simple way
-- They don't explain well the "link" auth process
-- They don't support yet Twitter API V2
-- They could have more helpers (for pagination, rate limit, ...)
-- Typings could make the difference between read/write app
-
-## Goals:
-
-- [x] bearer token auth
-- [x] token auth
-- [x] link auth
-- [x] read/write/DM aware typing
-- [x] get/post methods
-- [x] custom http methods
-- [x] streaming
-- [x] Twitter API V2 tweets methods
-- [x] Twitter API V2 users methods
-- [x] Auto pagination
-- [ ] Error code enums
-
-```ts
-import TwitterApi, { TwitterErrors } from 'twitter-api-v2';
-
-// bearer token auth (with V2)
-const twitterClient = new TwitterApi(tokens);
-
-const authLink = await twitterClient.generateAuthLink();
-// ... redirected to https://website.com?oauth_token=XXX&oauth_verifier=XXX
-const { accessToken, accessSecret } = twitterClient.login('<THE_OAUTH_TOKEN>', '<THE_OAUTH_VERIFIER>');
-
-// Search for tweets
-const tweets = await twitterClient.v2.search('nodeJS', { max_results: 100 });
-
-// Auto-paginate
-// (also checks if rate limits will be enough after the first request)
-const manyTweets = await twitterClient.v2.search('nodeJS').fetchLast(10000);
-
-// Manage errors
-try {
-  const manyTweets = await twitterClient.v2.search('nodeJS').fetchLast(100000000);
-} catch (e) {
-  if (e.errorCode === TwitterErrors.RATE_LIMIT_EXCEEDED) {
-    console.log('please try again later!');
-  } else {
-    throw e;
-  }
-}
-```
+Wanna see that in action? Jump to [Examples part](./doc/examples.md).
 
 ## Authentification
 
