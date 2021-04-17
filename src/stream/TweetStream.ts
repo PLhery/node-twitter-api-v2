@@ -4,6 +4,11 @@ import { RequestHandlerHelper, TRequestFullData } from '../client-mixins/request
 import { ETwitterStreamEvent } from '../types';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
+interface ITweetStreamError {
+  type: ETwitterStreamEvent.ConnectionError | ETwitterStreamEvent.TweetParseError;
+  error: Error;
+}
+
 export class TweetStream<T = any> extends EventEmitter {
   public autoReconnect = false;
   public autoReconnectRetries = 5;
@@ -19,6 +24,20 @@ export class TweetStream<T = any> extends EventEmitter {
 
     this.initEventsFromParser();
     this.initEventsFromRequest();
+  }
+
+  // Event typings
+  on(event: ETwitterStreamEvent.Data, handler: (data: T) => any): this;
+  on(event: ETwitterStreamEvent.Error, handler: (errorPayload: ITweetStreamError) => any): this;
+  on(event: ETwitterStreamEvent.ConnectionError, handler: (error: Error) => any): this;
+  on(event: ETwitterStreamEvent.TweetParseError, handler: (error: Error) => any): this;
+  on(event: ETwitterStreamEvent.ConnectionClosed, handler: () => any): this;
+  on(event: ETwitterStreamEvent.DataKeepAlive, handler: () => any): this;
+  on(event: ETwitterStreamEvent.ReconnectError, handler: (tries: number) => any): this;
+  on(event: ETwitterStreamEvent.ReconnectLimitExceeded, handler: () => any): this;
+  on(event: string | symbol, handler: (...args: any[]) => any): this;
+  on(event: string | symbol, handler: (...args: any[]) => any) {
+    return super.on(event, handler);
   }
 
   protected initEventsFromRequest() {
