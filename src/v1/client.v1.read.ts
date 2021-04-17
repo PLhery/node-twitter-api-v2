@@ -17,14 +17,85 @@ import type {
   SearchGeoV1Params,
   SearchGeoV1Result,
   TrendMatchV1,
-  TrendsPlaceV1Params, TrendLocationV1,
+  TrendsPlaceV1Params,
+  TrendLocationV1,
+  TweetV1TimelineParams,
+  TweetV1TimelineResult,
+  TweetV1UserTimelineParams,
 } from '../types';
+import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 
 /**
  * Base Twitter v1 client with only read right.
  */
 export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
+
+  /* Tweets timelines */
+
+  /**
+   * Returns a collection of the most recent Tweets and Retweets posted by the authenticating user and the users they follow.
+   * The home timeline is central to how most users interact with the Twitter service.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-home_timeline
+   */
+  public async homeTimeline(options: Partial<TweetV1TimelineParams> = {}) {
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/home_timeline.json', options, { fullResponse: true });
+
+    return new HomeTimelineV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+    });
+  }
+
+  /**
+   * Returns the 20 most recent mentions (Tweets containing a users's @screen_name) for the authenticating user.
+   * The timeline returned is the equivalent of the one seen when you view your mentions on twitter.com.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-mentions_timeline
+   */
+  public async mentionTimeline(options: Partial<TweetV1TimelineParams> = {}) {
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/mentions_timeline.json', options, { fullResponse: true });
+
+    return new MentionTimelineV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+    });
+  }
+
+  /**
+   * Returns a collection of the most recent Tweets posted by the user indicated by the user_id parameters.
+   * User timelines belonging to protected users may only be requested when the authenticated user either "owns" the timeline or is an approved follower of the owner.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
+   */
+  public async userTimeline(userId: string, options: Partial<TweetV1UserTimelineParams> = {}) {
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', { ...options, user_id: userId }, { fullResponse: true });
+
+    return new UserTimelineV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+    });
+  }
+
+  /**
+   * Returns a collection of the most recent Tweets posted by the user indicated by the screen_name parameters.
+   * User timelines belonging to protected users may only be requested when the authenticated user either "owns" the timeline or is an approved follower of the owner.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
+   */
+  public async userTimelineByUsername(username: string, options: Partial<TweetV1UserTimelineParams> = {}) {
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', { ...options, screen_name: username }, { fullResponse: true });
+
+    return new UserTimelineV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+    });
+  }
 
   /* Users */
 

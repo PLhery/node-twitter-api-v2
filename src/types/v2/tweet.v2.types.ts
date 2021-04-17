@@ -18,6 +18,7 @@ export interface TweetV2TimelineParams extends Partial<Tweetv2FieldsParams> {
 
 export interface Tweetv2SearchParams extends TweetV2TimelineParams {
   next_token?: string;
+  previous_token?: string;
   query: string;
 }
 

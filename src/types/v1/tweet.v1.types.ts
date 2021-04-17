@@ -46,6 +46,20 @@ export interface TweetV1 {
 
 // - Params -
 
+export interface TweetV1TimelineParams {
+  count?: number;
+  since_id?: string;
+  max_id?: string;
+  trim_user?: boolean;
+  exclude_replies?: boolean;
+  include_entities?: boolean;
+}
+
+export interface TweetV1UserTimelineParams extends TweetV1TimelineParams {
+  user_id?: string;
+  screen_name?: string;
+}
+
 export interface SendTweetV1Params {
   status: string;
   in_reply_to_status_id?: string;
@@ -86,6 +100,8 @@ export interface MediaSubtitleV1Param {
 export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;
 
 // - Results -
+
+export type TweetV1TimelineResult = TweetV1[];
 
 export interface InitMediaV1Result {
   media_id: number;
