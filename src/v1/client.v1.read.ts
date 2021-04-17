@@ -19,7 +19,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-verify_credentials
    */
   public verifyCredentials(options: Partial<VerifyCredentialsV1Params> = {}) {
-    return this.get<UserV1>('account/verify_credentials', options);
+    return this.get<UserV1>('account/verify_credentials.json', options);
   }
 
   /* Streaming API */
