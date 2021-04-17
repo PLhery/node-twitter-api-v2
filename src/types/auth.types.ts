@@ -1,3 +1,5 @@
+import type TwitterApi from '../client';
+
 export interface RequestTokenArgs {
   authAccessType: 'read' | 'write';
   linkMode: 'authenticate' | 'authorize';
@@ -19,4 +21,12 @@ export interface AccessTokenResult {
 export interface BearerTokenResult {
   token_type: 'bearer';
   access_token: string;
+}
+
+export interface LoginResult {
+  userId: string;
+  screenName: string;
+  accessToken: string;
+  accessSecret: string;
+  client: TwitterApi;
 }

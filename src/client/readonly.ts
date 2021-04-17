@@ -2,7 +2,7 @@ import TwitterApi from '.';
 import TwitterApiBase from '../client.base';
 import type {
   AccessTokenResult,
-  BearerTokenResult,
+  BearerTokenResult, LoginResult,
   RequestTokenArgs,
   RequestTokenResult,
   Tweetv2SearchParams
@@ -97,23 +97,31 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * });
    * 
    * // Use oauth_verifier obtained from callback request
-   * const userClient = await requestClient.login('oauth_verifier');
+   * const { client: userClient } = await requestClient.login('oauth_verifier');
    * 
    * // {userClient} is a valid {TwitterApi} object you can use for future requests
    * ```
    */
-  public async login(oauth_verifier: string) {
+  public async login(oauth_verifier: string): Promise<LoginResult> {
     const oauth_result = await this.post<AccessTokenResult>(
       'https://api.twitter.com/oauth/access_token',
       { oauth_token: this._accessToken, oauth_verifier }
     );
 
-    return new TwitterApi({
+    const client = new TwitterApi({
       appKey: this._consumerToken!,
       appSecret: this._consumerSecret!,
       accessToken: oauth_result.oauth_token,
       accessSecret: oauth_result.oauth_token_secret,
     });
+
+    return {
+      accessToken: oauth_result.oauth_token,
+      accessSecret: oauth_result.oauth_token_secret,
+      userId: oauth_result.user_id,
+      screenName: oauth_result.screen_name,
+      client,
+    };
   }
 
   /**

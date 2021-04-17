@@ -85,6 +85,10 @@ you can choose the right sub-client:
 - `Read-write`: `rwClient = client.readWrite`
 - `Read-only`: `roClient = client.readOnly`
 
+## Authentification
+
+Please see [Authentification part](./auth.md) of the doc.
+
 ## Request basics
 
 The main goal of those clients is to make requests (right?). Let's see how we do it!

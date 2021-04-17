@@ -89,11 +89,9 @@ app.get('/callback', (req, res) => {
   });
   
   client.login(oauth_verifier)
-    .then(loggedClient => {
+    .then(({ client: loggedClient, accessToken, accessSecret }) => {
       // loggedClient is an authentificated client in behalf of some user
-      
-      const tokens = loggedClient.getActiveTokens() as IClientTokenOauth;
-      // Store tokens.accessToken & tokens.accessSecret somewhere
+      // Store accessToken & accessSecret somewhere
     })
     .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });
@@ -117,11 +115,9 @@ const client = new TwitterApi({
 });
 
 // Give the PIN to client.login()
-const loggedClient = await client.login(GIVEN_USER_PIN);
+const { client: loggedClient, accessToken, accessSecret } = await client.login(GIVEN_USER_PIN);
 // loggedClient is an authentificated client in behalf of some user
-
-const tokens = loggedClient.getActiveTokens() as IClientTokenOauth;
-// Store tokens.accessToken & tokens.accessSecret somewhere
+// Store accessToken & accessSecret somewhere
 ```
 
 ## Application-only authentification flow

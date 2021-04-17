@@ -26,7 +26,7 @@ const twitterClient = new TwitterApi({
 
 const authLink = await twitterClient.generateAuthLink();
 // ... redirected to https://website.com?oauth_token=XXX&oauth_verifier=XXX
-const { usertoken, userSecret } = twitterClient.login('<THE_OAUTH_VERIFIER>');
+const { accessToken, accessSecret } = twitterClient.login('<THE_OAUTH_VERIFIER>');
 
 // Tell typescript it's a readonly app
 const twitterClient = new TwitterApi(xxx).readOnly;
@@ -73,9 +73,9 @@ They caused me some frustration:
 - [x] get/post methods
 - [x] custom http methods
 - [x] streaming
-- [ ] Twitter API V2 tweets methods
+- [x] Twitter API V2 tweets methods
 - [x] Twitter API V2 users methods
-- [ ] Auto pagination
+- [x] Auto pagination
 - [ ] Error code enums
 
 ```typescript
@@ -86,18 +86,18 @@ const twitterClient = new TwitterApi(tokens);
 
 const authLink = await twitterClient.generateAuthLink();
 // ... redirected to https://website.com?oauth_token=XXX&oauth_verifier=XXX
-const { usertoken, userSecret } = twitterClient.login('<THE_OAUTH_TOKEN>', '<THE_OAUTH_VERIFIER>');
+const { accessToken, accessSecret } = twitterClient.login('<THE_OAUTH_TOKEN>', '<THE_OAUTH_VERIFIER>');
 
 // Search for tweets
-const tweets = await twitterClient.tweets.search('nodeJS', { max_results: 100 });
+const tweets = await twitterClient.v2.search('nodeJS', { max_results: 100 });
 
 // Auto-paginate
 // (also checks if rate limits will be enough after the first request)
-const manyTweets = await twitterClient.tweets.search('nodeJS').fetchLast(10000);
+const manyTweets = await twitterClient.v2.search('nodeJS').fetchLast(10000);
 
 // Manage errors
 try {
-  const manyTweets = await twitterClient.tweets.search('nodeJS').fetchLast(100000000);
+  const manyTweets = await twitterClient.v2.search('nodeJS').fetchLast(100000000);
 } catch (e) {
   if (e.errorCode === TwitterErrors.RATE_LIMIT_EXCEEDED) {
     console.log('please try again later!');
@@ -106,6 +106,13 @@ try {
   }
 }
 ```
+
+## Authentification
+
+Lost between the different ways to auth inside Twitter API?
+Don't know how to implement 3-legged OAuth flow?
+
+See [Authentification part](./auth.md) to know more and have a comprehensive guide a every Twitter authentification process.
 
 ## Streaming
 
