@@ -1,4 +1,4 @@
-import { TwitterApiTokens, TwitterResponse } from './types';
+import { TClientTokens, TwitterApiBasicAuth, TwitterApiTokens, TwitterResponse } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -48,11 +48,15 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    */
   constructor(tokens: TwitterApiTokens);
   /**
+   * Create a new TwitterApi object with Basic HTTP authentification.
+   */
+  constructor(credentials: TwitterApiBasicAuth);
+  /**
    * Create a clone of {instance}.
    */
   constructor(instance: TwitterApiBase);
 
-  public constructor(token?: TwitterApiTokens | string | TwitterApiBase) {
+  public constructor(token?: TwitterApiTokens | TwitterApiBasicAuth | string | TwitterApiBase) {
     super();
 
     if (typeof token === 'string') {
@@ -68,7 +72,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._bearerToken = token._bearerToken;
       this._basicToken = token._basicToken;
     }
-    else if (typeof token === 'object') {
+    else if (typeof token === 'object' && 'appKey' in token) {
       this._consumerToken = token.appKey;
       this._consumerSecret = token.appSecret;
 
@@ -78,6 +82,10 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       }
 
       this._oauth = this.buildOAuth();
+    }
+    else if (typeof token === 'object' && 'username' in token) {
+      const key = encodeURIComponent(token.username) + ':' + encodeURIComponent(token.password);
+      this._basicToken = Buffer.from(key).toString('base64');
     }
   }
 
@@ -92,7 +100,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     return clone;
   }
 
-  public getActiveTokens() {
+  public getActiveTokens(): TClientTokens {
     if (this._bearerToken) {
       return {
         type: 'oauth2',
@@ -114,6 +122,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
         accessSecret: this._accessSecret,
       };
     }
+    return { type: 'none' };
   }
 
 

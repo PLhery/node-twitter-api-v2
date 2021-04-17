@@ -127,6 +127,11 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
     return { ...this._rateLimit };
   }
 
+  /** Get raw data returned by Twitter API. */
+  get data() {
+    return this._realData;
+  }
+
   /**
    * Iterate over currently fetched items.
    */

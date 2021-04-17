@@ -1,6 +1,12 @@
 import TwitterApi from '.';
 import TwitterApiBase from '../client.base';
-import type { AccessTokenResult, BearerTokenResult, RequestTokenResult, Tweetv2SearchParams } from '../types';
+import type {
+  AccessTokenResult,
+  BearerTokenResult,
+  RequestTokenArgs,
+  RequestTokenResult,
+  Tweetv2SearchParams
+} from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
 import { UserV1 } from '../types';
@@ -63,14 +69,14 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * // Save tokenRequest.oauth_token_secret somewhere, it will be needed for next auth step.
    * ```
    */
-  public async generateAuthLink(oauth_callback = 'oob', x_auth_access_type?: 'read' | 'write') {
+  public async generateAuthLink(oauth_callback = 'oob', { authAccessType, linkMode = 'authenticate' }: Partial<RequestTokenArgs> = {}) {
     const oauth_result = await this.post<RequestTokenResult>(
       'https://api.twitter.com/oauth/request_token',
-      { oauth_callback, x_auth_access_type }
+      { oauth_callback, x_auth_access_type: authAccessType }
     );
 
     return {
-      url: 'https://api.twitter.com/oauth/authorize?oauth_token=' + encodeURIComponent(oauth_result.oauth_token),
+      url: `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauth_result.oauth_token)}`,
       ...oauth_result,
     };
   }
@@ -126,18 +132,11 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     if (!this._consumerToken || !this._consumerSecret)
       throw new Error('You must setup TwitterApi instance with consumers to enable app-only login');
 
-    const key = encodeURIComponent(this._consumerToken) + ':' + encodeURIComponent(this._consumerSecret);
-    const base64 = Buffer.from(key).toString('base64');
+    // Create a client with Basic authentification
+    const basicClient = new TwitterApi({ username: this._consumerToken, password: this._consumerSecret });
+    const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
-    this._basicToken = base64;
-
-    try {
-      const res = await this.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
-
-      // New object with Bearer token
-      return new TwitterApi(res.access_token);
-    } finally {
-      this._basicToken = undefined;
-    } 
+    // New object with Bearer token
+    return new TwitterApi(res.access_token);
   }
 }
