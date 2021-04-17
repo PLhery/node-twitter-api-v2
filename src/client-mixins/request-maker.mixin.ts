@@ -3,10 +3,9 @@ import TweetStream from '../stream/TweetStream';
 import { URLSearchParams } from 'url';
 import FormData from 'form-data';
 import { request, RequestOptions } from 'https';
-import OAuth from 'oauth-1.0a';
-import crypto from 'crypto';
 import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
+import { OAuth1Helper } from './oauth.mixin';
 
 export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
@@ -39,7 +38,7 @@ export abstract class ClientRequestMaker {
   protected _accessToken?: string;
   protected _accessSecret?: string;
   protected _basicToken?: string;
-  protected _oauth?: OAuth;
+  protected _oauth?: OAuth1Helper;
 
   protected static readonly BODY_METHODS = new Set(['POST', 'PUT', 'PATCH']);
 
@@ -88,15 +87,8 @@ export abstract class ClientRequestMaker {
     if (!this._consumerSecret || !this._consumerToken)
       throw new Error('Invalid consumer tokens');
 
-    return new OAuth({
-      consumer: { key: this._consumerToken, secret: this._consumerSecret },
-      signature_method: 'HMAC-SHA1',
-      hash_function(base_string, key) {
-        return crypto
-          .createHmac('sha1', key)
-          .update(base_string)
-          .digest('base64')
-      },
+    return new OAuth1Helper({
+      consumerKeys: { key: this._consumerToken, secret: this._consumerSecret },
     });
   }
 
