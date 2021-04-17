@@ -16,6 +16,8 @@ import type {
   PlaceV1,
   SearchGeoV1Params,
   SearchGeoV1Result,
+  TrendMatchV1,
+  TrendsPlaceV1Params, TrendLocationV1,
 } from '../types';
 
 /**
@@ -81,6 +83,35 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     copiedClient.setPrefix(API_V1_1_STREAM_PREFIX);
 
     return copiedClient as any;
+  }
+
+  /* Trends API */
+
+  /**
+   * Returns the top 50 trending topics for a specific id, if trending information is available for it.
+   * Note: The id parameter for this endpoint is the "where on earth identifier" or WOEID, which is a legacy identifier created by Yahoo and has been deprecated.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/trends/trends-for-location/api-reference/get-trends-place
+   */
+  public trendsByPlace(woeId: string | number, options: Partial<TrendsPlaceV1Params> = {}) {
+    return this.get<TrendMatchV1[]>('trends/place.json', { id: woeId, ...options });
+  }
+
+  /**
+   * Returns the locations that Twitter has trending topic information for.
+   * The response is an array of "locations" that encode the location's WOEID
+   * and some other human-readable information such as a canonical name and country the location belongs in.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/trends/locations-with-trending-topics/api-reference/get-trends-available
+   */
+  public trendsAvailable() {
+    return this.get<TrendLocationV1[]>('trends/available.json');
+  }
+
+  /**
+   * Returns the locations that Twitter has trending topic information for, closest to a specified location.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/trends/locations-with-trending-topics/api-reference/get-trends-closest
+   */
+  public trendsClosest(lat: number, long: number) {
+    return this.get<TrendLocationV1[]>('trends/closest.json', { lat, long });
   }
 
   /* Geo API */

@@ -63,11 +63,24 @@ export interface SendTweetV1Params {
   card_uri?: string;
 }
 
+export type TUploadTypeV1 = 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | 'srt' | 'webp';
+
 export interface UploadMediaV1Params {
-  type: 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | string;
+  type: TUploadTypeV1;
   chunkLength: number;
   additionalOwners: string;
   maxConcurrentUploads: number;
+  target: 'tweet' | 'dm';
+}
+
+export interface MediaMetadataV1Params {
+  alt_text?: string;
+}
+
+export interface MediaSubtitleV1Param {
+  media_id: string;
+  language_code: string;
+  display_name: string;
 }
 
 export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;

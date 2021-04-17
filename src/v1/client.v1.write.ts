@@ -2,15 +2,17 @@ import { API_V1_1_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
 import type {
   FinalizeMediaV1Result,
-  InitMediaV1Result,
+  InitMediaV1Result, MediaMetadataV1Params, MediaSubtitleV1Param,
   SendTweetV1Params,
-  TUploadableMedia,
+  TUploadableMedia, TUploadTypeV1,
   UploadMediaV1Params
 } from '../types';
 import fs from 'fs';
 
 const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
 const UPLOAD_ENDPOINT = 'media/upload.json';
+
+type TFileHandle = fs.promises.FileHandle | number | Buffer;
 
 /**
  * Base Twitter v1 client with read/write rights.
@@ -43,14 +45,59 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     });
   }
 
+  /* Media upload API */
+
   /**
-   * Upload a media (JPG/PNG/GIF/MP4) to Twitter and return the media_id to use in tweet send.
+   * This endpoint can be used to provide additional information about the uploaded media_id.
+   * This feature is currently only supported for images and GIFs.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-metadata-create
+   */
+  public createMediaMetadata(mediaId: string, metadata: Partial<MediaMetadataV1Params>) {
+    return this.post<void>(
+      'media/metadata/create.json',
+      { media_id: mediaId, ...metadata },
+      { prefix: UPLOAD_PREFIX, forceBodyMode: 'json' },
+    );
+  }
+
+  /**
+   * Use this endpoint to associate uploaded subtitles to an uploaded video. You can associate subtitles to video before or after Tweeting.
+   * **To obtain subtitle media ID, you must upload each subtitle file separately using `.uploadMedia()` method.**
+   *
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-create
+   */
+  public createMediaSubtitles(mediaId: string, subtitles: MediaSubtitleV1Param[]) {
+    return this.post<void>(
+      'media/subtitles/create.json',
+      { media_id: mediaId, media_category: 'TweetVideo', subtitle_info: { subtitles } },
+      { prefix: UPLOAD_PREFIX, forceBodyMode: 'json' },
+    );
+  }
+
+  /**
+   * Use this endpoint to dissociate subtitles from a video and delete the subtitles. You can dissociate subtitles from a video before or after Tweeting.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-delete
+   */
+  public deleteMediaSubtitles(mediaId: string, ...languages: string[]) {
+    return this.post<void>(
+      'media/subtitles/delete.json',
+      {
+        media_id: mediaId,
+        media_category: 'TweetVideo',
+        subtitle_info: { subtitles: languages.map(lang => ({ language_code: lang })) },
+      },
+      { prefix: UPLOAD_PREFIX, forceBodyMode: 'json' },
+    );
+  }
+
+  /**
+   * Upload a media (JPG/PNG/GIF/MP4/WEBP) or subtitle (SRT) to Twitter and return the media_id to use in tweet/DM send.
    * 
    * @param file If `string`, filename is supposed. 
    * A `Buffer` is a raw file. 
    * `fs.promises.FileHandle` or `number` are file pointers.
    * 
-   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif').
+   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif' | 'srt' | 'webp').
    * If filename is given, it could be guessed with file extension, otherwise this parameter is mandatory.
    * If type is not part of the enum, it will be used as mime type.
    * 
@@ -61,6 +108,9 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * @param options.additionalOwners Other user IDs allowed to use the returned media_id. Default goes to none.
    * 
    * @param options.maxConcurrentUploads Maximum uploaded chunks in the same time. Default goes to 3.
+   *
+   * @param options.target Target type `tweet` or `dm`. Defaults to `tweet`.
+   * You must specify it if you send a media to use in DMs.
    */
   public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params> = {}) {
     const chunkLength = options.chunkLength ?? (1024 * 1024);
@@ -146,13 +196,10 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     }
   }
 
-  protected async getUploadMediaRequirements(file: TUploadableMedia, { type }: Partial<UploadMediaV1Params> = {}) {
-    let fileSize: number;
-    let fileHandle: fs.promises.FileHandle | number | Buffer;
-    let mimeType: string;
-    let mediaCategory: string;
-
+  protected async getUploadMediaRequirements(file: TUploadableMedia, { type, target }: Partial<UploadMediaV1Params> = {}) {
     // Get the file handle (if not buffer)
+    let fileHandle: TFileHandle;
+
     try {
       if (typeof file === 'string') {
         fileHandle = await fs.promises.open(file, 'r');
@@ -167,39 +214,26 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       }
 
       // Get the file size
-      if (typeof fileHandle === 'number') {
-        const stats = await new Promise((resolve, reject) => {
-          fs.fstat(fileHandle as number, (err, stats) => {
-            if (err) reject(err);
-            resolve(stats);
-          });
-        }) as fs.Stats;
-
-        fileSize = stats.size;
-      } else if (fileHandle instanceof Buffer) {
-        fileSize = fileHandle.length;
-      } else {
-        fileSize = (await fileHandle.stat()).size;
-      }
+      const fileSize = await this.getFileSizeFromFileHandle(fileHandle);
 
       // Get the mimetype
+      let mimeType: string;
+
       if (typeof file === 'string' && !type) {
         mimeType = this.getMimeByName(file);
       } else if (typeof type === 'string') {
-        if (type === 'gif') mimeType = 'image/gif';
-        if (type === 'jpg') mimeType = 'image/jpeg';
-        if (type === 'png') mimeType = 'image/png';
-        if (type === 'mp4' || type === 'longmp4') mimeType = 'video/mp4';
-        else mimeType = type;
+        mimeType = this.getMimeByType(type);
       } else {
         throw new Error('You must specify type if file is a file handle or Buffer.');
       }
 
       // Get the media category
+      let mediaCategory: string;
+
       if (type === 'longmp4') {
         mediaCategory = 'amplify_video';
       } else {
-        mediaCategory = this.getMediaCategoryByMime(mimeType);
+        mediaCategory = this.getMediaCategoryByMime(mimeType, target ?? 'tweet');
       }
 
       return {
@@ -222,7 +256,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   protected async mediaChunkedUpload(
-    fileHandle: Buffer | number | fs.promises.FileHandle,
+    fileHandle: TFileHandle,
     chunkLength: number, 
     mediaId: string,
     maxConcurrentUploads = 3,
@@ -287,7 +321,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     await Promise.all([...currentUploads]);
   }
 
-  protected async readNextPartOf(file: number | Buffer | fs.promises.FileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {
+  protected async readNextPartOf(file: TFileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {
     if (file instanceof Buffer) {
       const rt = file.slice(bufferOffset, bufferOffset + chunkLength);
       return [rt, rt.length];
@@ -315,18 +349,50 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     return [buffer, bytesRead];
   }
 
+  protected async getFileSizeFromFileHandle(fileHandle: TFileHandle) {
+    // Get the file size
+    if (typeof fileHandle === 'number') {
+      const stats = await new Promise((resolve, reject) => {
+        fs.fstat(fileHandle as number, (err, stats) => {
+          if (err) reject(err);
+          resolve(stats);
+        });
+      }) as fs.Stats;
+
+      return stats.size;
+    } else if (fileHandle instanceof Buffer) {
+      return fileHandle.length;
+    } else {
+      return (await fileHandle.stat()).size;
+    }
+  }
+
   protected getMimeByName(name: string) {
-    if (name.endsWith('.jpeg') || name.endsWith('.jpg')) return 'image/jpeg';
+    if (name.endsWith('.jpeg') || name.endsWith('.jpg')) return 'image/jpeg';
     if (name.endsWith('.png')) return 'image/png';
+    if (name.endsWith('.webp')) return 'image/webp';
     if (name.endsWith('.gif')) return 'image/gif';
-    if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return 'video/mp4';
+    if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return 'video/mp4';
+    if (name.endsWith('.srt')) return 'text/plain';
     
     return 'image/jpeg';
   }
 
-  protected getMediaCategoryByMime(name: string) {
-    if (name === 'video/mp4') return 'tweet_video';
-    if (name === 'image/gif') return 'tweet_gif';
-    else return 'tweet_image';
+  protected getMimeByType(type: TUploadTypeV1) {
+    if (type === 'gif') return 'image/gif';
+    if (type === 'jpg') return 'image/jpeg';
+    if (type === 'png') return 'image/png';
+    if (type === 'webp') return 'image/webp';
+    if (type === 'srt') return 'text/plain';
+    if (type === 'mp4' || type === 'longmp4') return 'video/mp4';
+
+    return type;
+  }
+
+  protected getMediaCategoryByMime(name: string, target: 'tweet' | 'dm') {
+    if (name === 'video/mp4') return target === 'tweet' ? 'TweetVideo' : 'DmVideo';
+    if (name === 'image/gif') return target === 'tweet' ? 'TweetGif' : 'DmGif';
+    if (name === 'text/plain') return 'Subtitles';
+    else return target === 'tweet' ? 'TweetImage' : 'DmImage';
   }
 }

@@ -128,3 +128,21 @@ export interface PlaceV1 {
     [geoTagId: string]: string;
   };
 }
+
+export interface TrendV1 {
+  name: string;
+  url: string;
+  promoted_content?: boolean;
+  query: string;
+  tweet_volume: number;
+}
+
+export interface TrendLocationV1 {
+  name: string;
+  woeid: number;
+  url?: string;
+  placeType?: { code: number; name: string; };
+  parentid?: number;
+  country?: string;
+  countryCode?: string;
+}
