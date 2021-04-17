@@ -5,12 +5,13 @@ import FormData from 'form-data';
 import { request, RequestOptions } from 'https';
 import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
-import { OAuth1Helper } from './oauth.mixin';
+import OAuth1Helper from './oauth1.helper';
 
 export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
 export type TRequestStringQuery = Record<string, string>;
 export type TRequestBody = Record<string, any> | Buffer;
+export type TBodyMode = 'json' | 'url' | 'form-data' | 'raw';
 
 interface IWriteAuthHeadersArgs {
   headers: Record<string, string>;
@@ -27,9 +28,10 @@ export interface IGetHttpRequestArgs {
   query?: TRequestQuery;
   body?: TRequestBody;
   headers?: Record<string, string>;
+  forceBodyMode?: TBodyMode;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode'>;
 
 export abstract class ClientRequestMaker {
   protected _bearerToken?: string;
@@ -48,8 +50,8 @@ export abstract class ClientRequestMaker {
    * The request URL should not contains a query string, prefers using `parameters` for GET request.
    * If you need to pass a body AND query string parameter, duplicate parameters in the body.
    */
-  send<T = any>({ url, method, query = {}, body, headers }: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
-    const args = this.getHttpRequestArgs({ url, method, query, body, headers });
+  send<T = any>(options: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
+    const args = this.getHttpRequestArgs(options);
 
     return this.httpSend(
       args.url,
@@ -67,8 +69,8 @@ export abstract class ClientRequestMaker {
    * The request URL should not contains a query string, prefers using `parameters` for GET request.
    * If you need to pass a body AND query string parameter, duplicate parameters in the body.
    */
-  sendStream({ url, method, query = {}, body, headers }: IGetHttpRequestArgs) : Promise<TweetStream> {
-    const args = this.getHttpRequestArgs({ url, method, query, body, headers });
+  sendStream(options: IGetHttpRequestArgs) : Promise<TweetStream> {
+    const args = this.getHttpRequestArgs(options);
 
     return this.httpStream(
       args.url,
@@ -131,7 +133,7 @@ export abstract class ClientRequestMaker {
     return headers;
   }
 
-  protected getHttpRequestArgs({ url, method, query: rawQuery = {}, body: rawBody = {}, headers }: IGetHttpRequestArgs) {
+  protected getHttpRequestArgs({ url, method, query: rawQuery = {}, body: rawBody = {}, headers, forceBodyMode }: IGetHttpRequestArgs) {
     let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
@@ -145,7 +147,7 @@ export abstract class ClientRequestMaker {
     }
 
     // OAuth signature should not include parameters when using multipart.
-    const bodyType = RequestParamHelpers.autoDetectBodyType(url);
+    const bodyType = forceBodyMode ?? RequestParamHelpers.autoDetectBodyType(url);
     const isMultipart = ClientRequestMaker.BODY_METHODS.has(method) && bodyType === 'form-data';
 
     headers = this.writeAuthHeaders({ headers, isMultipart, url, method, query, body: rawBody });
@@ -209,7 +211,7 @@ class RequestParamHelpers {
     return formattedQuery;
   }
 
-  static autoDetectBodyType(url: string) : 'json' | 'url' | 'form-data' {
+  static autoDetectBodyType(url: string) : TBodyMode {
     if (url.includes('.twitter.com/2')) {
       // Twitter API v2 always has JSON-encoded requests, right?
       return 'json';
@@ -237,7 +239,7 @@ class RequestParamHelpers {
   static constructBodyParams(
     body: TRequestBody,
     headers: Record<string, string>,
-    mode: 'json' | 'url' | 'form-data'
+    mode: TBodyMode,
   ) {
     if (body instanceof Buffer) {
       return body;
@@ -254,6 +256,9 @@ class RequestParamHelpers {
         return new URLSearchParams(body).toString();
 
       return '';
+    }
+    else if (mode === 'raw') {
+      throw new Error('You can only use raw body mode with Buffers. To give a string, use Buffer.from(str).');
     }
     else {
       const form = new FormData();

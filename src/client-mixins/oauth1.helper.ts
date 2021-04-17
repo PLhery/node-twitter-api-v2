@@ -31,7 +31,7 @@ export interface OAuth1AuthInfo {
 
 export class OAuth1Helper {
   nonceLength = 32;
-  protected consumerKeys: { key: string, secret: string; };
+  protected consumerKeys: OAuth1Tokens;
 
   constructor(options: OAuth1MakerArgs) {
     this.consumerKeys = options.consumerKeys;
@@ -45,7 +45,7 @@ export class OAuth1Helper {
   }
 
   authorize(request: OAuth1RequestOptions, accessTokens: Partial<OAuth1Tokens> = {}) {
-    const oauthInfo: any = {
+    const oauthInfo: Partial<OAuth1AuthInfo> = {
       oauth_consumer_key: this.consumerKeys.key,
       oauth_nonce: this.getNonce(),
       oauth_signature_method: 'HMAC-SHA1',
@@ -159,6 +159,8 @@ export class OAuth1Helper {
   }
 }
 
+export default OAuth1Helper;
+
 // Helper functions //
 
 function mergeObject<A, B>(obj1: A, obj2: B): A & B {
@@ -190,7 +192,7 @@ function sortObject<T extends object>(data: T) {
 
 function deParam(string: string) {
   const splitted = string.split('&');
-  const data: any = {};
+  const data: { [key: string]: string | string[] } = {};
 
   for (const coupleKeyValue of splitted) {
     const [key, value = ''] = coupleKeyValue.split('=');
@@ -201,10 +203,10 @@ function deParam(string: string) {
       // the key exists already
       if (!Array.isArray(data[key])) {
         // replace the value with an array containing the already present value
-        data[key] = [data[key]];
+        data[key] = [data[key] as string];
       }
       // and add the new found value to it
-      data[key].push(decodeURIComponent(value));
+      (data[key] as string[]).push(decodeURIComponent(value));
     } else {
       // it doesn't exist, just put the found value in the data object
       data[key] = decodeURIComponent(value);
