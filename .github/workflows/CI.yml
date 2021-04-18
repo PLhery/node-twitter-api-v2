@@ -1,0 +1,26 @@
+name: CI
+
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 15.x]
+      max-parallel: 1 # the streaming API can be called only once at a time
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+        env:
+          CONSUMER_TOKEN: ${{ secrets.CONSUMER_TOKEN }}
+          CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
+          OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN }}
+          OAUTH_SECRET: ${{ secrets.OAUTH_SECRET }}

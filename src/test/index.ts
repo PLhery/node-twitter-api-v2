@@ -1,8 +1,5 @@
 import { TwitterApi } from '..';
-import dotenv from 'dotenv';
 import { getAccessClient, getAppClient, getAuthLink } from './utils';
-
-const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
 (async () => {
   const argActive = (name: string) => process.argv.find(arg => arg.startsWith('--' + name));
