@@ -1,14 +1,34 @@
 // Tweets
-export interface Tweetv2SearchParams extends Partial<Tweetv2FieldsParams> {
+import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
+import type { TypeOrArrayOf } from '../shared.types';
+import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+
+/// -- Timelines --
+
+// - Timeline params -
+
+export interface TweetV2TimelineParams extends Partial<Tweetv2FieldsParams> {
   /** ISO date string */
   end_time?: string;
   /** ISO date string */
   start_time?: string;
   max_results?: number | string;
-  next_token?: string;
-  query: string;
   since_id?: string;
   until_id?: string;
+}
+
+export interface Tweetv2SearchParams extends TweetV2TimelineParams {
+  next_token?: string;
+  previous_token?: string;
+  query: string;
+}
+
+export interface TweetV2PaginableTimelineParams extends TweetV2TimelineParams {
+  pagination_token?: string;
+}
+
+export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParams {
+  exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
 }
 
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
@@ -25,25 +45,29 @@ export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id'
   | 'url' | 'username' | 'verified' | 'withheld';
 
 export interface Tweetv2FieldsParams {
-  expansions: TTweetv2Expansion | string;
-  'media.fields': TTweetv2MediaField | string;
-  'place.fields': TTweetv2PlaceField | string;
-  'poll.fields': TTweetv2PollField | string;
-  'tweet.fields': TTweetv2TweetField | string;
-  'user.fields': TTweetv2UserField | string;
+  expansions: TypeOrArrayOf<TTweetv2Expansion> | string;
+  'media.fields': TypeOrArrayOf<TTweetv2MediaField> | string;
+  'place.fields': TypeOrArrayOf<TTweetv2PlaceField> | string;
+  'poll.fields': TypeOrArrayOf<TTweetv2PollField> | string;
+  'tweet.fields': TypeOrArrayOf<TTweetv2TweetField> | string;
+  'user.fields': TypeOrArrayOf<TTweetv2UserField> | string;
 }
 
-// TODO type
-export interface TweetV2 {
-  [field: string]: any;
-}
+// - Timeline results -
 
-export interface Tweetv2SearchResult {
-  data: TweetV2[];
-  meta: {
-    newest_id: string;
-    oldest_id: string;
-    result_count: number;
-    next_token: string;
-  };
-}
+export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
+  newest_id: string;
+  oldest_id: string;
+  result_count: number;
+  next_token?: string;
+}, ApiV2Includes>;
+
+export type Tweetv2SearchResult = Tweetv2TimelineResult;
+export type TweetV2UserTimelineResult = Tweetv2TimelineResult;
+
+export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
+export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;
+
+/// -- Replies --
+
+export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;

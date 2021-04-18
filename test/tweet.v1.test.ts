@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi } from '../src';
+import { TwitterApi, TwitterApiV2Settings } from '../src';
 import { getUserClient } from '../src/test/utils';
 
 let client: TwitterApi;
@@ -10,7 +10,7 @@ describe('Tweets endpoints for v1.1 API', () => {
     client = getUserClient();
   });
 
-  it('Get 2 tweets using raw HTTP method & specific endpoint', async () => {
+  it('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
     // Using raw HTTP method and URL
     const response1 = await client.get('https://api.twitter.com/1.1/search/tweets.json?q=@alkihis&count=2');
     // Using query parser
@@ -29,10 +29,9 @@ describe('Tweets endpoints for v1.1 API', () => {
       const firstUser = firstTweet.user;
       expect(firstUser).to.haveOwnProperty('id_str')
     }
-
   }).timeout(60 * 1000);
 
-  it('Get 2 tweets of a specific user', async () => {
+  it('.get - Get 2 tweets of a specific user', async () => {
     // Using raw HTTP method and URL
     const response1 = await client.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=jack&count=2&include_rts=false');
     // Using query parser

@@ -61,6 +61,13 @@ stream.on(
 
 // Be sure to close the stream where you don't want to consume data anymore from it
 stream.close();
+
+// -- Alternative usage --
+
+// You can also use async iterator to iterate over tweets!
+for await (const { data } of stream) {
+  console.log('This is my tweet:', data);
+}
 ```
 
 ## Specific API v1.1 implementations
@@ -72,6 +79,8 @@ API v1.1 streaming-related endpoints works only with classic OAuth1.0a authentif
 Method: **`v1.filterStream`**.
 
 Endpoint: `statuses/filter.json`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
 
 Level: **Read-only**.
 
@@ -93,6 +102,8 @@ Method: **`v1.sampleStream`**.
 
 Endpoint: `statuses/sample.json`.
 
+Reference: https://developer.twitter.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
+
 Level: **Read-only**.
 
 ```ts
@@ -113,6 +124,8 @@ Method: **`v2.searchStream`**.
 
 Endpoint: `tweets/search/stream`.
 
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
+
 Level: **Read-only**.
 
 ```ts
@@ -128,6 +141,8 @@ const stream = await client.v2.searchStream();
 Method: **`v2.streamRules`**.
 
 Endpoint: `tweets/search/stream/rules (GET)`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
 
 Level: **Read-only**.
 
@@ -147,6 +162,8 @@ console.log(rules.data.map(rule => rule.id));
 Method: **`v2.updateStreamRules`**.
 
 Endpoint: `tweets/search/stream/rules (POST)`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
 
 Level: **Read-write**.
 
@@ -177,6 +194,8 @@ const deleteRules = await client.v2.updateStreamRules({
 Method: **`v2.sampleStream`**.
 
 Endpoint: `tweets/sample/stream`.
+
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
 
 Level: **Read-only**.
 

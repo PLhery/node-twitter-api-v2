@@ -1,4 +1,4 @@
-import { TwitterApiTokens, TwitterResponse } from './types';
+import { TClientTokens, TwitterApiBasicAuth, TwitterApiTokens, TwitterResponse } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -48,11 +48,15 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    */
   constructor(tokens: TwitterApiTokens);
   /**
+   * Create a new TwitterApi object with Basic HTTP authentification.
+   */
+  constructor(credentials: TwitterApiBasicAuth);
+  /**
    * Create a clone of {instance}.
    */
   constructor(instance: TwitterApiBase);
 
-  public constructor(token?: TwitterApiTokens | string | TwitterApiBase) {
+  public constructor(token?: TwitterApiTokens | TwitterApiBasicAuth | string | TwitterApiBase) {
     super();
 
     if (typeof token === 'string') {
@@ -68,7 +72,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._bearerToken = token._bearerToken;
       this._basicToken = token._basicToken;
     }
-    else if (typeof token === 'object') {
+    else if (typeof token === 'object' && 'appKey' in token) {
       this._consumerToken = token.appKey;
       this._consumerSecret = token.appSecret;
 
@@ -79,13 +83,24 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
 
       this._oauth = this.buildOAuth();
     }
+    else if (typeof token === 'object' && 'username' in token) {
+      const key = encodeURIComponent(token.username) + ':' + encodeURIComponent(token.password);
+      this._basicToken = Buffer.from(key).toString('base64');
+    }
   }
 
   protected setPrefix(prefix: string | undefined) {
     this._prefix = prefix;
   }
 
-  public getActiveTokens() {
+  public cloneWithPrefix(prefix: string): this {
+    const clone = (this.constructor as any)(this);
+    (clone as TwitterApiBase).setPrefix(prefix);
+
+    return clone;
+  }
+
+  public getActiveTokens(): TClientTokens {
     if (this._bearerToken) {
       return {
         type: 'oauth2',
@@ -107,6 +122,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
         accessSecret: this._accessSecret,
       };
     }
+    return { type: 'none' };
   }
 
 
@@ -115,7 +131,11 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   async get<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsDataResponse) : Promise<T>;
   async get<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
 
-  public async get<T = any>(url: string, query: TRequestQuery = {}, { fullResponse, prefix = this._prefix }: TGetClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
+  public async get<T = any>(
+    url: string,
+    query: TRequestQuery = {},
+    { fullResponse, prefix = this._prefix, ...rest }: TGetClientRequestArgs = {},
+  ) : Promise<T | TwitterResponse<T>> {
     if (prefix)
       url = prefix + url;
 
@@ -123,6 +143,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       url,
       method: 'GET',
       query,
+      ...rest,
     });
 
     return fullResponse ? resp : resp.data;
@@ -131,7 +152,11 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   async delete<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsDataResponse) : Promise<T>;
   async delete<T = any>(url: string, query?: TRequestQuery, args?: TGetClientRequestArgsFullResponse) : Promise<TwitterResponse<T>>;
 
-  public async delete<T = any>(url: string, query: TRequestQuery = {}, { fullResponse, prefix = this._prefix }: TGetClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
+  public async delete<T = any>(
+    url: string,
+    query: TRequestQuery = {},
+    { fullResponse, prefix = this._prefix, ...rest }: TGetClientRequestArgs = {},
+  ) : Promise<T | TwitterResponse<T>> {
     if (prefix)
       url = prefix + url;
 
@@ -139,6 +164,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       url,
       method: 'DELETE',
       query,
+      ...rest
     });
 
     return fullResponse ? resp : resp.data;
@@ -198,33 +224,33 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
 
   /** Stream request helpers */
 
-  public async getStream(url: string, query?: TRequestQuery, { prefix = this._prefix }: TStreamClientRequestArgs = {}) : Promise<TweetStream> {
+  public async getStream<T = any>(url: string, query?: TRequestQuery, { prefix = this._prefix }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
     if (prefix)
       url = prefix + url;
 
-    return this.sendStream({
+    return this.sendStream<T>({
       url,
       method: 'GET',
       query,
     });
   }
 
-  public async deleteStream(url: string, query?: TRequestQuery, { prefix = this._prefix }: TStreamClientRequestArgs = {}) : Promise<TweetStream> {
+  public async deleteStream<T = any>(url: string, query?: TRequestQuery, { prefix = this._prefix }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
     if (prefix)
       url = prefix + url;
 
-    return this.sendStream({
+    return this.sendStream<T>({
       url,
       method: 'DELETE',
       query,
     });
   }
 
-  public async postStream(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream> {
+  public async postStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
     if (prefix)
       url = prefix + url;
 
-    return this.sendStream({
+    return this.sendStream<T>({
       url,
       method: 'POST',
       body,
@@ -232,11 +258,11 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     });
   }
 
-  public async putStream(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream> {
+  public async putStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
     if (prefix)
       url = prefix + url;
 
-    return this.sendStream({
+    return this.sendStream<T>({
       url,
       method: 'PUT',
       body,
@@ -244,11 +270,11 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     });
   }
 
-  public async patchStream(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream> {
+  public async patchStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
     if (prefix)
       url = prefix + url;
 
-    return this.sendStream({
+    return this.sendStream<T>({
       url,
       method: 'PATCH',
       body,

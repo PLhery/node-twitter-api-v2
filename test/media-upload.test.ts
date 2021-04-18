@@ -10,6 +10,7 @@ const dirname = __dirname;
 
 const jpgImg = path.resolve(dirname, 'assets', 'lolo.jpg');
 const gifImg = path.resolve(dirname, 'assets', 'pec.gif');
+const mp4vid = path.resolve(dirname, 'assets', 'bbb.mp4');
 const maxTimeout = 1000 * 60;
 
 describe('Media upload for v1.1 API', () => {
@@ -54,22 +55,31 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a GIF image from buffer', async () => {
     // Upload media (from buffer)
-    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: 'jpg' });
+    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: 'gif' });
     expect(fromBuffer).to.be.an('string');
     expect(fromBuffer).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
 
   it('Upload a GIF image from file handle', async () => {
     // Upload media (from fileHandle)
-    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(gifImg, 'r'), { type: 'jpg' })
+    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(gifImg, 'r'), { type: 'gif' })
     expect(fromHandle).to.be.an('string');
     expect(fromHandle).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
 
   it('Upload a GIF image from numbered file handle', async () => {
     // Upload media (from numbered fileHandle)
-    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(gifImg, 'r'), { type: 'jpg', maxConcurrentUploads: 1 });
+    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(gifImg, 'r'), { type: 'gif', maxConcurrentUploads: 1 });
     expect(fromNumberFh).to.be.an('string');
     expect(fromNumberFh).to.have.length.greaterThan(0);
+  }).timeout(maxTimeout);
+
+  it('Upload a MP4 video from path', async () => {
+    const video = await client.v1.uploadMedia(mp4vid);
+    expect(video).to.be.an('string');
+    expect(video).to.have.length.greaterThan(0);
+
+    const mediaInfo = await client.v1.mediaInfo(video);
+    expect(mediaInfo.processing_info?.state).to.equal('succeeded');
   }).timeout(maxTimeout);
 });

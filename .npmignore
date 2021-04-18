@@ -1,2 +1,4 @@
-./src/test/
+./src/
 ./test/
+./tsdocs/
+./dist/test/

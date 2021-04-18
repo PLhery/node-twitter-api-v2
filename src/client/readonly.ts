@@ -1,8 +1,15 @@
 import TwitterApi from '.';
 import TwitterApiBase from '../client.base';
-import type { AccessTokenResult, BearerTokenResult, RequestTokenResult, Tweetv2SearchParams } from '../types';
+import type {
+  AccessTokenResult,
+  BearerTokenResult, LoginResult,
+  RequestTokenArgs,
+  RequestTokenResult,
+  Tweetv2SearchParams
+} from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
+import { UserV1 } from '../types';
 
 /**
  * Twitter v1.1 and v2 API client.
@@ -10,8 +17,10 @@ import TwitterApiv2ReadOnly from '../v2/client.v2.read';
 export default class TwitterApiReadOnly extends TwitterApiBase {
   protected _v1?: TwitterApiv1ReadOnly;
   protected _v2?: TwitterApiv2ReadOnly;
+  protected _currentUser?: UserV1;
 
   /* Direct access to subclients */
+
   public get v1() {
     if (this._v1) return this._v1;
     
@@ -24,6 +33,21 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     return this._v2 = new TwitterApiv2ReadOnly(this);
   }
 
+  /**
+   * Fetch and cache current user.
+   * This method can only be called with a OAuth 1.0a user authentification.
+   *
+   * You can use this method to test if authentification was successful.
+   * Next calls to this methods will use the cached user, unless `forceFetch: true` is given.
+   */
+  public async currentUser(forceFetch = false) {
+    if (!forceFetch && this._currentUser) {
+      return this._currentUser;
+    }
+
+    return this._currentUser = await this.v1.verifyCredentials();
+  }
+
 
   /* Shortcuts to endpoints */
 
@@ -33,6 +57,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
   
   /* Authentification */
+
   /**
    * Generate the OAuth request token link for user-based OAuth 1.0 auth.
    * 
@@ -46,14 +71,14 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * // Save tokenRequest.oauth_token_secret somewhere, it will be needed for next auth step.
    * ```
    */
-  public async generateAuthLink(oauth_callback = 'oob', x_auth_access_type?: 'read' | 'write') {
+  public async generateAuthLink(oauth_callback = 'oob', { authAccessType, linkMode = 'authenticate' }: Partial<RequestTokenArgs> = {}) {
     const oauth_result = await this.post<RequestTokenResult>(
       'https://api.twitter.com/oauth/request_token',
-      { oauth_callback, x_auth_access_type }
+      { oauth_callback, x_auth_access_type: authAccessType }
     );
 
     return {
-      url: 'https://api.twitter.com/oauth/authorize?oauth_token=' + encodeURIComponent(oauth_result.oauth_token),
+      url: `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauth_result.oauth_token)}`,
       ...oauth_result,
     };
   }
@@ -74,23 +99,31 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * });
    * 
    * // Use oauth_verifier obtained from callback request
-   * const userClient = await requestClient.login('oauth_verifier');
+   * const { client: userClient } = await requestClient.login('oauth_verifier');
    * 
    * // {userClient} is a valid {TwitterApi} object you can use for future requests
    * ```
    */
-  public async login(oauth_verifier: string) {
+  public async login(oauth_verifier: string): Promise<LoginResult> {
     const oauth_result = await this.post<AccessTokenResult>(
       'https://api.twitter.com/oauth/access_token',
       { oauth_token: this._accessToken, oauth_verifier }
     );
 
-    return new TwitterApi({
+    const client = new TwitterApi({
       appKey: this._consumerToken!,
       appSecret: this._consumerSecret!,
       accessToken: oauth_result.oauth_token,
       accessSecret: oauth_result.oauth_token_secret,
     });
+
+    return {
+      accessToken: oauth_result.oauth_token,
+      accessSecret: oauth_result.oauth_token_secret,
+      userId: oauth_result.user_id,
+      screenName: oauth_result.screen_name,
+      client,
+    };
   }
 
   /**
@@ -109,18 +142,11 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     if (!this._consumerToken || !this._consumerSecret)
       throw new Error('You must setup TwitterApi instance with consumers to enable app-only login');
 
-    const key = encodeURIComponent(this._consumerToken) + ':' + encodeURIComponent(this._consumerSecret);
-    const base64 = Buffer.from(key).toString('base64');
+    // Create a client with Basic authentification
+    const basicClient = new TwitterApi({ username: this._consumerToken, password: this._consumerSecret });
+    const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
-    this._basicToken = base64;
-
-    try {
-      const res = await this.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
-
-      // New object with Bearer token
-      return new TwitterApi(res.access_token);
-    } finally {
-      this._basicToken = undefined;
-    } 
+    // New object with Bearer token
+    return new TwitterApi(res.access_token);
   }
 }

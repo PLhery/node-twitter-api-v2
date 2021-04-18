@@ -25,7 +25,7 @@ export function getAuthLink(callback: string) {
   return requestClient.generateAuthLink(callback);
 }
 
-export function getAccessClient(verifier: string) {
+export async function getAccessClient(verifier: string) {
   let requestClient = new TwitterApi({
     appKey: ENV.CONSUMER_TOKEN!,
     appSecret: ENV.CONSUMER_SECRET!,
@@ -33,7 +33,8 @@ export function getAccessClient(verifier: string) {
     accessSecret: ENV.OAUTH_SECRET!,
   });
 
-  return requestClient.login(verifier);
+  const { client } = await requestClient.login(verifier);
+  return client;
 }
 
 /** App OAuth 2.0 client */

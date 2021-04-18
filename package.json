@@ -1,13 +1,26 @@
 {
   "name": "twitter-api-v2",
   "version": "0.4.0",
-  "description": "Twitter api v1 and v2 client for node",
+  "description": "Strongly typed, full-featured, right protected, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "keywords": [
+    "twitter",
+    "api",
+    "typed",
+    "types",
+    "v2",
+    "v1.1"
+  ],
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "test-specific": "mocha -r ts-node/register",
+    "build-doc": "typedoc src/index.ts --out tsdocs",
+    "mocha": "mocha -r ts-node/register --timeout 10000",
+    "test": "npm run mocha 'test/**/*.test.ts'",
+    "test-tweet": "npm run mocha 'test/tweet.*.test.ts'",
+    "test-user": "npm run mocha 'test/user.*.test.ts'",
+    "test-stream": "npm run mocha test/stream.test.ts",
+    "test-media": "npm run mocha test/media-upload.test.ts",
     "prepublish": "npm run build"
   },
   "repository": "github:plhery/node-twitter-api",
@@ -21,17 +34,16 @@
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.37",
     "chai": "^4.3.4",
-    "commander": "^6.2.1",
     "dotenv": "^8.2.0",
     "mocha": "^8.3.2",
     "ts-node": "^9.1.1",
+    "typedoc": "^0.20.35",
     "typescript": "^4.2.4"
   },
   "bugs": {
     "url": "https://github.com/plhery/node-twitter-api/issues"
   },
   "dependencies": {
-    "form-data": "^3.0.1",
-    "oauth-1.0a": "^2.2.6"
+    "form-data": "^4.0.0"
   }
 }

@@ -15,3 +15,32 @@ export interface TwitterApiTokens {
   accessToken?: string;
   accessSecret?: string;
 }
+
+export interface TwitterApiBasicAuth {
+  username: string;
+  password: string;
+}
+
+export interface IClientTokenBearer {
+  bearerToken: string;
+  type: 'oauth2';
+}
+
+export interface IClientTokenBasic {
+  token: string;
+  type: 'basic';
+}
+
+export interface IClientTokenOauth {
+  appKey: string;
+  appSecret: string;
+  accessToken?: string;
+  accessSecret?: string;
+  type: 'oauth-1.0a';
+}
+
+export interface IClientTokenNone {
+  type: 'none';
+}
+
+export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientTokenOauth | IClientTokenBasic;

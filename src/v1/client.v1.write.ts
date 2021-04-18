@@ -1,15 +1,18 @@
-import { API_V1_1_PREFIX } from '../globals';
+import { API_V1_1_PREFIX, API_V1_1_UPLOAD_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
-import type {
-  FinalizeMediaV1Result,
+import {
+  MediaStatusV1Result,
   InitMediaV1Result,
+  MediaMetadataV1Params,
+  MediaSubtitleV1Param,
   SendTweetV1Params,
   TUploadableMedia,
+  TweetV1,
   UploadMediaV1Params
 } from '../types';
 import fs from 'fs';
+import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
 
-const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
 const UPLOAD_ENDPOINT = 'media/upload.json';
 
 /**
@@ -25,11 +28,19 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     return this as TwitterApiv1ReadOnly;
   }
 
+  /* Tweet API */
+
   /**
    * Post a new tweet.
    */
   public tweet(status: string, payload: Partial<SendTweetV1Params> = {}) {
-    return this.post('statuses/update.json', { status, ...payload });
+    const queryParams: Partial<SendTweetV1Params> = {
+      status,
+      tweet_mode: 'extended',
+      ...payload
+    };
+
+    return this.post<TweetV1>('statuses/update.json', queryParams);
   }
 
   /**
@@ -43,24 +54,72 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     });
   }
 
+  /* Media upload API */
+
   /**
-   * Upload a media (JPG/PNG/GIF/MP4) to Twitter and return the media_id to use in tweet send.
-   * 
-   * @param file If `string`, filename is supposed. 
-   * A `Buffer` is a raw file. 
+   * This endpoint can be used to provide additional information about the uploaded media_id.
+   * This feature is currently only supported for images and GIFs.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-metadata-create
+   */
+  public createMediaMetadata(mediaId: string, metadata: Partial<MediaMetadataV1Params>) {
+    return this.post<void>(
+      'media/metadata/create.json',
+      { media_id: mediaId, ...metadata },
+      { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'json' },
+    );
+  }
+
+  /**
+   * Use this endpoint to associate uploaded subtitles to an uploaded video. You can associate subtitles to video before or after Tweeting.
+   * **To obtain subtitle media ID, you must upload each subtitle file separately using `.uploadMedia()` method.**
+   *
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-create
+   */
+  public createMediaSubtitles(mediaId: string, subtitles: MediaSubtitleV1Param[]) {
+    return this.post<void>(
+      'media/subtitles/create.json',
+      { media_id: mediaId, media_category: 'TweetVideo', subtitle_info: { subtitles } },
+      { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'json' },
+    );
+  }
+
+  /**
+   * Use this endpoint to dissociate subtitles from a video and delete the subtitles. You can dissociate subtitles from a video before or after Tweeting.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-delete
+   */
+  public deleteMediaSubtitles(mediaId: string, ...languages: string[]) {
+    return this.post<void>(
+      'media/subtitles/delete.json',
+      {
+        media_id: mediaId,
+        media_category: 'TweetVideo',
+        subtitle_info: { subtitles: languages.map(lang => ({ language_code: lang })) },
+      },
+      { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'json' },
+    );
+  }
+
+  /**
+   * Upload a media (JPG/PNG/GIF/MP4/WEBP) or subtitle (SRT) to Twitter and return the media_id to use in tweet/DM send.
+   *
+   * @param file If `string`, filename is supposed.
+   * A `Buffer` is a raw file.
    * `fs.promises.FileHandle` or `number` are file pointers.
-   * 
-   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif').
+   *
+   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif' | 'srt' | 'webp').
    * If filename is given, it could be guessed with file extension, otherwise this parameter is mandatory.
    * If type is not part of the enum, it will be used as mime type.
-   * 
+   *
    * Type `longmp4` is **required** is you try to upload a video higher than 140 seconds.
-   * 
+   *
    * @param options.chunkLength Maximum chunk length sent to Twitter. Default goes to 1 MB.
-   * 
+   *
    * @param options.additionalOwners Other user IDs allowed to use the returned media_id. Default goes to none.
-   * 
+   *
    * @param options.maxConcurrentUploads Maximum uploaded chunks in the same time. Default goes to 3.
+   *
+   * @param options.target Target type `tweet` or `dm`. Defaults to `tweet`.
+   * You must specify it if you send a media to use in DMs.
    */
   public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params> = {}) {
     const chunkLength = options.chunkLength ?? (1024 * 1024);
@@ -79,62 +138,29 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           media_category: mediaCategory,
           additional_owners: options.additionalOwners,
         },
-        {
-          prefix: UPLOAD_PREFIX,
-        },
+        { prefix: API_V1_1_UPLOAD_PREFIX },
       );
 
       // Upload the media chunk by chunk
       await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
 
       // Finalize media
-      let fullMediaData = await this.post<FinalizeMediaV1Result>(
+      let fullMediaData = await this.post<MediaStatusV1Result>(
         UPLOAD_ENDPOINT,
         {
           command: 'FINALIZE',
           media_id: mediaData.media_id_string,
         },
-        {
-          prefix: UPLOAD_PREFIX,
-        },
+        { prefix: API_V1_1_UPLOAD_PREFIX },
       );
 
+      if (fullMediaData.processing_info && fullMediaData.processing_info.state !== 'succeeded') {
+        // Must wait if video is still computed
+        await this.awaitForMediaProcessingCompletion(fullMediaData);
+      }
+
       // Video is ready, return media_id
-      if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
-        return fullMediaData.media_id_string;
-      }
-
-      // Must wait if video is still computed
-      while (true) {
-        fullMediaData = await this.get(
-          UPLOAD_ENDPOINT,
-          {
-            command: 'STATUS',
-            media_id: mediaData.media_id_string,
-          },
-          {
-            prefix: UPLOAD_PREFIX,
-          },
-        );
-
-        if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
-          return fullMediaData.media_id_string;
-        }
-
-        if (fullMediaData.processing_info.state === 'failed') {
-          throw new Error('Failed to process the media.');
-        }
-
-        if (fullMediaData.processing_info.check_after_secs) {
-          const secs = fullMediaData.processing_info.check_after_secs;
-          // Await for secs seconds
-          await new Promise(resolve => setTimeout(resolve, secs * 1000));
-        }
-        else {
-          // No info; Await for 5 seconds
-          await new Promise(resolve => setTimeout(resolve, 5 * 1000));
-        }
-      }
+      return fullMediaData.media_id_string;
     } finally {
       // Close file if any
       if (typeof file === 'number') {
@@ -146,66 +172,53 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     }
   }
 
-  protected async getUploadMediaRequirements(file: TUploadableMedia, { type }: Partial<UploadMediaV1Params> = {}) {
-    let fileSize: number;
-    let fileHandle: fs.promises.FileHandle | number | Buffer;
-    let mimeType: string;
-    let mediaCategory: string;
+  protected async awaitForMediaProcessingCompletion(fullMediaData: MediaStatusV1Result) {
+    while (true) {
+      fullMediaData = await this.mediaInfo(fullMediaData.media_id_string);
 
+      if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
+        // Ok, completed!
+        return;
+      }
+
+      if (fullMediaData.processing_info.state === 'failed') {
+        throw new Error('Failed to process the media.');
+      }
+
+      if (fullMediaData.processing_info.check_after_secs) {
+        // Await for given seconds
+        await sleepSecs(fullMediaData.processing_info.check_after_secs);
+      }
+      else {
+        // No info; Await for 5 seconds
+        await sleepSecs(5);
+      }
+    }
+  }
+
+  protected async getUploadMediaRequirements(file: TUploadableMedia, { type, target }: Partial<UploadMediaV1Params> = {}) {
     // Get the file handle (if not buffer)
+    let fileHandle: TFileHandle;
+
     try {
-      if (typeof file === 'string') {
-        fileHandle = await fs.promises.open(file, 'r');
-      } else if (typeof file === 'number') {
-        fileHandle = file;
-      } else if (typeof file === 'object' && !(file instanceof Buffer)) {
-        fileHandle = file;
-      } else if (!(file instanceof Buffer)) {
-        throw new Error('Given file is not valid, please check its type.');
-      } else {
-        fileHandle = file;
-      }
-
-      // Get the file size
-      if (typeof fileHandle === 'number') {
-        const stats = await new Promise((resolve, reject) => {
-          fs.fstat(fileHandle as number, (err, stats) => {
-            if (err) reject(err);
-            resolve(stats);
-          });
-        }) as fs.Stats;
-
-        fileSize = stats.size;
-      } else if (fileHandle instanceof Buffer) {
-        fileSize = fileHandle.length;
-      } else {
-        fileSize = (await fileHandle.stat()).size;
-      }
+      fileHandle = await getFileHandle(file);
 
       // Get the mimetype
-      if (typeof file === 'string' && !type) {
-        mimeType = this.getMimeByName(file);
-      } else if (typeof type === 'string') {
-        if (type === 'gif') mimeType = 'image/gif';
-        if (type === 'jpg') mimeType = 'image/jpeg';
-        if (type === 'png') mimeType = 'image/png';
-        if (type === 'mp4' || type === 'longmp4') mimeType = 'video/mp4';
-        else mimeType = type;
-      } else {
-        throw new Error('You must specify type if file is a file handle or Buffer.');
-      }
+      const mimeType = getMimeType(file, type);
 
       // Get the media category
+      let mediaCategory: string;
+
       if (type === 'longmp4') {
         mediaCategory = 'amplify_video';
       } else {
-        mediaCategory = this.getMediaCategoryByMime(mimeType);
+        mediaCategory = getMediaCategoryByMime(mimeType, target ?? 'tweet');
       }
 
       return {
         fileHandle,
         mediaCategory,
-        fileSize,
+        fileSize: await getFileSizeFromFileHandle(fileHandle),
         mimeType,
       };
     } catch (e) {
@@ -222,8 +235,8 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   protected async mediaChunkedUpload(
-    fileHandle: Buffer | number | fs.promises.FileHandle,
-    chunkLength: number, 
+    fileHandle: TFileHandle,
+    chunkLength: number,
     mediaId: string,
     maxConcurrentUploads = 3,
   ) {
@@ -233,7 +246,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     if (maxConcurrentUploads < 1) {
       throw new RangeError('Bad maxConcurrentUploads parameter.');
     }
-      
+
     // Creating a buffer for doing file stuff (if we don't have one)
     const buffer = fileHandle instanceof Buffer ? undefined : Buffer.alloc(chunkLength);
     // Sliced/filled buffer returned for each part
@@ -243,7 +256,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     // Needed to use the buffer object (file handles always "remembers" file position)
     let offset = 0;
 
-    [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
+    [readBuffer, nread] = await readNextPartOf(fileHandle, chunkLength, offset, buffer);
     offset += nread;
 
     // Handle max concurrent uploads
@@ -251,20 +264,19 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
     // Read buffer until file is completely read
     while (nread) {
-      // base64 encode (binary is a pain with https.request)
-      const encoded = readBuffer.slice(0, nread).toString('base64');
+      const mediaBufferPart = readBuffer.slice(0, nread);
 
       // Sent part if part has something inside
-      if (encoded) {
+      if (mediaBufferPart.length) {
         const request = this.post(
           UPLOAD_ENDPOINT,
           {
             command: 'APPEND',
             media_id: mediaId,
             segment_index: chunkIndex,
-            media_data: encoded,
+            media: mediaBufferPart,
           },
-          { prefix: UPLOAD_PREFIX },
+          { prefix: API_V1_1_UPLOAD_PREFIX },
         );
 
         currentUploads.add(request);
@@ -280,53 +292,10 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
         await Promise.race([...currentUploads]);
       }
 
-      [readBuffer, nread] = await this.readNextPartOf(fileHandle, chunkLength, offset, buffer);
+      [readBuffer, nread] = await readNextPartOf(fileHandle, chunkLength, offset, buffer);
       offset += nread;
     }
 
     await Promise.all([...currentUploads]);
-  }
-
-  protected async readNextPartOf(file: number | Buffer | fs.promises.FileHandle, chunkLength: number, bufferOffset = 0, buffer?: Buffer) : Promise<[Buffer, number]> {
-    if (file instanceof Buffer) {
-      const rt = file.slice(bufferOffset, bufferOffset + chunkLength);
-      return [rt, rt.length];
-    }
-
-    if (!buffer) {
-      throw new Error('Well, we will need a buffer to store file content.');
-    }
-
-    let bytesRead: number;
-
-    if (typeof file === 'number') {
-      bytesRead = await new Promise((resolve, reject) => {
-        fs.read(file as number, buffer, 0, chunkLength, bufferOffset, (err, nread) => {
-          if (err) reject(err);
-          resolve(nread);
-        });
-      });
-    }
-    else {
-      const res = await file.read(buffer, 0, chunkLength, bufferOffset);
-      bytesRead = res.bytesRead;
-    }
-
-    return [buffer, bytesRead];
-  }
-
-  protected getMimeByName(name: string) {
-    if (name.endsWith('.jpeg') || name.endsWith('.jpg')) return 'image/jpeg';
-    if (name.endsWith('.png')) return 'image/png';
-    if (name.endsWith('.gif')) return 'image/gif';
-    if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return 'video/mp4';
-    
-    return 'image/jpeg';
-  }
-
-  protected getMediaCategoryByMime(name: string) {
-    if (name === 'video/mp4') return 'tweet_video';
-    if (name === 'image/gif') return 'tweet_gif';
-    else return 'tweet_image';
   }
 }
