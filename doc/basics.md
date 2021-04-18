@@ -85,7 +85,7 @@ and gives you access to endpoint-wrapper methods!
 
 ### Use the endpoint-wrapper methods
 
-See the documentation for (link) v1 client API or documentation for (link) v2 client API.
+See the [documentation for v1 client API](./v1.md) or [documentation for v2 client API](./v2.md).
 
 ### Use the direct HTTP methods wrappers
 
