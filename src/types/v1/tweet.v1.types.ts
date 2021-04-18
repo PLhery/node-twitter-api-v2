@@ -10,6 +10,7 @@ export interface TweetV1 {
   id: number;
   id_str: string;
   text: string;
+  full_text?: string;
   source: string;
   truncated: boolean;
   in_reply_to_status_id: number | null;
@@ -30,12 +31,13 @@ export interface TweetV1 {
   retweet_count: number;
   favorite_count: number;
   entities: TweetEntitiesV1;
-  extended_entities: TweetExtendedEntitiesV1;
+  extended_entities?: TweetExtendedEntitiesV1;
   favorited: boolean | null;
   retweeted: boolean;
   possibly_sensitive: boolean | null;
   filter_level: 'none' | 'low' | 'medium' | 'high';
   lang: string;
+  display_text_range?: [number, number];
 
   // Additionnal attributes
   current_user_retweet?: { id: number, id_str: string };
@@ -46,13 +48,17 @@ export interface TweetV1 {
 
 // - Params -
 
-export interface TweetV1TimelineParams {
+export interface AskTweetV1Params {
+  tweet_mode?: 'extended' | 'compat';
+  include_entities?: boolean;
+  trim_user?: boolean;
+}
+
+export interface TweetV1TimelineParams extends AskTweetV1Params {
   count?: number;
   since_id?: string;
   max_id?: string;
-  trim_user?: boolean;
   exclude_replies?: boolean;
-  include_entities?: boolean;
 }
 
 export interface TweetV1UserTimelineParams extends TweetV1TimelineParams {
@@ -60,18 +66,17 @@ export interface TweetV1UserTimelineParams extends TweetV1TimelineParams {
   screen_name?: string;
 }
 
-export interface SendTweetV1Params {
+export interface SendTweetV1Params extends AskTweetV1Params {
   status: string;
   in_reply_to_status_id?: string;
   auto_populate_reply_metadata?: BooleanString;
   exclude_reply_user_ids?: string;
   attachment_url?: string;
-  media_ids?: string;
+  media_ids?: string | string[];
   possibly_sensitive?: BooleanString;
   lat?: NumberString;
   long?: NumberString;
   display_coordinates?: BooleanString;
-  trim_user?: BooleanString;
   enable_dmcommands?: BooleanString;
   fail_dmcommands?: BooleanString;
   card_uri?: string;

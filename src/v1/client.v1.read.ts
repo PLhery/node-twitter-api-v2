@@ -40,13 +40,17 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-home_timeline
    */
   public async homeTimeline(options: Partial<TweetV1TimelineParams> = {}) {
-    const initialRq = await this.get<TweetV1TimelineResult>('statuses/home_timeline.json', options, { fullResponse: true });
+    const queryParams: Partial<TweetV1TimelineParams> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/home_timeline.json', queryParams, { fullResponse: true });
 
     return new HomeTimelineV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
-      queryParams: options,
+      queryParams,
     });
   }
 
@@ -56,13 +60,17 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-mentions_timeline
    */
   public async mentionTimeline(options: Partial<TweetV1TimelineParams> = {}) {
-    const initialRq = await this.get<TweetV1TimelineResult>('statuses/mentions_timeline.json', options, { fullResponse: true });
+    const queryParams: Partial<TweetV1TimelineParams> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/mentions_timeline.json', queryParams, { fullResponse: true });
 
     return new MentionTimelineV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
-      queryParams: options,
+      queryParams,
     });
   }
 
@@ -72,13 +80,18 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
    */
   public async userTimeline(userId: string, options: Partial<TweetV1UserTimelineParams> = {}) {
-    const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', { ...options, user_id: userId }, { fullResponse: true });
+    const queryParams: Partial<TweetV1UserTimelineParams> = {
+      tweet_mode: 'extended',
+      user_id: userId,
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', queryParams, { fullResponse: true });
 
     return new UserTimelineV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
-      queryParams: options,
+      queryParams,
     });
   }
 
@@ -88,13 +101,18 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline
    */
   public async userTimelineByUsername(username: string, options: Partial<TweetV1UserTimelineParams> = {}) {
-    const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', { ...options, screen_name: username }, { fullResponse: true });
+    const queryParams: Partial<TweetV1UserTimelineParams> = {
+      tweet_mode: 'extended',
+      screen_name: username,
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', queryParams, { fullResponse: true });
 
     return new UserTimelineV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
-      queryParams: options,
+      queryParams,
     });
   }
 

@@ -1,12 +1,13 @@
 import { API_V1_1_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
-import type {
+import {
   FinalizeMediaV1Result,
   InitMediaV1Result,
   MediaMetadataV1Params,
   MediaSubtitleV1Param,
   SendTweetV1Params,
   TUploadableMedia,
+  TweetV1,
   UploadMediaV1Params
 } from '../types';
 import fs from 'fs';
@@ -34,7 +35,13 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * Post a new tweet.
    */
   public tweet(status: string, payload: Partial<SendTweetV1Params> = {}) {
-    return this.post('statuses/update.json', { status, ...payload });
+    const queryParams: Partial<SendTweetV1Params> = {
+      status,
+      tweet_mode: 'extended',
+      ...payload
+    };
+
+    return this.post<TweetV1>('statuses/update.json', queryParams);
   }
 
   /**
