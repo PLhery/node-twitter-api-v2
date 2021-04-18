@@ -1,5 +1,7 @@
 type TStringable = { toString(): string; };
 
+// This class is partially inspired by https://github.com/form-data/form-data/blob/master/lib/form_data.js
+// All credits to their authors.
 export class FormDataHelper {
   protected _boundary: string = '';
   protected _chunks: Buffer[] = [];
