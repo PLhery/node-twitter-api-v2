@@ -1,6 +1,6 @@
 import { TwitterApi } from '..';
 import dotenv from 'dotenv';
-import { getAccessClient, getAuthLink } from './utils';
+import { getAccessClient, getAppClient, getAuthLink } from './utils';
 
 const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
@@ -18,6 +18,12 @@ const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
   }
   else if (argActive('request-token')) {
     console.log(await getAuthLink(argValue('request-token')!));
+  }
+  else if (argActive('app-client')) {
+    // Test some basics requests
+    const client = await getAppClient();
+    const node = await client.search('nodeJS');
+    await node.fetchNext();
   }
 })().catch(e => {
   console.error('Unexcepted error:', e);
