@@ -1,9 +1,9 @@
 // Users
 import type { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
-import { TweetV2 } from './tweet.definition.v2';
-import { DataAndIncludeV2, DataAndMetaV2, DataV2 } from './shared.v2.types';
-import { TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
-import { TypeOrArrayOf } from '../shared.types';
+import type { ApiV2Includes } from './tweet.definition.v2';
+import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
+import type { TypeOrArrayOf } from '../shared.types';
 
 export type TUserV2Expansion = 'pinned_tweet_id';
 
@@ -25,14 +25,14 @@ export interface FollowersV2Params {
 
 // - Results -
 
-export type UserV2Result = DataAndIncludeV2<UserV2, { tweets?: TweetV2[] }>;
-export type UsersV2Result = DataAndIncludeV2<UserV2[], { tweets?: TweetV2[] }>;
+export type UserV2Result = DataAndIncludeV2<UserV2, ApiV2Includes>;
+export type UsersV2Result = DataAndIncludeV2<UserV2[], ApiV2Includes>;
 
-export type FollowersV2Result = DataAndMetaV2<UserV2[], {
+export type FollowersV2Result = DataMetaAndIncludeV2<UserV2[], {
   result_count: number;
   previous_token?: string;
   next_token?: string;
-}>;
+}, ApiV2Includes>;
 
 export type UserV2FollowResult = DataV2<{
   following: boolean;

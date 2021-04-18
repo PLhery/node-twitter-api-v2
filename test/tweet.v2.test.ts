@@ -10,7 +10,7 @@ describe('Tweets endpoints for v2 API', () => {
     client = await getAppClient();
   });
 
-  it('Get 2 tweets using raw HTTP method & specific endpoint', async () => {
+  it('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
     // Using raw HTTP method and URL
     const response1 = await client.get('https://api.twitter.com/2/tweets?ids=20,1306166445135605761&expansions=author_id&tweet.fields=public_metrics&user.fields=name,public_metrics');
     // Using query parser
@@ -36,8 +36,8 @@ describe('Tweets endpoints for v2 API', () => {
 
   }).timeout(60 * 1000);
 
-  it('Search and fetch tweets using tweet searcher', async () => {
-    const nodeJs = await client.search('nodeJS');
+  it('.search - Search and fetch tweets using tweet searcher', async () => {
+    const nodeJs = await client.v2.search('nodeJS');
 
     const originalLength = nodeJs.tweets.length;
     expect(nodeJs.tweets.length).to.be.greaterThan(0);
@@ -62,7 +62,7 @@ describe('Tweets endpoints for v2 API', () => {
     expect(ids).to.have.length(new Set(ids).size);
   }).timeout(60 * 1000);
 
-  it('Fetch user timeline and consume 600 tweets', async () => {
+  it('.userTimeline/.userMentionTimeline - Fetch user & mention timeline and consume 600 tweets', async () => {
     const jackTimeline = await client.v2.userTimeline('12');
 
     const originalLength = jackTimeline.tweets.length;
@@ -70,6 +70,10 @@ describe('Tweets endpoints for v2 API', () => {
 
     await jackTimeline.fetchNext();
     expect(jackTimeline.tweets.length).to.be.greaterThan(originalLength);
+
+    const nextPage = await jackTimeline.next();
+    expect(nextPage.tweets.map(t => t.id))
+      .to.not.have.members(jackTimeline.tweets.map(t => t.id));
 
     // Test if iterator correctly fetch tweets (silent)
     let i = 0;
@@ -86,6 +90,30 @@ describe('Tweets endpoints for v2 API', () => {
 
     // Check for duplicates
     expect(ids).to.have.length(new Set(ids).size);
+
+    // Test mentions
+    const jackMentions = await client.v2.userMentionTimeline('12', {
+      'tweet.fields': ['in_reply_to_user_id'],
+      exclude: 'retweets',
+    });
+    expect(jackMentions.tweets.length).to.be.greaterThan(0);
+    expect(jackMentions.tweets.map(tweet => tweet.in_reply_to_user_id)).to.include('12');
+  }).timeout(60 * 1000);
+
+  it('.singleTweet - Download a single tweet', async () => {
+    const tweet = await client.v2.singleTweet('20');
+    expect(tweet.data.text).to.equal('just setting up my twttr');
+  }).timeout(60 * 1000);
+
+  it('.tweets - Fetch a bunch of tweets', async () => {
+    const tweets = await client.v2.tweets(['20', '1257577057862610951'], {
+      'tweet.fields': ['author_id', 'source'],
+    });
+    expect(tweets.data).to.have.length(2);
+
+    const first = tweets.data[0];
+    expect(first.author_id).to.be.a('string');
+    expect(first.source).to.be.a('string');
   }).timeout(60 * 1000);
 });
 

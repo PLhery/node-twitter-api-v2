@@ -1,6 +1,6 @@
 // Tweets
-import { TweetV2, TweetV2Includes } from './tweet.definition.v2';
-import { TypeOrArrayOf } from '../shared.types';
+import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
+import type { TypeOrArrayOf } from '../shared.types';
 
 /// -- Timelines --
 
@@ -23,7 +23,7 @@ export interface Tweetv2SearchParams extends TweetV2TimelineParams {
 }
 
 export interface TweetV2UserTimelineParams extends TweetV2TimelineParams {
-  exclude?: 'retweets' | 'replies';
+  exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
   pagination_token?: string;
 }
 
@@ -53,7 +53,7 @@ export interface Tweetv2FieldsParams {
 
 export interface Tweetv2TimelineResult {
   data: TweetV2[];
-  includes?: TweetV2Includes;
+  includes?: ApiV2Includes;
   meta: {
     newest_id: string;
     oldest_id: string;
@@ -67,12 +67,12 @@ export interface TweetV2UserTimelineResult extends Tweetv2TimelineResult {}
 
 export interface TweetV2LookupResult {
   data: TweetV2[];
-  includes?: TweetV2Includes;
+  includes?: ApiV2Includes;
 }
 
 export interface TweetV2SingleResult {
   data: TweetV2;
-  includes?: TweetV2Includes;
+  includes?: ApiV2Includes;
 }
 
 /// -- Replies --

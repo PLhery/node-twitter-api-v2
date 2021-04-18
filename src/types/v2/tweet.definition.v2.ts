@@ -1,4 +1,4 @@
-import { UserV2 } from './user.v2.types';
+import type { UserV2 } from './user.v2.types';
 
 export interface PlaceV2 {
   full_name: string;
@@ -67,7 +67,7 @@ export interface TweetGeoV2 {
 interface TweetContextAnnotationItemV2 {
   id: string;
   name: string;
-  description: string;
+  description?: string;
 }
 
 export type TweetContextAnnotationDomainV2 = TweetContextAnnotationItemV2;
@@ -168,7 +168,7 @@ export interface TweetV2 {
   source?: string;
 }
 
-export interface TweetV2Includes {
+export interface ApiV2Includes {
   tweets?: TweetV2[];
   users?: UserV2[];
   places?: PlaceV2[];
