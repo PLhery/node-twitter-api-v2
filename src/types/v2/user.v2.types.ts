@@ -2,21 +2,25 @@
 import type { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
 import { TweetV2 } from './tweet.definition.v2';
 import { DataAndIncludeV2, DataAndMetaV2, DataV2 } from './shared.v2.types';
+import { TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
+import { TypeOrArrayOf } from '../shared.types';
+
+export type TUserV2Expansion = 'pinned_tweet_id';
 
 // - Params -
 
 export interface UsersV2Params {
-  expansions: 'pinned_tweet_id';
-  'tweet.fields': string;
-  'user.fields': string;
+  expansions: TypeOrArrayOf<TUserV2Expansion>;
+  'tweet.fields': TypeOrArrayOf<TTweetv2TweetField>;
+  'user.fields': TypeOrArrayOf<TTweetv2UserField>;
 }
 
 export interface FollowersV2Params {
-  expansions: 'pinned_tweet_id';
+  expansions: TypeOrArrayOf<TUserV2Expansion>;
   max_results: number;
   pagination_token: string;
-  'tweet.fields': string;
-  'user.fields': string;
+  'tweet.fields': TypeOrArrayOf<TTweetv2TweetField>;
+  'user.fields': TypeOrArrayOf<TTweetv2UserField>;
 }
 
 // - Results -

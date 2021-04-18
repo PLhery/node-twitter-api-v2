@@ -27,10 +27,6 @@ export interface TweetV2UserTimelineParams extends TweetV2TimelineParams {
   pagination_token?: string;
 }
 
-export interface TweetV2LookupParams extends Partial<Tweetv2FieldsParams> {
-  ids: string;
-}
-
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
   | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id'
   | 'geo.place_id' | 'entities.mentions.username' | 'referenced_tweets.id.author_id';

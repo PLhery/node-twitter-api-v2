@@ -5,7 +5,7 @@ import {
   Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
   UsersV2Result, UsersV2Params, StreamingV2GetRulesParams,
   StreamingV2GetRulesResult, TweetV2LookupResult,
-  TweetV2LookupParams, TweetV2UserTimelineParams,
+  TweetV2UserTimelineParams,
   TweetV2UserTimelineResult,
   StreamingV2AddRulesParams,
   StreamingV2DeleteRulesParams,
@@ -14,7 +14,6 @@ import {
   StreamingV2UpdateRulesDeleteResult,
   StreamingV2UpdateRulesAddResult,
   StreamingV2UpdateRulesResult,
-  TweetV2,
   TweetV2SingleResult,
 } from '../types';
 import {
@@ -85,14 +84,14 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
    */
   public singleTweet(tweetId: string, options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.get<TweetV2LookupResult>(`tweets/${tweetId}`, options);
+    return this.get<TweetV2SingleResult>(`tweets/${tweetId}`, options);
   }
 
   /**
    * Returns a variety of information about tweets specified by list of IDs.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
    */
-  public tweets(tweetIds: string | string[], options: Partial<TweetV2LookupParams> = {}) {
+  public tweets(tweetIds: string | string[], options: Partial<Tweetv2FieldsParams> = {}) {
     return this.get<TweetV2LookupResult>('tweets', { ids: tweetIds, ...options });
   }
 
@@ -148,7 +147,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public users(userIds: string | string[], options: Partial<UsersV2Params> = {}) {
     const ids = Array.isArray(userIds) ? userIds.join(',') : userIds;
-    return this.get<UsersV2Result>(`users`, { ...options, ids });
+    return this.get<UsersV2Result>('users', { ...options, ids });
   }
 
   /**
@@ -165,7 +164,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public usersByUsernames(usernames: string | string[], options: Partial<UsersV2Params> = {}) {
     usernames = Array.isArray(usernames) ? usernames.join(',') : usernames;
-    return this.get<UsersV2Result>(`users/by`, { ...options, usernames });
+    return this.get<UsersV2Result>('users/by', { ...options, usernames });
   }
 
   /**
