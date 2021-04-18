@@ -4,7 +4,14 @@
   "description": "Strongly typed, full-featured, right protected, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "keywords": ["twitter", "api", "typed", "types", "v2", "v1.1"],
+  "keywords": [
+    "twitter",
+    "api",
+    "typed",
+    "types",
+    "v2",
+    "v1.1"
+  ],
   "scripts": {
     "build": "tsc",
     "build-doc": "typedoc src/index.ts --out tsdocs",
@@ -37,6 +44,6 @@
     "url": "https://github.com/plhery/node-twitter-api/issues"
   },
   "dependencies": {
-    "form-data": "^3.0.1"
+    "form-data": "^4.0.0"
   }
 }
