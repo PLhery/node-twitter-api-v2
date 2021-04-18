@@ -344,7 +344,7 @@ export class RequestHandlerHelper<T> {
   constructor(protected requestData: TRequestFullData) {}
 
   get href() {
-    return this.req.host + this.req.path;
+    return this.req.protocol + '//' + this.req.host + this.req.path;
   }
 
   protected isFormEncodedEndpoint() {
