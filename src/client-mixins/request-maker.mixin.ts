@@ -282,8 +282,7 @@ class RequestParamHelpers {
     options.headers = options.headers ?? {};
 
     if (typeof body === 'string') {
-      const encoder = new TextEncoder();
-      options.headers['content-length'] = encoder.encode(body).length;
+      options.headers['content-length'] = Buffer.byteLength(body);
     }
     else {
       options.headers['content-length'] = body.length;

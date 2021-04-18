@@ -6,7 +6,11 @@ const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
 
 (async () => {
   const argActive = (name: string) => process.argv.find(arg => arg.startsWith('--' + name));
-  const argValue = (name: string) => argActive(name)?.split(' ', 2)[1];
+  const argValue = (name: string) => {
+    // Find active index
+    const activeIndex = process.argv.findIndex(arg => arg.startsWith('--' + name));
+    return process.argv[activeIndex + 1];
+  };
 
   if (argActive('access-token')) {
     const client = await getAccessClient(argValue('access-token')!);
