@@ -3,12 +3,12 @@ import { expect } from 'chai';
 import dotenv from 'dotenv';
 import { TwitterApi } from '../src';
 
-const ENV = dotenv.config({ path: __dirname + '/../.env' }).parsed!;
+dotenv.config({ path: __dirname + '/../.env' });
 
 // OAuth 1.0a
 const clientWithoutUser = new TwitterApi({
-  appKey: ENV.CONSUMER_TOKEN!,
-  appSecret: ENV.CONSUMER_SECRET!,
+  appKey: process.env.CONSUMER_TOKEN!,
+  appSecret: process.env.CONSUMER_SECRET!,
 });
 
 describe('Authentification API', () => {

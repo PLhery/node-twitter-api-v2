@@ -4,14 +4,14 @@ import dotenv from 'dotenv';
 import { TwitterApi, ETwitterStreamEvent } from '../src';
 import { getAppClient } from '../src/test/utils';
 
-const ENV = dotenv.config({ path: __dirname + '/../.env' }).parsed!;
+dotenv.config({ path: __dirname + '/../.env' });
 
 // OAuth 1.0a
 const clientOauth = new TwitterApi({
-  appKey: ENV.CONSUMER_TOKEN!,
-  appSecret: ENV.CONSUMER_SECRET!,
-  accessToken: ENV.OAUTH_TOKEN!,
-  accessSecret: ENV.OAUTH_SECRET!,
+  appKey: process.env.CONSUMER_TOKEN!,
+  appSecret: process.env.CONSUMER_SECRET!,
+  accessToken: process.env.OAUTH_TOKEN!,
+  accessSecret: process.env.OAUTH_SECRET!,
 });
 
 describe('Tweet stream API v1.1', () => {

@@ -1,25 +1,23 @@
 import { TwitterApi } from '..';
 import dotenv from 'dotenv';
 
-const ENV = dotenv.config({ path: __dirname + '/../../.env' }).parsed!;
-
-export const currentEnv = ENV as any;
+dotenv.config({ path: __dirname + '/../../.env' });
 
 /** User OAuth 1.0a client */
 export function getUserClient() {
   return new TwitterApi({
-    appKey: ENV.CONSUMER_TOKEN!,
-    appSecret: ENV.CONSUMER_SECRET!,
-    accessToken: ENV.OAUTH_TOKEN!,
-    accessSecret: ENV.OAUTH_SECRET!,
+    appKey: process.env.CONSUMER_TOKEN!,
+    appSecret: process.env.CONSUMER_SECRET!,
+    accessToken: process.env.OAUTH_TOKEN!,
+    accessSecret: process.env.OAUTH_SECRET!,
   });
 }
 
 // Test auth 1.0a flow
 export function getAuthLink(callback: string) {
   let requestClient = new TwitterApi({
-    appKey: ENV.CONSUMER_TOKEN!,
-    appSecret: ENV.CONSUMER_SECRET!,
+    appKey: process.env.CONSUMER_TOKEN!,
+    appSecret: process.env.CONSUMER_SECRET!,
   });
 
   return requestClient.generateAuthLink(callback);
@@ -27,10 +25,10 @@ export function getAuthLink(callback: string) {
 
 export async function getAccessClient(verifier: string) {
   let requestClient = new TwitterApi({
-    appKey: ENV.CONSUMER_TOKEN!,
-    appSecret: ENV.CONSUMER_SECRET!,
-    accessToken: ENV.OAUTH_TOKEN!,
-    accessSecret: ENV.OAUTH_SECRET!,
+    appKey: process.env.CONSUMER_TOKEN!,
+    appSecret: process.env.CONSUMER_SECRET!,
+    accessToken: process.env.OAUTH_TOKEN!,
+    accessSecret: process.env.OAUTH_SECRET!,
   });
 
   const { client } = await requestClient.login(verifier);
@@ -41,14 +39,14 @@ export async function getAccessClient(verifier: string) {
 export function getAppClient() {
   let requestClient: TwitterApi;
 
-  if (ENV.BEARER_TOKEN) {
-    requestClient = new TwitterApi(ENV.BEARER_TOKEN);
+  if (process.env.BEARER_TOKEN) {
+    requestClient = new TwitterApi(process.env.BEARER_TOKEN);
     return Promise.resolve(requestClient);
   }
   else {
     requestClient = new TwitterApi({
-      appKey: ENV.CONSUMER_TOKEN!,
-      appSecret: ENV.CONSUMER_SECRET!,
+      appKey: process.env.CONSUMER_TOKEN!,
+      appSecret: process.env.CONSUMER_SECRET!,
     });
     return requestClient.appLogin();
   }
