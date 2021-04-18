@@ -1,12 +1,12 @@
 import { ApiRequestError, ApiResponseError, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import { URLSearchParams } from 'url';
-import FormData from 'form-data';
 import { request, RequestOptions } from 'https';
 import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
 import OAuth1Helper from './oauth1.helper';
 import { TwitterApiV2Settings } from '../settings';
+import { FormDataHelper } from './form-data.helper';
 
 export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
@@ -263,16 +263,14 @@ class RequestParamHelpers {
       throw new Error('You can only use raw body mode with Buffers. To give a string, use Buffer.from(str).');
     }
     else {
-      const form = new FormData();
+      const form = new FormDataHelper();
 
       for (const parameter in body) {
         form.append(parameter, body[parameter]);
       }
 
       const formHeaders = form.getHeaders();
-      for (const item in formHeaders) {
-        headers[item] = formHeaders[item];
-      }
+      headers['content-type'] = formHeaders['content-type'];
 
       return form.getBuffer();
     }
