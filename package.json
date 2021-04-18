@@ -1,9 +1,10 @@
 {
   "name": "twitter-api-v2",
   "version": "0.3.0",
-  "description": "Twitter api v1 and v2 client for node",
+  "description": "Strongly typed, full-featured, right protected, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "keywords": ["twitter", "api", "typed", "types", "v2", "v1.1"],
   "scripts": {
     "build": "tsc",
     "build-doc": "typedoc src/index.ts --out tsdocs",
