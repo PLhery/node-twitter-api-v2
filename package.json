@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "build-doc": "typedoc src/index.ts --out tsdocs",
-    "mocha": "mocha -r ts-node/register",
+    "mocha": "mocha -r ts-node/register --timeout 10000",
     "test": "npm run mocha 'test/**/*.test.ts'",
     "test-tweet": "npm run mocha 'test/tweet.*.test.ts'",
     "test-user": "npm run mocha 'test/user.*.test.ts'",

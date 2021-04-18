@@ -41,8 +41,19 @@ describe('Tweet stream API v1.1', () => {
 });
 
 describe('Tweet stream API v2', () => {
+  let clientBearer: TwitterApi;
+
+  before(async () => {
+    clientBearer = await getAppClient();
+  });
+
+  beforeEach(async () => {
+    // Sometimes, Twitter sends a 429 if stream close then open is executed
+    // in a short period of time.
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  });
+
   it('Should stream 5 tweets without any network error for sample/stream', async () => {
-    const clientBearer = await getAppClient();
     const streamv2Filter = await clientBearer.v2.getStream('tweets/sample/stream');
 
     const numberOfTweets = await new Promise<number>((resolve, reject) => {
@@ -67,7 +78,6 @@ describe('Tweet stream API v2', () => {
   }).timeout(1000 * 120);
 
   it('In 15 seconds, should have the same tweets registred by async iterator and event handler', async () => {
-    const clientBearer = await getAppClient();
     const streamv2Filter = await clientBearer.v2.sampleStream();
 
     const eventTweetIds = [] as string[];
