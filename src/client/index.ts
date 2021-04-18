@@ -15,13 +15,13 @@ export class TwitterApi extends TwitterApiReadWrite {
   /* Direct access to subclients */
   public get v1() {
     if (this._v1) return this._v1;
-    
+
     return this._v1 = new TwitterApiv1(this);
   }
 
   public get v2() {
     if (this._v2) return this._v2;
-    
+
     return this._v2 = new TwitterApiv2(this);
   }
 
@@ -44,4 +44,6 @@ export class TwitterApi extends TwitterApiReadWrite {
   }
 }
 
+export { default as TwitterApiReadWrite } from './readwrite';
+export { default as TwitterApiReadOnly } from './readonly';
 export default TwitterApi;
