@@ -120,7 +120,7 @@ export interface InitMediaV1Result {
   };
 }
 
-export interface FinalizeMediaV1Result {
+export interface MediaStatusV1Result {
   media_id: number;
   media_id_string: string;
   size: number,

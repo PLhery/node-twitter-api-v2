@@ -1,7 +1,7 @@
-import { API_V1_1_PREFIX } from '../globals';
+import { API_V1_1_PREFIX, API_V1_1_UPLOAD_PREFIX } from '../globals';
 import TwitterApiv1ReadOnly from './client.v1.read';
 import {
-  FinalizeMediaV1Result,
+  MediaStatusV1Result,
   InitMediaV1Result,
   MediaMetadataV1Params,
   MediaSubtitleV1Param,
@@ -13,7 +13,6 @@ import {
 import fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
 
-const UPLOAD_PREFIX = 'https://upload.twitter.com/1.1/';
 const UPLOAD_ENDPOINT = 'media/upload.json';
 
 /**
@@ -66,7 +65,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     return this.post<void>(
       'media/metadata/create.json',
       { media_id: mediaId, ...metadata },
-      { prefix: UPLOAD_PREFIX, forceBodyMode: 'json' },
+      { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'json' },
     );
   }
 
@@ -80,7 +79,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     return this.post<void>(
       'media/subtitles/create.json',
       { media_id: mediaId, media_category: 'TweetVideo', subtitle_info: { subtitles } },
-      { prefix: UPLOAD_PREFIX, forceBodyMode: 'json' },
+      { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'json' },
     );
   }
 
@@ -96,7 +95,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
         media_category: 'TweetVideo',
         subtitle_info: { subtitles: languages.map(lang => ({ language_code: lang })) },
       },
-      { prefix: UPLOAD_PREFIX, forceBodyMode: 'json' },
+      { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'json' },
     );
   }
 
@@ -139,20 +138,20 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           media_category: mediaCategory,
           additional_owners: options.additionalOwners,
         },
-        { prefix: UPLOAD_PREFIX },
+        { prefix: API_V1_1_UPLOAD_PREFIX },
       );
 
       // Upload the media chunk by chunk
       await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
 
       // Finalize media
-      let fullMediaData = await this.post<FinalizeMediaV1Result>(
+      let fullMediaData = await this.post<MediaStatusV1Result>(
         UPLOAD_ENDPOINT,
         {
           command: 'FINALIZE',
           media_id: mediaData.media_id_string,
         },
-        { prefix: UPLOAD_PREFIX },
+        { prefix: API_V1_1_UPLOAD_PREFIX },
       );
 
       if (fullMediaData.processing_info && fullMediaData.processing_info.state !== 'succeeded') {
@@ -173,16 +172,9 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     }
   }
 
-  protected async awaitForMediaProcessingCompletion(fullMediaData: FinalizeMediaV1Result) {
+  protected async awaitForMediaProcessingCompletion(fullMediaData: MediaStatusV1Result) {
     while (true) {
-      fullMediaData = await this.get(
-        UPLOAD_ENDPOINT,
-        {
-          command: 'STATUS',
-          media_id: fullMediaData.media_id_string,
-        },
-        { prefix: UPLOAD_PREFIX },
-      );
+      fullMediaData = await this.mediaInfo(fullMediaData.media_id_string);
 
       if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
         // Ok, completed!
@@ -284,7 +276,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
             segment_index: chunkIndex,
             media: mediaBufferPart,
           },
-          { prefix: UPLOAD_PREFIX },
+          { prefix: API_V1_1_UPLOAD_PREFIX },
         );
 
         currentUploads.add(request);

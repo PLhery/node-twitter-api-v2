@@ -1,5 +1,5 @@
 import TwitterApiSubClient from '../client.subclient';
-import { API_V1_1_PREFIX, API_V1_1_STREAM_PREFIX } from '../globals';
+import { API_V1_1_PREFIX, API_V1_1_STREAM_PREFIX, API_V1_1_UPLOAD_PREFIX } from '../globals';
 import { arrayWrap } from '../helpers';
 import TwitterApiv1 from '../v1/client.v1';
 import {
@@ -23,6 +23,7 @@ import {
   TweetV1TimelineResult,
   TweetV1UserTimelineParams,
   TweetV1,
+  MediaStatusV1Result,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 
@@ -126,6 +127,24 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public verifyCredentials(options: Partial<VerifyCredentialsV1Params> = {}) {
     return this.get<UserV1>('account/verify_credentials.json', options);
+  }
+
+  /* Media upload API */
+
+  /**
+   * The STATUS command (this method) is used to periodically poll for updates of media processing operation.
+   * After the STATUS command response returns succeeded, you can move on to the next step which is usually create Tweet with media_id.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/get-media-upload-status
+   */
+  public mediaInfo(mediaId: string) {
+    return this.get<MediaStatusV1Result>(
+      'media/upload.json',
+      {
+        command: 'STATUS',
+        media_id: mediaId,
+      },
+      { prefix: API_V1_1_UPLOAD_PREFIX },
+    );
   }
 
   /* Streaming API */
