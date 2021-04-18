@@ -1,4 +1,4 @@
-import { ETwitterApiError, TwitterApiError, TwitterApiRequestError, TwitterRateLimit, TwitterResponse } from '../types';
+import { ApiRequestError, ApiResponseError, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import { URLSearchParams } from 'url';
 import FormData from 'form-data';
@@ -6,6 +6,7 @@ import { request, RequestOptions } from 'https';
 import { trimUndefinedProperties } from '../helpers';
 import type { ClientRequest, IncomingMessage } from 'http';
 import OAuth1Helper from './oauth1.helper';
+import { TwitterApiV2Settings } from '../settings';
 
 export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
@@ -15,7 +16,7 @@ export type TBodyMode = 'json' | 'url' | 'form-data' | 'raw';
 
 interface IWriteAuthHeadersArgs {
   headers: Record<string, string>;
-  isMultipart: boolean;
+  bodyInSignature: boolean;
   url: string;
   method: string;
   query: TRequestQuery;
@@ -107,7 +108,7 @@ export abstract class ClientRequestMaker {
 
   /* Request helpers */
 
-  protected writeAuthHeaders({ headers, isMultipart, url, method, query, body }: IWriteAuthHeadersArgs) {
+  protected writeAuthHeaders({ headers, bodyInSignature, url, method, query, body }: IWriteAuthHeadersArgs) {
     headers = { ...headers };
 
     if (this._bearerToken) {
@@ -119,7 +120,7 @@ export abstract class ClientRequestMaker {
     }
     else if (this._consumerSecret && this._oauth) {
       // Merge query and body
-      const data = isMultipart ? {} : RequestParamHelpers.mergeQueryAndBodyForOAuth(query, body);
+      const data = bodyInSignature ? RequestParamHelpers.mergeQueryAndBodyForOAuth(query, body) : query;
 
       const auth = this._oauth.authorize({
         url,
@@ -148,9 +149,10 @@ export abstract class ClientRequestMaker {
 
     // OAuth signature should not include parameters when using multipart.
     const bodyType = forceBodyMode ?? RequestParamHelpers.autoDetectBodyType(url);
-    const isMultipart = ClientRequestMaker.BODY_METHODS.has(method) && bodyType === 'form-data';
+    // OAuth needs body signature only if body is URL encoded.
+    const bodyInSignature = ClientRequestMaker.BODY_METHODS.has(method) && bodyType === 'url';
 
-    headers = this.writeAuthHeaders({ headers, isMultipart, url, method, query, body: rawBody });
+    headers = this.writeAuthHeaders({ headers, bodyInSignature, url, method, query, body: rawBody });
 
     if (ClientRequestMaker.BODY_METHODS.has(method)) {
       body = RequestParamHelpers.constructBodyParams(rawBody, headers, bodyType) || undefined;
@@ -327,8 +329,15 @@ class RequestParamHelpers {
 type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
-type TRequestRejecter = (error: TwitterApiRequestError) => void;
-type TResponseRejecter = (error: TwitterApiError) => void;
+type TRequestRejecter = (error: ApiRequestError) => void;
+type TResponseRejecter = (error: ApiResponseError) => void;
+
+interface IBuildErrorParams {
+  res: IncomingMessage;
+  data: any;
+  rateLimit?: TwitterRateLimit;
+  code: number;
+}
 
 export class RequestHandlerHelper<T> {
   protected static readonly FORM_ENCODED_ENDPOINTS = 'https://api.twitter.com/oauth/';
@@ -359,16 +368,35 @@ export class RequestHandlerHelper<T> {
     return rateLimit;
   }
 
+  protected createRequestError(error: Error): ApiRequestError {
+    if (TwitterApiV2Settings.debug) {
+      console.log('Request network error:', error);
+    }
+
+    return new ApiRequestError('Request failed.', {
+      request: this.req,
+      error,
+    });
+  }
+
+  protected createResponseError({ res, data, rateLimit, code }: IBuildErrorParams): ApiResponseError {
+    if (TwitterApiV2Settings.debug) {
+      console.log('Request failed with code', code, ', data:', data, 'response headers:', res.headers);
+    }
+
+    return new ApiResponseError(`Request failed with code ${code}.`, {
+      code,
+      data,
+      headers: res.headers,
+      request: this.req,
+      response: res,
+      rateLimit,
+    });
+  }
+
   protected registerRequestErrorHandler(reject: TRequestRejecter) {
     return (requestError: Error) => {
-      reject({
-        type: ETwitterApiError.Request,
-        error: true,
-        raw: {
-          request: this.req,
-        },
-        requestError,
-      });
+      reject(this.createRequestError(requestError));
     };
   }
 
@@ -399,19 +427,8 @@ export class RequestHandlerHelper<T> {
 
         // Handle bad error codes
         const code = res.statusCode!;
-        if (code >= 400 || (typeof data === 'object' && 'errors' in data)) {
-          reject({
-            type: ETwitterApiError.Response,
-            data,
-            headers: res.headers,
-            rateLimit,
-            code,
-            error: true,
-            raw: {
-              request: this.req,
-              response: res,
-            },
-          });
+        if (code >= 400) {
+          reject(this.createResponseError({ data, res, rateLimit, code }));
         }
 
         resolve({
@@ -438,7 +455,18 @@ export class RequestHandlerHelper<T> {
     };
   }
 
+  protected debugRequest() {
+    console.log(
+      'Request to', this.requestData.url, 'will be made.',
+      'Options:', this.requestData.options,
+      'body:', this.requestData.body,
+    );
+  }
+
   protected buildRequest() {
+    if (TwitterApiV2Settings.debug) {
+      this.debugRequest();
+    }
     this.req = request(this.requestData.url, this.requestData.options);
   }
 

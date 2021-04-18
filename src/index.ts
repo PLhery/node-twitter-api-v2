@@ -7,4 +7,5 @@ export * from './v2-labs/client.v2.labs';
 export * from './types';
 export * from './paginators';
 export * from './stream/TweetStream';
+export * from './settings';
 export { IGetHttpRequestArgs } from './client-mixins/request-maker.mixin';

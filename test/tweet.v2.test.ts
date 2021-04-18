@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi } from '../src';
+import { TwitterApi, TwitterApiV2Settings } from '../src';
 import { getAppClient } from '../src/test/utils';
 
 let client: TwitterApi;
@@ -62,7 +62,7 @@ describe('Tweets endpoints for v2 API', () => {
     expect(ids).to.have.length(new Set(ids).size);
   }).timeout(60 * 1000);
 
-  it('.userTimeline/.userMentionTimeline - Fetch user & mention timeline and consume 600 tweets', async () => {
+  it('.userTimeline/.userMentionTimeline - Fetch user & mention timeline and consume 150 tweets', async () => {
     const jackTimeline = await client.v2.userTimeline('12');
 
     const originalLength = jackTimeline.tweets.length;
@@ -81,7 +81,7 @@ describe('Tweets endpoints for v2 API', () => {
 
     for await (const tweet of jackTimeline) {
       ids.push(tweet.id);
-      if (i > 600) {
+      if (i > 150) {
         break;
       }
 
@@ -93,11 +93,10 @@ describe('Tweets endpoints for v2 API', () => {
 
     // Test mentions
     const jackMentions = await client.v2.userMentionTimeline('12', {
-      'tweet.fields': ['in_reply_to_user_id'],
-      exclude: 'retweets',
+      'tweet.fields': ['author_id', 'in_reply_to_user_id'],
     });
     expect(jackMentions.tweets.length).to.be.greaterThan(0);
-    expect(jackMentions.tweets.map(tweet => tweet.in_reply_to_user_id)).to.include('12');
+    expect(jackMentions.tweets.map(tweet => tweet.author_id)).to.not.include('12');
   }).timeout(60 * 1000);
 
   it('.singleTweet - Download a single tweet', async () => {

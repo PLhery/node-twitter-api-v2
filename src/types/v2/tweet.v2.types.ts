@@ -1,6 +1,7 @@
 // Tweets
 import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
+import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
 
 /// -- Timelines --
 
@@ -22,9 +23,12 @@ export interface Tweetv2SearchParams extends TweetV2TimelineParams {
   query: string;
 }
 
-export interface TweetV2UserTimelineParams extends TweetV2TimelineParams {
-  exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
+export interface TweetV2PaginableTimelineParams extends TweetV2TimelineParams {
   pagination_token?: string;
+}
+
+export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParams {
+  exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
 }
 
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
@@ -51,32 +55,19 @@ export interface Tweetv2FieldsParams {
 
 // - Timeline results -
 
-export interface Tweetv2TimelineResult {
-  data: TweetV2[];
-  includes?: ApiV2Includes;
-  meta: {
-    newest_id: string;
-    oldest_id: string;
-    result_count: number;
-    next_token?: string;
-  };
-}
+export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
+  newest_id: string;
+  oldest_id: string;
+  result_count: number;
+  next_token?: string;
+}, ApiV2Includes>;
 
-export interface Tweetv2SearchResult extends Tweetv2TimelineResult {}
-export interface TweetV2UserTimelineResult extends Tweetv2TimelineResult {}
+export type Tweetv2SearchResult = Tweetv2TimelineResult;
+export type TweetV2UserTimelineResult = Tweetv2TimelineResult;
 
-export interface TweetV2LookupResult {
-  data: TweetV2[];
-  includes?: ApiV2Includes;
-}
-
-export interface TweetV2SingleResult {
-  data: TweetV2;
-  includes?: ApiV2Includes;
-}
+export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
+export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;
 
 /// -- Replies --
 
-export interface TweetV2HideReplyResult {
-  data: { hidden: boolean };
-}
+export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;

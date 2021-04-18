@@ -15,6 +15,7 @@ import {
   StreamingV2UpdateRulesAddResult,
   StreamingV2UpdateRulesResult,
   TweetV2SingleResult,
+  TweetV2PaginableTimelineParams,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -119,7 +120,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Using pagination, up to the most recent 800 Tweets can be retrieved.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions
    */
-  public async userMentionTimeline(userId: string, options: Partial<TweetV2UserTimelineParams> = {}) {
+  public async userMentionTimeline(userId: string, options: Partial<TweetV2PaginableTimelineParams> = {}) {
     const initialRq = await this.get<TweetV2UserTimelineResult>(`users/${userId}/mentions`, options, { fullResponse: true });
 
     return new TweetUserMentionTimelineV2Paginator({

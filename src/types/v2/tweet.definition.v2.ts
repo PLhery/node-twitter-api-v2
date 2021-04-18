@@ -1,5 +1,15 @@
 import type { UserV2 } from './user.v2.types';
 
+export interface ErrorV2 {
+  value?: string;
+  detail: string;
+  title: string;
+  resource_type?: string;
+  parameter?: string;
+  resource_id?: string;
+  type: string;
+}
+
 export interface PlaceV2 {
   full_name: string;
   id: string;

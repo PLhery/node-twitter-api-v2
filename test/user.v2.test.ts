@@ -28,10 +28,10 @@ describe('Users endpoints for v2 API', () => {
     expect(jack.data.username.toLowerCase()).to.equal('jack');
 
     if (jack.data.pinned_tweet_id) {
-      expect(jack.includes).to.be.a('object');
-      expect(jack.includes.tweets).to.have.length.greaterThan(0);
-      expect(jack.includes.tweets[0]).to.haveOwnProperty('source');
-      expect(jack.includes.tweets[0]).to.haveOwnProperty('lang');
+      expect(jack.includes!).to.be.a('object');
+      expect(jack.includes!.tweets).to.have.length.greaterThan(0);
+      expect(jack.includes!.tweets![0]).to.haveOwnProperty('source');
+      expect(jack.includes!.tweets![0]).to.haveOwnProperty('lang');
     }
 
     const users = await roClient.v2.users(['12', '14561327']);
@@ -50,10 +50,10 @@ describe('Users endpoints for v2 API', () => {
     expect(jack.data.username.toLowerCase()).to.equal('jack');
 
     if (jack.data.pinned_tweet_id) {
-      expect(jack.includes).to.be.a('object');
-      expect(jack.includes.tweets).to.have.length.greaterThan(0);
-      expect(jack.includes.tweets[0]).to.haveOwnProperty('source');
-      expect(jack.includes.tweets[0]).to.haveOwnProperty('lang');
+      expect(jack.includes!).to.be.a('object');
+      expect(jack.includes!.tweets).to.have.length.greaterThan(0);
+      expect(jack.includes!.tweets![0]).to.haveOwnProperty('source');
+      expect(jack.includes!.tweets![0]).to.haveOwnProperty('lang');
     }
 
     const users = await roClient.v2.usersByUsernames(['jack', 'dhh']);
@@ -67,7 +67,7 @@ describe('Users endpoints for v2 API', () => {
       'user.fields': 'username',
     });
 
-    expect(followersOfJack.data).to.be.a('object');
+    expect(followersOfJack.data).to.be.a('array');
     expect(followersOfJack.data).to.have.length.greaterThan(0);
 
     if (followersOfJack.includes?.tweets?.length) {
@@ -82,7 +82,7 @@ describe('Users endpoints for v2 API', () => {
       'user.fields': 'username',
     });
 
-    expect(followingsOfJack.data).to.be.a('object');
+    expect(followingsOfJack.data).to.be.a('array');
     expect(followingsOfJack.data).to.have.length.greaterThan(0);
 
     if (followingsOfJack.includes?.tweets?.length) {
