@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "build-doc": "typedoc src/index.ts --out tsdocs",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "test-specific": "mocha -r ts-node/register",
     "prepublish": "npm run build"
@@ -24,6 +25,7 @@
     "dotenv": "^8.2.0",
     "mocha": "^8.3.2",
     "ts-node": "^9.1.1",
+    "typedoc": "^0.20.35",
     "typescript": "^4.2.4"
   },
   "bugs": {
