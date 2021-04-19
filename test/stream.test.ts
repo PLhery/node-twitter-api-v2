@@ -24,7 +24,7 @@ async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>): Promis
 }
 
 describe('Tweet stream API v1.1', () => {
-  it('Should stream 3 tweets without any network error for statuses/filter', async () => {
+  it('Should stream 3 tweets without any network error for statuses/filter using events', async () => {
     const streamv1Filter = await retryUntilNoRateLimitError(() => clientOauth.v1.filterStream({ track: 'JavaScript' }));
 
     const numberOfTweets = await new Promise<number>((resolve, reject) => {
@@ -46,7 +46,7 @@ describe('Tweet stream API v1.1', () => {
     });
 
     expect(numberOfTweets).to.equal(3);
-  }).timeout(1000 * 60);
+  }).timeout(1000 * 120);
 });
 
 describe('Tweet stream API v2', () => {
@@ -56,26 +56,20 @@ describe('Tweet stream API v2', () => {
     clientBearer = await getAppClient();
   });
 
-  it('Should stream 3 tweets without any network error for sample/stream', async () => {
-    const streamv2Filter = await retryUntilNoRateLimitError(() => clientBearer.v2.getStream('tweets/sample/stream'));
+  it('Should stream 3 tweets without any network error for sample/stream using async iterator', async () => {
+    const streamv2Sample = await retryUntilNoRateLimitError(() => clientBearer.v2.getStream('tweets/sample/stream'));
 
-    const numberOfTweets = await new Promise<number>((resolve, reject) => {
-      let numberOfTweets = 0;
+    let numberOfTweets = 0;
 
-      // Awaits for a tweet
-      streamv2Filter.on(ETwitterStreamEvent.ConnectionError, reject);
-      streamv2Filter.on(ETwitterStreamEvent.ConnectionClosed, reject);
-      streamv2Filter.on(ETwitterStreamEvent.Data, event => {
-        numberOfTweets++;
+    for await (const _ of streamv2Sample) {
+      numberOfTweets++;
 
-        if (numberOfTweets >= 3) {
-          resolve(numberOfTweets);
-        }
-      });
-      streamv2Filter.on(ETwitterStreamEvent.DataKeepAlive, () => console.log('Received keep alive event'));
-    }).finally(() => {
-      streamv2Filter.close();
-    });
+      if (numberOfTweets >= 3) {
+        break;
+      }
+    }
+
+    streamv2Sample.close();
 
     expect(numberOfTweets).to.equal(3);
   }).timeout(1000 * 120);
