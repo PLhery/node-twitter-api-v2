@@ -45,7 +45,7 @@ describe('Tweet stream API v1.1', () => {
       streamv1Filter.close();
     });
 
-    expect(numberOfTweets).to.equal(5);
+    expect(numberOfTweets).to.equal(3);
   }).timeout(1000 * 60);
 });
 
@@ -77,7 +77,7 @@ describe('Tweet stream API v2', () => {
       streamv2Filter.close();
     });
 
-    expect(numberOfTweets).to.equal(5);
+    expect(numberOfTweets).to.equal(3);
   }).timeout(1000 * 120);
 
   it('In 10 seconds, should have the same tweets registred by async iterator and event handler', async () => {
