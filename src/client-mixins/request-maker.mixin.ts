@@ -139,6 +139,11 @@ export abstract class ClientRequestMaker {
     method = method.toUpperCase();
     headers = headers ?? {};
 
+    // Add user agent header (Twitter recommands it)
+    if (!headers['x-user-agent']) {
+      headers['x-user-agent'] = 'Node.twitter-api-v2';
+    }
+
     const query = RequestParamHelpers.formatQueryToString(rawQuery);
     url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
 
