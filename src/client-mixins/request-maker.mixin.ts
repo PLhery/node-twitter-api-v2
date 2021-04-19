@@ -376,6 +376,18 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected formatV1Errors(errors: ErrorV1[]) {
+    return errors
+      .map(({ code, message }) => `${message} (Twitter code ${code})`)
+      .join(', ');
+  }
+
+  protected formatV2Errors(errors: ErrorV2[]) {
+    return errors
+      .map(({ type, title, detail }) => `${title}: ${detail} (see ${type})`)
+      .join(', ');
+  }
+
   protected createResponseError({ res, data, rateLimit, code }: IBuildErrorParams): ApiResponseError {
     if (TwitterApiV2Settings.debug) {
       console.log('Request failed with code', code, ', data:', data, 'response headers:', res.headers);
@@ -387,16 +399,10 @@ export class RequestHandlerHelper<T> {
       const errors = data.errors as (ErrorV1 | ErrorV2)[];
 
       if ('code' in errors[0]) {
-        const v1Errors = errors as ErrorV1[];
-        errorString += ' - '
-          + v1Errors.map(({ code, message }) => `${message} (Twitter code ${code}`).join(', ')
-          + ')';
+        errorString += ' - ' + this.formatV1Errors(errors as ErrorV1[]);
       }
       else {
-        const v2Errors = errors as ErrorV2[];
-        errorString += ' - '
-          + v2Errors.map(({ type, title, detail, value }) => `${type} ${title} ${detail} (${value}`).join(', ')
-          + ')';
+        errorString += ' - ' + this.formatV2Errors(errors as ErrorV2[]);
       }
     }
 

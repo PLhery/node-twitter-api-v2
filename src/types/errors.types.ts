@@ -13,6 +13,7 @@ export interface ErrorV2 {
   resource_type?: string;
   parameter?: string;
   resource_id?: string;
+  reason?: string;
   type: string;
 }
 
