@@ -12,13 +12,14 @@ async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>): Promis
   while (true) {
     try {
       if (retries) {
-        console.log('Retry', retries, 'started.')
+        console.log('\tRetry', retries, 'started.')
       }
       return await callback();
     } catch (e) {
       if (e instanceof ApiResponseError && [420, 429].includes(e.code)) {
         // Sleeps for 1 or 5 second
         const fiveSeconds = Math.random() > 0.5;
+        retries++;
         await new Promise(resolve => setTimeout(resolve, fiveSeconds ? 5000 : 1000));
         continue;
       }
