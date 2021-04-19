@@ -382,10 +382,8 @@ export class RequestHandlerHelper<T> {
       .join(', ');
   }
 
-  protected formatV2Errors(errors: ErrorV2[]) {
-    return errors
-      .map(({ type, title, detail }) => `${title}: ${detail} (see ${type})`)
-      .join(', ');
+  protected formatV2Error(error: ErrorV2) {
+    return `${error.title}: ${error.detail} (see ${error.type})`;
   }
 
   protected createResponseError({ res, data, rateLimit, code }: IBuildErrorParams): ApiResponseError {
@@ -402,7 +400,7 @@ export class RequestHandlerHelper<T> {
         errorString += ' - ' + this.formatV1Errors(errors as ErrorV1[]);
       }
       else {
-        errorString += ' - ' + this.formatV2Errors(errors as ErrorV2[]);
+        errorString += ' - ' + this.formatV2Error(data as ErrorV2);
       }
     }
 

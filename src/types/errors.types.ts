@@ -6,7 +6,8 @@ export interface ErrorV1 {
   message: string;
 }
 
-export interface ErrorV2 {
+/** Errors included in response payload with a OK HTTP status (code ~= 200) */
+export interface InlineErrorV2 {
   value?: string;
   detail: string;
   title: string;
@@ -15,6 +16,17 @@ export interface ErrorV2 {
   resource_id?: string;
   reason?: string;
   type: string;
+}
+
+/** Error payload thrown when HTTP code is not OK */
+export interface ErrorV2 {
+  detail: string;
+  title: string;
+  type: string;
+  errors: {
+    message: string;
+    parameters?: { [parameterName: string]: string[] };
+  }[];
 }
 
 export type TRequestError = TwitterApiRequestError | TwitterApiError;
@@ -113,16 +125,24 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
     this.data = options.data;
   }
 
-  /** Check for presence of one of given v1 error codes. Does **not** work with v2 errors! */
-  hasErrorCode(...codes: (EApiV1ErrorCode | number)[]) {
+  /** Check for presence of one of given v1/v2 error codes. */
+  hasErrorCode(...codes: (EApiV1ErrorCode | number)[] | (EApiV2ErrorCode | string)[]) {
     const errors = this.errors;
 
-    if (!errors?.length || !('code' in errors[0])) {
+    // No errors
+    if (!errors?.length) {
       return false;
     }
 
-    const v1errors = errors as ErrorV1[];
-    return v1errors.some(error => codes.includes(error.code));
+    // v1 errors
+    if ('code' in errors[0]) {
+      const v1errors = errors as ErrorV1[];
+      return v1errors.some(error => (codes as number[]).includes(error.code));
+    }
+
+    // v2 error
+    const v2error = this.data as ErrorV2;
+    return (codes as string[]).includes(v2error.type);
   }
 
   get errors(): (ErrorV1 | ErrorV2)[] | undefined {
