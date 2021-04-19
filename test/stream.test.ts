@@ -6,21 +6,31 @@ import { getAppClient, getUserClient } from '../src/test/utils';
 // OAuth 1.0a
 const clientOauth = getUserClient();
 
-async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>): Promise<T> {
+function randInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>, maxTime = 110 * 1000): Promise<T> {
   let retries = 0;
+  const startTime = Date.now();
+  const endTime = startTime + maxTime;
 
   while (true) {
     try {
       if (retries) {
-        console.log('\tRetry', retries, 'started.')
+        console.log('\tRetry', retries, 'started.');
       }
+      if (endTime < Date.now()) {
+        throw new Error('Timeout.');
+      }
+
       return await callback();
     } catch (e) {
       if (e instanceof ApiResponseError && [420, 429].includes(e.code)) {
-        // Sleeps for 1 or 5 second
-        const fiveSeconds = Math.random() > 0.5;
+        // Randomly sleeps to allow other tests to end
+        const seconds = randInt(2, 40);
         retries++;
-        await new Promise(resolve => setTimeout(resolve, fiveSeconds ? 5000 : 1000));
+        await new Promise(resolve => setTimeout(resolve, seconds));
         continue;
       }
 
