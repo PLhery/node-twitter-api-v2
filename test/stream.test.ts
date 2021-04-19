@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi, ETwitterStreamEvent, ApiResponseError } from '../src';
+import { TwitterApi, ETwitterStreamEvent } from '../src';
 import { getAppClient, getUserClient } from '../src/test/utils';
 
 // OAuth 1.0a
