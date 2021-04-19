@@ -36,7 +36,7 @@ describe('Tweets endpoints for v2 API', () => {
 
   }).timeout(60 * 1000);
 
-  it('.search - Search and fetch tweets using tweet searcher', async () => {
+  it('.search - Search and fetch tweets using tweet searcher and consume 300 tweets', async () => {
     const nodeJs = await client.v2.search('nodeJS');
 
     const originalLength = nodeJs.tweets.length;
@@ -51,7 +51,7 @@ describe('Tweets endpoints for v2 API', () => {
 
     for await (const tweet of nodeJs) {
       ids.push(tweet.id);
-      if (i > 1000) {
+      if (i > 300) {
         break;
       }
 
