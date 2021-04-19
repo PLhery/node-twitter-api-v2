@@ -7,13 +7,19 @@ import { getAppClient, getUserClient } from '../src/test/utils';
 const clientOauth = getUserClient();
 
 async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>): Promise<T> {
+  let retries = 0;
+
   while (true) {
     try {
+      if (retries) {
+        console.log('Retry', retries, 'started.')
+      }
       return await callback();
     } catch (e) {
       if (e instanceof ApiResponseError && [420, 429].includes(e.code)) {
-        // Sleeps for 1 second
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Sleeps for 1 or 5 second
+        const fiveSeconds = Math.random() > 0.5;
+        await new Promise(resolve => setTimeout(resolve, fiveSeconds ? 5000 : 1000));
         continue;
       }
 
