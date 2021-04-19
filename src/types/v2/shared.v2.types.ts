@@ -1,4 +1,4 @@
-import type { ErrorV2 } from './tweet.definition.v2';
+import type { ErrorV2 } from '../errors.types';
 
 export type MetaV2<M> = { meta: M, errors?: ErrorV2[] };
 export type DataV2<D> = { data: D, errors?: ErrorV2[] };

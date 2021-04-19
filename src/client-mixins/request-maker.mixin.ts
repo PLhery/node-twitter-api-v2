@@ -1,4 +1,4 @@
-import { ApiRequestError, ApiResponseError, TwitterRateLimit, TwitterResponse } from '../types';
+import { ApiRequestError, ApiResponseError, ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import { URLSearchParams } from 'url';
 import { request, RequestOptions } from 'https';
@@ -381,7 +381,26 @@ export class RequestHandlerHelper<T> {
       console.log('Request failed with code', code, ', data:', data, 'response headers:', res.headers);
     }
 
-    return new ApiResponseError(`Request failed with code ${code}.`, {
+    // Errors formatting.
+    let errorString = `Request failed with code ${code}`;
+    if (data?.errors?.length) {
+      const errors = data.errors as (ErrorV1 | ErrorV2)[];
+
+      if ('code' in errors[0]) {
+        const v1Errors = errors as ErrorV1[];
+        errorString += ' - '
+          + v1Errors.map(({ code, message }) => `${message} (Twitter code ${code}`).join(', ')
+          + ')';
+      }
+      else {
+        const v2Errors = errors as ErrorV2[];
+        errorString += ' - '
+          + v2Errors.map(({ type, title, detail, value }) => `${type} ${title} ${detail} (${value}`).join(', ')
+          + ')';
+      }
+    }
+
+    return new ApiResponseError(errorString, {
       code,
       data,
       headers: res.headers,

@@ -1,6 +1,20 @@
 import type { TwitterRateLimit, TwitterResponse } from '../types';
 import type { ClientRequest, IncomingMessage, IncomingHttpHeaders } from 'http';
-import type { ErrorV2 } from './v2';
+
+export interface ErrorV1 {
+  code: number;
+  message: string;
+}
+
+export interface ErrorV2 {
+  value?: string;
+  detail: string;
+  title: string;
+  resource_type?: string;
+  parameter?: string;
+  resource_id?: string;
+  type: string;
+}
 
 export type TRequestError = TwitterApiRequestError | TwitterApiError;
 
@@ -12,7 +26,7 @@ export interface TwitterErrorPayload<T = any> {
 }
 
 export interface TwitterApiErrorData {
-  errors: ErrorV2[];
+  errors: (ErrorV1 | ErrorV2)[];
   title?: string;
   detail?: string;
   type?: string;
