@@ -1,3 +1,5 @@
+import { arrayWrap } from '../helpers';
+
 type TStringable = { toString(): string; };
 
 // This class is partially inspired by https://github.com/form-data/form-data/blob/master/lib/form_data.js
@@ -5,21 +7,22 @@ type TStringable = { toString(): string; };
 export class FormDataHelper {
   protected _boundary: string = '';
   protected _chunks: Buffer[] = [];
+  protected _footerChunk?: Buffer;
 
-  protected readonly LINE_BREAK = '\r\n';
-  protected readonly DEFAULT_CONTENT_TYPE = 'application/octet-stream';
+  protected static readonly LINE_BREAK = '\r\n';
+  protected static readonly DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
-  protected bodyAppend(...values: (Buffer | string)[]) {
+  protected bodyAppend(...values: (Buffer | string)[]) {
     const allAsBuffer = values.map(val => val instanceof Buffer ? val : Buffer.from(val));
     this._chunks.push(...allAsBuffer);
   }
 
-  append(field: string, value: Buffer | string | TStringable) {
+  append(field: string, value: Buffer | string | TStringable, contentType?: string) {
     const convertedValue = value instanceof Buffer ? value : value.toString();
 
-    const header = this.getMultipartHeader(field, convertedValue);
+    const header = this.getMultipartHeader(field, convertedValue, contentType);
 
-    this.bodyAppend(header, convertedValue, this.LINE_BREAK);
+    this.bodyAppend(header, convertedValue, FormDataHelper.LINE_BREAK);
   }
 
   getHeaders() {
@@ -28,27 +31,25 @@ export class FormDataHelper {
     };
   }
 
-  getLength() {
-    return this._chunks.reduce((acc, cur) => acc + cur.length, 0);
+  /** Length of form-data (including footer length). */
+  protected getLength() {
+    return this._chunks.reduce(
+      (acc, cur) => acc + cur.length,
+      this.getMultipartFooter().length,
+    );
   }
 
   getBuffer() {
-    const footerLength = Buffer.from(this.getMultipartFooter());
-    const totalBuffer = Buffer.alloc(this.getLength() + footerLength.length);
+    const allChunks = [...this._chunks, this.getMultipartFooter()];
+    const totalBuffer = Buffer.alloc(this.getLength());
 
     let i = 0;
-    for (const chunk of this._chunks) {
+    for (const chunk of allChunks) {
       for (let j = 0; j < chunk.length; i++, j++) {
         totalBuffer[i] = chunk[j];
       }
     }
 
-    // Add the footer
-    for (let j = 0; j < footerLength.length; i++, j++) {
-      totalBuffer[i] = footerLength[j];
-    }
-
-    // console.log('Buffer:', totalBuffer.toString('utf-8'))
     return totalBuffer;
   }
 
@@ -58,10 +59,6 @@ export class FormDataHelper {
     }
 
     return this._boundary;
-  }
-
-  protected lastBoundary() {
-    return '--' + this.getBoundary() + '--' + this.LINE_BREAK;
   }
 
   protected generateBoundary() {
@@ -74,36 +71,34 @@ export class FormDataHelper {
     this._boundary = boundary;
   }
 
-  protected getMultipartHeader(field: string, value: string | Buffer) {
+  protected getMultipartHeader(field: string, value: string | Buffer, contentType?: string) {
     // In this lib no need to guess more the content type, octet stream is ok of buffers
-    const contentType = value instanceof Buffer ? this.DEFAULT_CONTENT_TYPE : '';
+    if (!contentType) {
+      contentType = value instanceof Buffer ? FormDataHelper.DEFAULT_CONTENT_TYPE : '';
+    }
 
-    let contents = '';
     const headers  = {
-      // add custom disposition as third element or keep it two elements if not
       'Content-Disposition': ['form-data', `name="${field}"`],
-      // if no content type. allow it to be empty array
       'Content-Type': contentType,
     };
 
+    let contents = '';
     for (const [prop, header] of Object.entries(headers)) {
       // skip nullish headers.
-      if (!header) {
+      if (!header.length) {
         continue;
       }
 
-      let headerAsArray = !Array.isArray(header) ? [header] : header;
-
-      // add non-empty headers.
-      if (headerAsArray.length) {
-        contents += prop + ': ' + headerAsArray.join('; ') + this.LINE_BREAK;
-      }
+      contents += prop + ': ' + arrayWrap(header).join('; ') + FormDataHelper.LINE_BREAK;
     }
 
-    return '--' + this.getBoundary() + this.LINE_BREAK + contents + this.LINE_BREAK;
+    return '--' + this.getBoundary() + FormDataHelper.LINE_BREAK + contents + FormDataHelper.LINE_BREAK;
   }
 
   protected getMultipartFooter() {
-    return this.lastBoundary();
+    if (this._footerChunk) {
+      return this._footerChunk;
+    }
+    return this._footerChunk = Buffer.from('--' + this.getBoundary() + '--' + FormDataHelper.LINE_BREAK);
   }
 }

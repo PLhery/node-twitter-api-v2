@@ -1,22 +1,31 @@
 import 'mocha';
 import { expect } from 'chai';
-import dotenv from 'dotenv';
-import { TwitterApi, ETwitterStreamEvent } from '../src';
-import { getAppClient } from '../src/test/utils';
-
-dotenv.config({ path: __dirname + '/../.env' });
+import { TwitterApi, ETwitterStreamEvent, ApiResponseError } from '../src';
+import { getAppClient, getUserClient } from '../src/test/utils';
 
 // OAuth 1.0a
-const clientOauth = new TwitterApi({
-  appKey: process.env.CONSUMER_TOKEN!,
-  appSecret: process.env.CONSUMER_SECRET!,
-  accessToken: process.env.OAUTH_TOKEN!,
-  accessSecret: process.env.OAUTH_SECRET!,
-});
+const clientOauth = getUserClient();
+
+async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>): Promise<T> {
+  while (true) {
+    try {
+      return await callback();
+    } catch (e) {
+      if (e instanceof ApiResponseError && e.code === 429) {
+        // Sleeps for 1 second
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        continue;
+      }
+
+      // Error is not a rate limit error, throw it.
+      throw e;
+    }
+  }
+}
 
 describe('Tweet stream API v1.1', () => {
   it('Should stream 5 tweets without any network error for statuses/filter', async () => {
-    const streamv1Filter = await clientOauth.v1.filterStream({ track: 'JavaScript' });
+    const streamv1Filter = await retryUntilNoRateLimitError(() => clientOauth.v1.filterStream({ track: 'JavaScript' }));
 
     const numberOfTweets = await new Promise<number>((resolve, reject) => {
       let numberOfTweets = 0;
@@ -47,14 +56,8 @@ describe('Tweet stream API v2', () => {
     clientBearer = await getAppClient();
   });
 
-  beforeEach(async () => {
-    // Sometimes, Twitter sends a 429 if stream close then open is executed
-    // in a short period of time.
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  });
-
   it('Should stream 5 tweets without any network error for sample/stream', async () => {
-    const streamv2Filter = await clientBearer.v2.getStream('tweets/sample/stream');
+    const streamv2Filter = await retryUntilNoRateLimitError(() => clientBearer.v2.getStream('tweets/sample/stream'));
 
     const numberOfTweets = await new Promise<number>((resolve, reject) => {
       let numberOfTweets = 0;
@@ -78,7 +81,7 @@ describe('Tweet stream API v2', () => {
   }).timeout(1000 * 120);
 
   it('In 15 seconds, should have the same tweets registred by async iterator and event handler', async () => {
-    const streamv2Filter = await clientBearer.v2.sampleStream();
+    const streamV2 = await retryUntilNoRateLimitError(() => clientBearer.v2.sampleStream());
 
     const eventTweetIds = [] as string[];
     const itTweetIds = [] as string[];
@@ -87,15 +90,15 @@ describe('Tweet stream API v2', () => {
       // 30 seconds timeout
       new Promise(resolve => setTimeout(resolve, 15 * 1000)),
       (async function() {
-        streamv2Filter.on(ETwitterStreamEvent.Data, tweet => eventTweetIds.push(tweet.data.id));
+        streamV2.on(ETwitterStreamEvent.Data, tweet => eventTweetIds.push(tweet.data.id));
 
-        for await (const tweet of streamv2Filter) {
+        for await (const tweet of streamV2) {
           itTweetIds.push(tweet.data.id);
         }
       })(),
     ]);
 
-    streamv2Filter.close();
+    streamV2.close();
 
     expect(eventTweetIds).to.have.length(itTweetIds.length);
     expect(eventTweetIds.every(id => itTweetIds.includes(id))).to.be.true;

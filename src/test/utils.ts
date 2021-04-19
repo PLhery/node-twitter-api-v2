@@ -13,14 +13,17 @@ export function getUserClient() {
   });
 }
 
-// Test auth 1.0a flow
-export function getAuthLink(callback: string) {
-  let requestClient = new TwitterApi({
+/** User-unlogged OAuth 1.0a client */
+export function getRequestClient() {
+  return new TwitterApi({
     appKey: process.env.CONSUMER_TOKEN!,
     appSecret: process.env.CONSUMER_SECRET!,
   });
+}
 
-  return requestClient.generateAuthLink(callback);
+// Test auth 1.0a flow
+export function getAuthLink(callback: string) {
+  return getRequestClient().generateAuthLink(callback);
 }
 
 export async function getAccessClient(verifier: string) {

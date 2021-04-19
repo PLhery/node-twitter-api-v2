@@ -1,15 +1,9 @@
 import 'mocha';
 import { expect } from 'chai';
-import dotenv from 'dotenv';
-import { TwitterApi } from '../src';
-
-dotenv.config({ path: __dirname + '/../.env' });
+import { getRequestClient } from '../src/test/utils';
 
 // OAuth 1.0a
-const clientWithoutUser = new TwitterApi({
-  appKey: process.env.CONSUMER_TOKEN!,
-  appSecret: process.env.CONSUMER_SECRET!,
-});
+const clientWithoutUser = getRequestClient();
 
 describe('Authentification API', () => {
   it('.generateAuthLink - Create a auth link', async () => {
