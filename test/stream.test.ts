@@ -30,7 +30,7 @@ async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>, maxTime
         // Randomly sleeps to allow other tests to end
         const seconds = randInt(2, 40);
         retries++;
-        await new Promise(resolve => setTimeout(resolve, seconds));
+        await new Promise(resolve => setTimeout(resolve, seconds * 1000));
         continue;
       }
 
