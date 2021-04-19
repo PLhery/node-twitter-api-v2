@@ -6,43 +6,9 @@ import { getAppClient, getUserClient } from '../src/test/utils';
 // OAuth 1.0a
 const clientOauth = getUserClient();
 
-function randInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>, maxTime = 110 * 1000): Promise<T> {
-  let retries = 0;
-  const startTime = Date.now();
-  const endTime = startTime + maxTime;
-
-  while (true) {
-    try {
-      if (retries) {
-        console.log('\tRetry', retries, 'started.');
-      }
-      if (endTime < Date.now()) {
-        throw new Error('Timeout.');
-      }
-
-      return await callback();
-    } catch (e) {
-      if (e instanceof ApiResponseError && [420, 429].includes(e.code)) {
-        // Randomly sleeps to allow other tests to end
-        const seconds = randInt(2, 40);
-        retries++;
-        await new Promise(resolve => setTimeout(resolve, seconds * 1000));
-        continue;
-      }
-
-      // Error is not a rate limit error, throw it.
-      throw e;
-    }
-  }
-}
-
 describe('Tweet stream API v1.1', () => {
   it('Should stream 3 tweets without any network error for statuses/filter using events', async () => {
-    const streamv1Filter = await retryUntilNoRateLimitError(() => clientOauth.v1.filterStream({ track: 'JavaScript' }));
+    const streamv1Filter = await clientOauth.v1.filterStream({ track: 'JavaScript' });
 
     const numberOfTweets = await new Promise<number>((resolve, reject) => {
       let numberOfTweets = 0;
@@ -74,7 +40,7 @@ describe('Tweet stream API v2', () => {
   });
 
   it('Should stream 3 tweets without any network error for sample/stream using async iterator', async () => {
-    const streamv2Sample = await retryUntilNoRateLimitError(() => clientBearer.v2.getStream('tweets/sample/stream'));
+    const streamv2Sample = await clientBearer.v2.getStream('tweets/sample/stream');
 
     let numberOfTweets = 0;
 
@@ -92,7 +58,7 @@ describe('Tweet stream API v2', () => {
   }).timeout(1000 * 120);
 
   it('In 10 seconds, should have the same tweets registred by async iterator and event handler', async () => {
-    const streamV2 = await retryUntilNoRateLimitError(() => clientBearer.v2.sampleStream());
+    const streamV2 = await clientBearer.v2.sampleStream();
 
     const eventTweetIds = [] as string[];
     const itTweetIds = [] as string[];
