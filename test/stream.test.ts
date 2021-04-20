@@ -39,6 +39,10 @@ describe('Tweet stream API v2', () => {
     clientBearer = await getAppClient();
   });
 
+  beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  });
+
   it('Should stream 3 tweets without any network error for sample/stream using async iterator', async () => {
     const streamv2Sample = await clientBearer.v2.getStream('tweets/sample/stream');
 
