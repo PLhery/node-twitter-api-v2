@@ -2,6 +2,21 @@
 
 Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
+## Highlights
+
+✅ **Ready for v2 and good ol' v1.1 Twitter API**
+
+✅ **Light: No dependencies, 11.7kb minified+gzipped**
+
+✅ **Bundled types for request parameters and responses**
+
+✅ **Streaming support**
+
+✅ **Pagination utils**
+
+✅ **Media upload helpers**
+
+
 ## Why?
 
 - The main libraries (twit/twitter) were not updated in a while
@@ -14,9 +29,21 @@ They caused me some frustration:
 - They could have more helpers (for pagination, rate limit, ...)
 - Typings could make the difference between read/write app
 
-## Goals
+A small feature comparaison with other libs:
 
-Here's the feature highlights of `twitter-api-v2`:
+| Package        | API version       |    Response typings | Media helpers | Pagination |  Size (gzip)  |
+| -------------- | ---------------- | ---------------- | ------------- | ---------- | -------------:|
+| twitter-api-v2 | v1.1 & v2 & labs | ✅               | ✅             | ✅         | ~11.7 kB      |
+| twit           | v1.1             | ❌               | ✅             | ❌         | ~214.5 kB     |
+| twitter        | v1.1             | ❌               | ❌             | ❌         | ~182.1 kB     |
+| twitter-lite   | v1.1 & v2        | ❌               | ❌*            | ❌         | ~5.3 kB       |
+| twitter-v2     | v2               | ❌               | ❌             | ❌         | ~4.5 kB       |
+
+\**No support for `media/upload`, cannot send a `multipart/form-data` encoded-body without tricks*
+
+## Features
+
+Here's the detailed feature list of `twitter-api-v2`:
 
 ### Basics:
 - Support for v1.1 and **v2 of Twitter API**
@@ -37,6 +64,7 @@ Here's the feature highlights of `twitter-api-v2`:
 - Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
   *(WIP - not all public endpoints are available)*
 - Bundled parsing of rate limit headers
+- Typed errors, meaningful error messages, error enumerations for both v1.1 and v2
 
 ### Type-safe first:
 - **Typings for tweet, user, media entities (and more) are bundled in this package!**
