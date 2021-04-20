@@ -1,6 +1,6 @@
 # Twitter API v2
 
-Strongly typed, full-featured, right protected, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
+Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
 ## Why?
 
