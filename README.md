@@ -16,28 +16,24 @@ Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 an
 
 ✅ **Media upload helpers**
 
-
 ## Why?
 
-- The main libraries (twit/twitter) were not updated in a while
-- I don't think a Twitter library need many dependencies
+Sometimes, you just want to quickly bootstrap an application using the Twitter API.
+Even if they're a lot a available librairies on the JavaScript ecosystem, they usually just
+provide wrappers around HTTP methods, and some of them are bloated with many dependencies.
 
-They caused me some frustration:
-- They don't support video upload in a simple way
-- They don't explain well the "link" auth process
-- They don't support yet Twitter API V2
-- They could have more helpers (for pagination, rate limit, ...)
-- Typings could make the difference between read/write app
+`twitter-api-v2` meant to provide full endpoint wrapping, from method name to response data,
+using descriptive typings for read/write/DMs rights, request parameters and response payload.
 
 A small feature comparaison with other libs:
 
-| Package        | API version       |    Response typings | Media helpers | Pagination |  Size (gzip)  |
-| -------------- | ---------------- | ---------------- | ------------- | ---------- | -------------:|
-| twitter-api-v2 | v1.1 & v2 & labs | ✅               | ✅             | ✅         | ~11.7 kB      |
-| twit           | v1.1             | ❌               | ✅             | ❌         | ~214.5 kB     |
-| twitter        | v1.1             | ❌               | ❌             | ❌         | ~182.1 kB     |
-| twitter-lite   | v1.1 & v2        | ❌               | ❌*            | ❌         | ~5.3 kB       |
-| twitter-v2     | v2               | ❌               | ❌             | ❌         | ~4.5 kB       |
+| Package        | API version(s) | Response typings | Media helpers | Pagination | Subdependencies |  Size (gzip)  |
+| -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|
+| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~11.7 kB      |
+| twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     |
+| twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     |
+| twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       |
+| twitter-v2     | v2             | ❌               | ❌             | ❌         | 7               | ~4.5 kB       |
 
 \**No support for `media/upload`, cannot send a `multipart/form-data` encoded-body without tricks*
 
