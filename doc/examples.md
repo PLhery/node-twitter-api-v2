@@ -49,4 +49,45 @@ await twitterClient.v2.get('tweets/search/recent', {query: 'nodeJS', max_results
 const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
 ```
 
+
+## Full examples
+
+### Streaming: Bot that listens for tweets that mention them, and replies with a reversed tweet content
+
+```ts
+const client = new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
+const me = await client.currentUser();
+
+// Erase previous rules
+const rules = await client.v2.streamRules();
+if (rules.data.length) {
+  await client.v2.updateStreamRules({
+    delete: { ids: rules.data.map(rule => rule.id) },
+  });
+}
+
+// Add my search rule
+await client.v2.updateStreamRules({
+  add: [{ value: '@' + me.screen_name }],
+});
+
+const stream = await client.v2.searchStream({
+  'tweet.fields': ['in_reply_to_user_id'],
+});
+
+for await (const { data: tweet } of stream) {
+  // If the bot is not directly mentionned, ignore
+  if (tweet.in_reply_to_user_id !== me.id_str) {
+    continue;
+  }
+
+  // Remove the beginning mentions
+  const realText = tweet.text.replace(/^@\w+ (@\w+ )*/, '');
+  const reversedText = realText.split('').reverse().join('');
+
+  client.v1.reply(reversedText, tweet.id)
+    .catch((err: Error) => console.log(err.message));
+}
+```
+
 ***WIP — TODO***
