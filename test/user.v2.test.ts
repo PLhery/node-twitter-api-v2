@@ -100,8 +100,8 @@ describe('Users endpoints for v2 API', () => {
     const followInfo = await readWrite.v2.follow(currentUser.id_str, '12');
     expect(followInfo.data.following).to.equal(true);
 
-    // Sleep 5 seconds
-    await new Promise(resolve => setTimeout(resolve, 1000 * 5));
+    // Sleep 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 1000 * 2));
 
     // Unfollow jack
     const unfollowInfo = await readWrite.v2.unfollow(currentUser.id_str, '12');
@@ -116,8 +116,8 @@ describe('Users endpoints for v2 API', () => {
     const blockInfo = await readWrite.v2.block(currentUser.id_str, '12');
     expect(blockInfo.data.blocking).to.equal(true);
 
-    // Sleep 5 seconds
-    await new Promise(resolve => setTimeout(resolve, 1000 * 5));
+    // Sleep 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 1000 * 2));
 
     // unblock jack
     const unblockInfo = await readWrite.v2.unblock(currentUser.id_str, '12');

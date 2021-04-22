@@ -33,12 +33,11 @@ describe('Tweets endpoints for v1.1 API', () => {
 
   it('.get - Get 2 tweets of a specific user', async () => {
     // Using raw HTTP method and URL
-    const response1 = await client.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=jack&count=2&include_rts=false');
+    const response1 = await client.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=jack&count=2');
     // Using query parser
     const response2 = await client.v1.get('statuses/user_timeline.json', {
       screen_name: 'jack',
       count: 2,
-      include_rts: false,
     });
 
     for (const response of [response1, response2]) {

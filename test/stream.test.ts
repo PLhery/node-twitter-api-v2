@@ -1,31 +1,14 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi, ETwitterStreamEvent, ApiResponseError } from '../src';
+import { TwitterApi, ETwitterStreamEvent } from '../src';
 import { getAppClient, getUserClient } from '../src/test/utils';
 
 // OAuth 1.0a
 const clientOauth = getUserClient();
 
-async function retryUntilNoRateLimitError<T>(callback: () => Promise<T>): Promise<T> {
-  while (true) {
-    try {
-      return await callback();
-    } catch (e) {
-      if (e instanceof ApiResponseError && e.code === 429) {
-        // Sleeps for 1 second
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        continue;
-      }
-
-      // Error is not a rate limit error, throw it.
-      throw e;
-    }
-  }
-}
-
 describe('Tweet stream API v1.1', () => {
-  it('Should stream 5 tweets without any network error for statuses/filter', async () => {
-    const streamv1Filter = await retryUntilNoRateLimitError(() => clientOauth.v1.filterStream({ track: 'JavaScript' }));
+  it('Should stream 3 tweets without any network error for statuses/filter using events', async () => {
+    const streamv1Filter = await clientOauth.v1.filterStream({ track: 'JavaScript' });
 
     const numberOfTweets = await new Promise<number>((resolve, reject) => {
       let numberOfTweets = 0;
@@ -36,7 +19,7 @@ describe('Tweet stream API v1.1', () => {
       streamv1Filter.on(ETwitterStreamEvent.Data, event => {
         numberOfTweets++;
 
-        if (numberOfTweets >= 5) {
+        if (numberOfTweets >= 3) {
           resolve(numberOfTweets);
         }
       });
@@ -45,8 +28,8 @@ describe('Tweet stream API v1.1', () => {
       streamv1Filter.close();
     });
 
-    expect(numberOfTweets).to.equal(5);
-  }).timeout(1000 * 60);
+    expect(numberOfTweets).to.equal(3);
+  }).timeout(1000 * 120);
 });
 
 describe('Tweet stream API v2', () => {
@@ -56,39 +39,37 @@ describe('Tweet stream API v2', () => {
     clientBearer = await getAppClient();
   });
 
-  it('Should stream 5 tweets without any network error for sample/stream', async () => {
-    const streamv2Filter = await retryUntilNoRateLimitError(() => clientBearer.v2.getStream('tweets/sample/stream'));
+  beforeEach(async () => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  });
 
-    const numberOfTweets = await new Promise<number>((resolve, reject) => {
-      let numberOfTweets = 0;
+  it('Should stream 3 tweets without any network error for sample/stream using async iterator', async () => {
+    const streamv2Sample = await clientBearer.v2.getStream('tweets/sample/stream');
 
-      // Awaits for a tweet
-      streamv2Filter.on(ETwitterStreamEvent.ConnectionError, reject);
-      streamv2Filter.on(ETwitterStreamEvent.ConnectionClosed, reject);
-      streamv2Filter.on(ETwitterStreamEvent.Data, event => {
-        numberOfTweets++;
+    let numberOfTweets = 0;
 
-        if (numberOfTweets >= 5) {
-          resolve(numberOfTweets);
-        }
-      });
-      streamv2Filter.on(ETwitterStreamEvent.DataKeepAlive, () => console.log('Received keep alive event'));
-    }).finally(() => {
-      streamv2Filter.close();
-    });
+    for await (const _ of streamv2Sample) {
+      numberOfTweets++;
 
-    expect(numberOfTweets).to.equal(5);
+      if (numberOfTweets >= 3) {
+        break;
+      }
+    }
+
+    streamv2Sample.close();
+
+    expect(numberOfTweets).to.equal(3);
   }).timeout(1000 * 120);
 
-  it('In 15 seconds, should have the same tweets registred by async iterator and event handler', async () => {
-    const streamV2 = await retryUntilNoRateLimitError(() => clientBearer.v2.sampleStream());
+  it('In 10 seconds, should have the same tweets registred by async iterator and event handler', async () => {
+    const streamV2 = await clientBearer.v2.sampleStream();
 
     const eventTweetIds = [] as string[];
     const itTweetIds = [] as string[];
 
     await Promise.race([
-      // 30 seconds timeout
-      new Promise(resolve => setTimeout(resolve, 15 * 1000)),
+      // 10 seconds timeout
+      new Promise(resolve => setTimeout(resolve, 10 * 1000)),
       (async function() {
         streamV2.on(ETwitterStreamEvent.Data, tweet => eventTweetIds.push(tweet.data.id));
 

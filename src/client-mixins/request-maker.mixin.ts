@@ -1,4 +1,4 @@
-import { ApiRequestError, ApiResponseError, TwitterRateLimit, TwitterResponse } from '../types';
+import { ApiRequestError, ApiResponseError, ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import { URLSearchParams } from 'url';
 import { request, RequestOptions } from 'https';
@@ -138,6 +138,11 @@ export abstract class ClientRequestMaker {
     let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
+
+    // Add user agent header (Twitter recommands it)
+    if (!headers['x-user-agent']) {
+      headers['x-user-agent'] = 'Node.twitter-api-v2';
+    }
 
     const query = RequestParamHelpers.formatQueryToString(rawQuery);
     url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
@@ -376,12 +381,35 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected formatV1Errors(errors: ErrorV1[]) {
+    return errors
+      .map(({ code, message }) => `${message} (Twitter code ${code})`)
+      .join(', ');
+  }
+
+  protected formatV2Error(error: ErrorV2) {
+    return `${error.title}: ${error.detail} (see ${error.type})`;
+  }
+
   protected createResponseError({ res, data, rateLimit, code }: IBuildErrorParams): ApiResponseError {
     if (TwitterApiV2Settings.debug) {
       console.log('Request failed with code', code, ', data:', data, 'response headers:', res.headers);
     }
 
-    return new ApiResponseError(`Request failed with code ${code}.`, {
+    // Errors formatting.
+    let errorString = `Request failed with code ${code}`;
+    if (data?.errors?.length) {
+      const errors = data.errors as (ErrorV1 | ErrorV2)[];
+
+      if ('code' in errors[0]) {
+        errorString += ' - ' + this.formatV1Errors(errors as ErrorV1[]);
+      }
+      else {
+        errorString += ' - ' + this.formatV2Error(data as ErrorV2);
+      }
+    }
+
+    return new ApiResponseError(errorString, {
       code,
       data,
       headers: res.headers,
