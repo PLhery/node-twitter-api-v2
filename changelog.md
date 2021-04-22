@@ -1,3 +1,13 @@
+1.0.0
+-----
+First Stable Version
+- More tests, way more documentation
+- Add every missing v2 endpoints
+- Remove the two dependencies (form-data and oauth)
+- Improve error management
+- Fix issues with node12
+- Fix issues with the auth API
+
 0.4.0
 -----
 - Add V1 and V2 streaming V2 endpoints
