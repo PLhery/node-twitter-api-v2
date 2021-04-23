@@ -72,3 +72,9 @@ export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;
 /// -- Replies --
 
 export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;
+
+/// -- Likes
+
+export type TweetV2LikeResult = DataV2<{
+  liked: boolean;
+}>;

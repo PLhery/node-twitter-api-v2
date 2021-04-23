@@ -2,6 +2,7 @@ import { API_V2_PREFIX } from '../globals';
 import TwitterApiv2ReadOnly from './client.v2.read';
 import type {
   TweetV2HideReplyResult,
+  TweetV2LikeResult,
   UserV2BlockResult,
   UserV2FollowResult,
   UserV2UnfollowResult
@@ -41,6 +42,27 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public hideReply(tweetId: string, makeHidden: boolean) {
     return this.put<TweetV2HideReplyResult>(`tweets/${tweetId}/hidden`, { hidden: makeHidden });
+  }
+
+  /**
+   * Causes the user ID identified in the path parameter to Like the target Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/post-users-user_id-likes
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+   public like(loggedUserId: string, targetTweetId: string) {
+    return this.post<TweetV2LikeResult>(`users/${loggedUserId}/likes`, { tweet_id: targetTweetId });
+  }
+
+  /**
+   * Allows a user or authenticated user ID to unlike a Tweet.
+   * The request succeeds with no action when the user sends a request to a user they're not liking the Tweet or have already unliked the Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-user_id-likes
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public unlike(loggedUserId: string, targetTweetId: string) {
+    return this.delete<TweetV2LikeResult>(`users/${loggedUserId}/likes/${targetTweetId}`);
   }
 
   /* Users */

@@ -4,13 +4,20 @@ import dotenv from 'dotenv';
 dotenv.config({ path: __dirname + '/../../.env' });
 
 /** User OAuth 1.0a client */
-export function getUserClient() {
-  return new TwitterApi({
+export function getUserClient(this: any) {
+  if (this.__client) {
+    return this.__client as TwitterApi;
+  }
+  return this.__client = new TwitterApi({
     appKey: process.env.CONSUMER_TOKEN!,
     appSecret: process.env.CONSUMER_SECRET!,
     accessToken: process.env.OAUTH_TOKEN!,
     accessSecret: process.env.OAUTH_SECRET!,
   });
+}
+
+export async function sleepTest(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /** User-unlogged OAuth 1.0a client */
