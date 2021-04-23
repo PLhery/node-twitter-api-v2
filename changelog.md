@@ -1,3 +1,8 @@
+1.1.0
+-----
+- Add the new v2 likes endpoint
+- Fix: add some missing media types
+
 1.0.0
 -----
 First Stable Version
