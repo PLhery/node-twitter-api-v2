@@ -1,9 +1,10 @@
 import 'mocha';
 import { expect } from 'chai';
 import { TwitterApi } from '../src';
-import { getAppClient } from '../src/test/utils';
+import { getAppClient, getUserClient, sleepTest } from '../src/test/utils';
 
 let client: TwitterApi;
+let userClient = getUserClient();
 
 describe('Tweets endpoints for v2 API', () => {
   before(async () => {
@@ -114,11 +115,15 @@ describe('Tweets endpoints for v2 API', () => {
     expect(first.author_id).to.be.a('string');
     expect(first.source).to.be.a('string');
   }).timeout(60 * 1000);
+
+  it('.like/.unlike - Like / unlike a single tweet', async () => {
+    const me = await userClient.currentUser();
+    const { data: { liked } } = await userClient.v2.like(me.id_str, '20');
+    expect(liked).to.equal(true);
+
+    await sleepTest(300);
+
+    const { data: { liked: likedAfterUnlike } } = await userClient.v2.unlike(me.id_str, '20');
+    expect(likedAfterUnlike).to.equal(false);
+  }).timeout(60 * 1000);
 });
-
-
-// describe('', () => {
-//   it('', async () => {
-
-//   }).timeout(60 * 1000);
-// });
