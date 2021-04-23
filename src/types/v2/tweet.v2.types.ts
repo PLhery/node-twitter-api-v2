@@ -34,7 +34,8 @@ export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParam
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
   | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id'
   | 'geo.place_id' | 'entities.mentions.username' | 'referenced_tweets.id.author_id';
-export type TTweetv2MediaField = 'duration_ms' | 'height' | 'media_key' | 'preview_image_url' | 'type' | 'url' | 'width' | 'public_metrics';
+export type TTweetv2MediaField = 'duration_ms' | 'height' | 'media_key' | 'preview_image_url' | 'type'
+  | 'url' | 'width' | 'public_metrics' | 'non_public_metrics' | 'organic_metrics';
 export type TTweetv2PlaceField = 'contained_within' | 'country' | 'country_code' | 'full_name' | 'geo' | 'id' | 'name' | 'place_type';
 export type TTweetv2PollField = 'duration_minutes' | 'end_datetime' | 'id' | 'options' | 'voting_status';
 export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotations' | 'conversation_id'
