@@ -254,6 +254,29 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
       queryParams,
     });
   }
+
+  // Part: Read indicator
+
+  /**
+   * Marks a message as read in the recipient’s Direct Message conversation view with the sender.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-read-receipt
+   */
+  public markAsRead(lastEventId: string, recipientId: string) {
+    return this.post<void>('direct_messages/mark_read.json', {
+      last_read_event_id: lastEventId,
+      recipient_id: recipientId,
+    }, { forceBodyMode: 'url' });
+  }
+
+  /**
+   * Displays a visual typing indicator in the recipient’s Direct Message conversation view with the sender.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-typing-indicator
+   */
+  public indicateTyping(recipientId: string) {
+    return this.post<void>('direct_messages/indicate_typing.json', {
+      recipient_id: recipientId,
+    }, { forceBodyMode: 'url' });
+  }
 }
 
 export default TwitterApiv1;
