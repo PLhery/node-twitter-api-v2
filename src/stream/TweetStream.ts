@@ -59,7 +59,7 @@ export class TweetStream<T = any> extends EventEmitter {
     });
 
     this.res.on('data', chunk => {
-      if (chunk === '\r\n') {
+      if (chunk == '\r\n') {
         return this.emit(ETwitterStreamEvent.DataKeepAlive);
       }
 
