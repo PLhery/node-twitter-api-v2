@@ -58,12 +58,12 @@ export class TweetStream<T = any> extends EventEmitter {
       this.close();
     });
 
-    this.res.on('data', chunk => {
-      if (chunk == '\r\n') {
+    this.res.on('data', (chunk: Buffer) => {
+      if (chunk.toString() === '\r\n') {
         return this.emit(ETwitterStreamEvent.DataKeepAlive);
       }
 
-      this.parser.push(chunk);
+      this.parser.push(chunk.toString());
     });
   }
 
