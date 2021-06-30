@@ -1,3 +1,7 @@
+1.1.1
+-----
+- Fix: in streams, the KeepAlive was not emitted #33
+
 1.1.0
 -----
 - Add the new v2 likes endpoint
