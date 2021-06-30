@@ -7,7 +7,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 15.x]
+        node-version: [14.x]
       max-parallel: 1 # the streaming API can be called only once at a time
 
     steps:
