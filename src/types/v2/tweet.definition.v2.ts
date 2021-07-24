@@ -94,6 +94,14 @@ export interface TweetEntityUrlV2 {
   expanded_url: string;
   display_url: string;
   unwound_url: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  images?: {
+    url: string;
+    width: number;
+    height: number;
+  }
 }
 
 export interface TweetEntityHashtagV2 {
