@@ -51,7 +51,7 @@ abstract class TweetTimelineV2Paginator<
   }
 
   protected getPageLengthFromRequest(result: TwitterResponse<TResult>) {
-    return result.data.data.length;
+    return result.data?.data?.length||0;
   }
 
   protected isFetchLastOver(result: TwitterResponse<TResult>) {
