@@ -55,7 +55,7 @@ abstract class TweetTimelineV2Paginator<
   }
 
   protected isFetchLastOver(result: TwitterResponse<TResult>) {
-    return !result.data.data.length || !result.data.meta.next_token;
+    return !result.data?.data?.length || !result.data.meta.next_token;
   }
 
   protected getItemArray() {
