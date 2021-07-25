@@ -68,6 +68,11 @@ abstract class TweetTimelineV2Paginator<
   get tweets() {
     return this._realData.data;
   }
+  
+  //includes object returned by paginator
+  get includes() {
+    return this._realData.includes;
+  }
 }
 
 // ----------------
