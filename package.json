@@ -22,6 +22,7 @@
     "test-stream": "npm run mocha test/stream.test.ts",
     "test-media": "npm run mocha test/media-upload.test.ts",
     "test-auth": "npm run mocha test/auth.test.ts",
+    "test-dm": "npm run mocha test/dm.*.test.ts",
     "prepublish": "npm run build"
   },
   "repository": "github:plhery/node-twitter-api-v2",

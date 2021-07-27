@@ -97,7 +97,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Creates a new Welcome Message that will be stored and sent in the future from the authenticating user in defined circumstances.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/new-welcome-message
    */
-  public newWelcomeMessage(name: string, data: MessageCreateDataV1) {
+  public newWelcomeDm(name: string, data: MessageCreateDataV1) {
     const args: CreateWelcomeDMEventV1Args = {
       [EDirectMessageEventTypeV1.WelcomeCreate]: {
         name,
@@ -114,7 +114,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Returns a Welcome Message by the given id.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/get-welcome-message
    */
-  public getWelcomeMessage(id: string) {
+  public getWelcomeDm(id: string) {
     return this.get<WelcomeDirectMessageCreateV1Result>('direct_messages/welcome_messages/show.json', { id });
   }
 
@@ -122,7 +122,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Deletes a Welcome Message by the given id.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/delete-welcome-message
    */
-  public deleteWelcomeMessage(id: string) {
+  public deleteWelcomeDm(id: string) {
     return this.delete<void>('direct_messages/welcome_messages/destroy.json', { id });
   }
 
@@ -131,7 +131,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Updates to the welcome_message object are atomic.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/update-welcome-message
    */
-  public updateWelcomeMessage(id: string, data: MessageCreateDataV1) {
+  public updateWelcomeDm(id: string, data: MessageCreateDataV1) {
     const args = { message_data: data };
     return this.put<WelcomeDirectMessageCreateV1Result>('direct_messages/welcome_messages/update.json', args, {
       forceBodyMode: 'json',
@@ -145,7 +145,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    *
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/list-events
    */
-  public async listWelcomeMessages(args: Partial<GetDmListV1Args> = {}) {
+  public async listWelcomeDms(args: Partial<GetDmListV1Args> = {}) {
     const queryParams = { ...args };
     const initialRq = await this.get<WelcomeDirectMessageListV1Result>('direct_messages/welcome_messages/list.json', queryParams, { fullResponse: true });
 
@@ -163,7 +163,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Creates a new Welcome Message Rule that determines which Welcome Message will be shown in a given conversation.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/new-welcome-message-rule
    */
-  public newWelcomeMessageRule(welcomeMessageId: string) {
+  public newWelcomeDmRule(welcomeMessageId: string) {
     return this.post<WelcomeDmRuleV1Result>('direct_messages/welcome_messages/rules/new.json', {
       welcome_message_rule: { welcome_message_id: welcomeMessageId },
     }, {
@@ -175,7 +175,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Returns a Welcome Message Rule by the given id.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/get-welcome-message-rule
    */
-  public getWelcomeMessageRule(id: string) {
+  public getWelcomeDmRule(id: string) {
     return this.get<WelcomeDmRuleV1Result>('direct_messages/welcome_messages/rules/show.json', { id });
   }
 
@@ -183,7 +183,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Deletes a Welcome Message Rule by the given id.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/delete-welcome-message-rule
    */
-  public deleteWelcomeMessageRule(id: string) {
+  public deleteWelcomeDmRule(id: string) {
     return this.delete<void>('direct_messages/welcome_messages/rules/destroy.json', { id });
   }
 
@@ -193,14 +193,14 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    *
    * If you don't have already a welcome message, create it with `.newWelcomeMessage`.
    */
-  public async setWelcomeMessage(welcomeMessageId: string) {
+  public async setWelcomeDm(welcomeMessageId: string) {
     const existingRules = await this.get<WelcomeDmRuleListV1Result>('direct_messages/welcome_messages/rules/list.json');
 
     if (existingRules.welcome_message_rules.length) {
-      await Promise.all(existingRules.welcome_message_rules.map(rule => this.deleteWelcomeMessageRule(rule.id)));
+      await Promise.all(existingRules.welcome_message_rules.map(rule => this.deleteWelcomeDmRule(rule.id)));
     }
 
-    return this.newWelcomeMessageRule(welcomeMessageId);
+    return this.newWelcomeDmRule(welcomeMessageId);
   }
 
   // Part: Custom profiles
@@ -261,7 +261,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Marks a message as read in the recipient’s Direct Message conversation view with the sender.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-read-receipt
    */
-  public markAsRead(lastEventId: string, recipientId: string) {
+  public markDmAsRead(lastEventId: string, recipientId: string) {
     return this.post<void>('direct_messages/mark_read.json', {
       last_read_event_id: lastEventId,
       recipient_id: recipientId,
@@ -272,7 +272,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Displays a visual typing indicator in the recipient’s Direct Message conversation view with the sender.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-typing-indicator
    */
-  public indicateTyping(recipientId: string) {
+  public indicateDmTyping(recipientId: string) {
     return this.post<void>('direct_messages/indicate_typing.json', {
       recipient_id: recipientId,
     }, { forceBodyMode: 'url' });
