@@ -8,6 +8,7 @@ import {
   TweetV2TimelineParams,
   TweetV2UserTimelineResult,
   TweetV2UserTimelineParams,
+  ApiV2Includes,
 } from '../types';
 
 /** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines. */
@@ -30,6 +31,30 @@ abstract class TweetTimelineV2Paginator<
       this._realData.meta.newest_id = result.meta.newest_id;
       this._realData.meta.result_count += result.meta.result_count;
       this._realData.data.unshift(...result.data);
+    }
+
+    this.updateIncludes(result);
+  }
+
+  protected updateIncludes(data: TResult) {
+    if (!data.includes) {
+      return;
+    }
+    if (!this._realData.includes) {
+      this._realData.includes = {};
+    }
+
+    const includesRealData = this._realData.includes;
+
+    for (const [includeKey, includeArray] of Object.entries(data.includes) as [keyof ApiV2Includes, any[]][]) {
+      if (!includesRealData[includeKey]) {
+        includesRealData[includeKey] = [];
+      }
+
+      includesRealData[includeKey] = [
+        ...includesRealData[includeKey]!,
+        ...includeArray,
+      ];
     }
   }
 
@@ -66,6 +91,14 @@ abstract class TweetTimelineV2Paginator<
    */
   get tweets() {
     return this._realData.data;
+  }
+
+  get meta() {
+    return this._realData.meta;
+  }
+
+  get includes() {
+    return this._realData.includes ?? {};
   }
 }
 
