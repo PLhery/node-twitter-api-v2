@@ -188,16 +188,28 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
   }
 
   /**
+   * Retrieves all welcome DM rules for this account.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/list-welcome-message-rules
+   */
+  public async listWelcomeDmRules(args: Partial<GetDmListV1Args> = {}) {
+    const queryParams = { ...args };
+    return this.get<WelcomeDmRuleListV1Result>('direct_messages/welcome_messages/rules/list.json', queryParams);
+  }
+
+  /**
    * Set the current showed welcome message for logged account ; wrapper for Welcome DM rules.
    * Test if a rule already exists, delete if any, then create a rule for current message ID.
    *
    * If you don't have already a welcome message, create it with `.newWelcomeMessage`.
    */
   public async setWelcomeDm(welcomeMessageId: string) {
-    const existingRules = await this.get<WelcomeDmRuleListV1Result>('direct_messages/welcome_messages/rules/list.json');
+    const existingRules = await this.listWelcomeDmRules();
 
-    if (existingRules.welcome_message_rules.length) {
-      await Promise.all(existingRules.welcome_message_rules.map(rule => this.deleteWelcomeDmRule(rule.id)));
+    if (existingRules.welcome_message_rules?.length) {
+      for (const rule of existingRules.welcome_message_rules) {
+        await this.deleteWelcomeDmRule(rule.id);
+        await this.deleteWelcomeDm(rule.welcome_message_id);
+      }
     }
 
     return this.newWelcomeDmRule(welcomeMessageId);

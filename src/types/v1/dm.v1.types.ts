@@ -3,7 +3,7 @@ import { CoordinateV1, MediaEntityV1, TweetEntitiesV1 } from './entities.v1.type
 // Creation of DMs
 export enum EDirectMessageEventTypeV1 {
   Create = 'message_create',
-  WelcomeCreate = 'welcome_message_create',
+  WelcomeCreate = 'welcome_message',
 }
 
 export interface MessageCreateEventV1 {
@@ -186,7 +186,7 @@ export interface WelcomeDmRuleV1Result {
 
 export interface WelcomeDmRuleListV1Result {
   next_cursor?: string;
-  welcome_message_rules: WelcomeDmRuleV1[];
+  welcome_message_rules?: WelcomeDmRuleV1[];
 }
 
 // -- Custom profiles --
