@@ -64,6 +64,7 @@ export type MessageCreateLocationV1 = {
 
 export interface SendDMV1Params extends MessageCreateDataV1 {
   recipient_id: string;
+  custom_profile_id?: string;
 }
 
 export interface CreateDMEventV1Args {
@@ -187,25 +188,4 @@ export interface WelcomeDmRuleV1Result {
 export interface WelcomeDmRuleListV1Result {
   next_cursor?: string;
   welcome_message_rules?: WelcomeDmRuleV1[];
-}
-
-// -- Custom profiles --
-
-export interface DmCustomProfileV1 {
-  name: string;
-  avatar: { media: MediaEntityV1 };
-}
-
-export interface ReceivedDmCustomProfileV1 extends DmCustomProfileV1 {
-  id: string;
-  created_timestamp: string;
-}
-
-export interface ReceivedDmCustomProfileItemV1 {
-  custom_profile: ReceivedDmCustomProfileV1;
-}
-
-export interface ReceivedDmCustomProfileListV1 {
-  next_cursor?: string;
-  custom_profiles: ReceivedDmCustomProfileV1[];
 }

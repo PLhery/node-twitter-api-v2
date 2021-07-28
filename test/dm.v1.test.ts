@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { EDirectMessageEventTypeV1, ReceivedWelcomeDMCreateEventV1, TwitterApi, TwitterApiV2Settings } from '../src';
+import { EDirectMessageEventTypeV1, ReceivedWelcomeDMCreateEventV1, TwitterApi } from '../src';
 import { getUserClient } from '../src/test/utils';
 import { sleepSecs } from '../src/v1/media-helpers.v1';
 
@@ -86,7 +86,7 @@ describe('DM endpoints for v1.1 API', () => {
   }).timeout(60 * 1000);
 
   it('.newWelcomeDm/.getWelcomeDm/.updateWelcomeDm/.listWelcomeDms/.deleteWelcomeDm - Every method related to welcome messages.', async () => {
-    if (!isDmTestEnabled || DISABLED_DM_SEND) {
+    if (!isDmTestEnabled) {
       return;
     }
 

@@ -1,5 +1,5 @@
 import { API_V1_1_PREFIX } from '../globals';
-import { CustomProfileDmV1Paginator, DmEventsV1Paginator, WelcomeDmV1Paginator } from '../paginators/dm.paginator.v1';
+import { DmEventsV1Paginator, WelcomeDmV1Paginator } from '../paginators/dm.paginator.v1';
 import {
   CreateDMEventV1Args,
   EDirectMessageEventTypeV1,
@@ -14,8 +14,6 @@ import {
   WelcomeDirectMessageListV1Result,
   WelcomeDmRuleV1Result,
   WelcomeDmRuleListV1Result,
-  ReceivedDmCustomProfileItemV1,
-  ReceivedDmCustomProfileListV1,
 } from '../types';
 import TwitterApiv1ReadWrite from './client.v1.write';
 
@@ -39,7 +37,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Publishes a new message_create event resulting in a Direct Message sent to a specified user from the authenticating user.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/new-event
    */
-  public sendDm({ recipient_id, ...params }: SendDMV1Params) {
+  public sendDm({ recipient_id, custom_profile_id, ...params }: SendDMV1Params) {
     const args: CreateDMEventV1Args = {
       event: {
         type: EDirectMessageEventTypeV1.Create,
@@ -49,6 +47,10 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
         },
       },
     };
+
+    if (custom_profile_id) {
+      args.event[EDirectMessageEventTypeV1.Create]!.custom_profile_id = custom_profile_id;
+    }
 
     return this.post<DirectMessageCreateV1Result>('direct_messages/events/new.json', args, {
       forceBodyMode: 'json',
@@ -213,58 +215,6 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
     }
 
     return this.newWelcomeDmRule(welcomeMessageId);
-  }
-
-  // Part: Custom profiles
-
-  /**
-   * Creates a new custom profile.
-   * The returned ID should be used with when publishing a new message with POST direct_messages/events/new.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/custom-profiles/api-reference/new-profile
-   */
-  public newDmCustomProfile(name: string, avatarMediaId: string) {
-    return this.post<WelcomeDirectMessageCreateV1Result>('custom_profiles/new.json', {
-      custom_profile: {
-        name,
-        avatar: {
-          media: { id: avatarMediaId },
-        },
-      },
-    }, {
-      forceBodyMode: 'json',
-    });
-  }
-
-  /**
-   * Returns a custom profile that was created with POST custom_profiles/new.json.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/custom-profiles/api-reference/get-profile
-   */
-  public getDmCustomProfile(id: string) {
-    return this.get<ReceivedDmCustomProfileItemV1>(`custom_profiles/${id}.json`);
-  }
-
-  /**
-   * Deletes a custom profile that was created with POST custom_profiles/new.json.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/custom-profiles/api-reference/delete-profile
-   */
-  public deleteDmCustomProfile(id: string) {
-    return this.delete<void>('custom_profiles/destroy.json', { id });
-  }
-
-  /**
-   * Retrieves all custom profiles for the authenticated account.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/custom-profiles/api-reference/get-profile-list
-   */
-  public async listDmCustomProfiles(args: Partial<GetDmListV1Args> = {}) {
-    const queryParams = { ...args };
-    const initialRq = await this.get<ReceivedDmCustomProfileListV1>('custom_profiles/list.json', queryParams, { fullResponse: true });
-
-    return new CustomProfileDmV1Paginator({
-      realData: initialRq.data,
-      rateLimit: initialRq.rateLimit!,
-      instance: this,
-      queryParams,
-    });
   }
 
   // Part: Read indicator
