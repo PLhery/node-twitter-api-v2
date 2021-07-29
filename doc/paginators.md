@@ -56,6 +56,24 @@ for await (const tweet of homeTimeline) {
 }
 ```
 
+## v2 meta, includes
+
+For tweets endpoints that returns `meta`s and `includes` in their payload, `v2` paginators supports them (and merge them into a unique container :D),
+just use `Paginator.meta` or `Paginator.includes`.
+
+```ts
+const mySearch = await client.v2.search('nodeJS');
+
+for await (const tweet of mySearch) {
+  const availableMeta = mySearch.meta;
+  const availableIncludes = mySearch.includes;
+
+  // availableMeta and availableIncludes are filled with .meta and .includes
+  // fetched at the time you were reading this tweet
+  // Once the next page is automatically fetched, they can be updated!
+}
+```
+
 ## Previous page
 
 On paginators that supports it, you can get previous pages with `.previous()` and `.fetchPrevious()`.
