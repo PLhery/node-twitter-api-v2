@@ -156,8 +156,8 @@ const stream = await client.sendStream({
 This library helps you to handle rate limiting.
 When a request fails (with a Twitter response), it create a `ApiResponseError` instance and throw it.
 
-If `ApiResponseErrorInstance.rateLimitError` is `true`, then you just hit the rate limite.
-You have access to the rate limit limits with `ApiResponseErrorInstance.rateLimit`:
+If `ApiResponseErrorInstance.rateLimitError` is `true`, then you just hit the rate limit.
+You have access to rate limit limits with `ApiResponseErrorInstance.rateLimit`:
 
 ```ts
 import { ApiResponseError } from 'twitter-api-v2';
@@ -175,7 +175,7 @@ try {
 
 ---
 
-**Example**: You can automate this process with a waiter that will retry request only when reset timer is over:
+**Example**: You can automate this process with a waiter that will retry a failed request after the reset timer is over:
 
 *Warning*: This method can be VERY ineffective, as it can wait up to 15 minutes (Twitter's usual rate limit reset time).
 ```ts
@@ -220,7 +220,7 @@ console.log(paginator.rateLimit); // { limit: number, remaining: number, reset: 
 
 > This is the only way to get rate limit information when a Twitter request succeeds.
 
-If you many use a HTTP method helper (`.get`, `.post`, ...), you can get a **full response** object that directly contains the rate limit information,
+If you use a HTTP method helper (`.get`, `.post`, ...), you can get a **full response** object that directly contains the rate limit information,
 even if the request didn't fail!
 ```ts
 const manualFullResponse = await client.v1.get<TweetV1TimelineResult>('statuses/home_timeline.json', { since_id: '20' }, { fullResponse: true });
