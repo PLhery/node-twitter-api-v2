@@ -28,7 +28,7 @@ abstract class TweetTimelineV1Paginator<
     return {
       ...this._queryParams,
       max_id: (lastestId - BigInt(1)).toString(),
-      ...(maxResults ? { max_results: maxResults } : {})
+      ...maxResults ? { max_results: maxResults } : {},
     };
   }
 

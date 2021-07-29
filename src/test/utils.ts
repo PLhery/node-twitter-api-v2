@@ -34,7 +34,7 @@ export function getAuthLink(callback: string) {
 }
 
 export async function getAccessClient(verifier: string) {
-  let requestClient = new TwitterApi({
+  const requestClient = new TwitterApi({
     appKey: process.env.CONSUMER_TOKEN!,
     appSecret: process.env.CONSUMER_SECRET!,
     accessToken: process.env.OAUTH_TOKEN!,

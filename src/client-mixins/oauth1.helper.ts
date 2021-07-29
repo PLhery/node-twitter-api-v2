@@ -170,7 +170,7 @@ function mergeObject<A, B>(obj1: A, obj2: B): A & B {
   const merged = source1 as A & B;
 
   for (const key in source2) {
-    // @ts-ignore
+    // @ts-expect-error: Because key source is unverified.
     merged[key] = source2[key];
   }
 
@@ -227,11 +227,11 @@ function deParamUrl(url: string) {
 
 function percentEncode(str: string) {
   return encodeURIComponent(str)
-    .replace(/!/g, "%21")
-    .replace(/\*/g, "%2A")
-    .replace(/'/g, "%27")
-    .replace(/\(/g, "%28")
-    .replace(/\)/g, "%29");
+    .replace(/!/g, '%21')
+    .replace(/\*/g, '%2A')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29');
 }
 
 function percentEncodeData<T>(data: T): T {

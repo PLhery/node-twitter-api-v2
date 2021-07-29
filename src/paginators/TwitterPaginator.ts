@@ -144,6 +144,7 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<TItem, void, undefined> {
     yield* this.getItemArray();
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let paginator = this;
 
     while (this._isRateLimitOk) {

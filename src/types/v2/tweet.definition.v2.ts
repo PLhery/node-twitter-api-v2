@@ -151,7 +151,7 @@ export interface TweetOrganicMetricsV2 {
   like_count: number;
 }
 
-export interface TweetPromotedMetricsV2 extends TweetOrganicMetricsV2 {}
+export type TweetPromotedMetricsV2 = TweetOrganicMetricsV2;
 
 //// FINALLY, TweetV2
 export interface TweetV2 {

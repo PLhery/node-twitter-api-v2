@@ -27,7 +27,7 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a JPG image from file handle', async () => {
     // Upload media (from fileHandle)
-    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(jpgImg, 'r'), { type: 'jpg' })
+    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(jpgImg, 'r'), { type: 'jpg' });
     expect(fromHandle).to.be.an('string');
     expect(fromHandle).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);

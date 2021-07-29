@@ -5,7 +5,7 @@ import type {
   TweetV2LikeResult,
   UserV2BlockResult,
   UserV2FollowResult,
-  UserV2UnfollowResult
+  UserV2UnfollowResult,
 } from '../types';
 import TwitterApiv2LabsReadWrite from '../v2-labs/client.v2.labs.write';
 

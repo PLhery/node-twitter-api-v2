@@ -27,7 +27,7 @@ describe('Tweets endpoints for v1.1 API', () => {
       expect(firstTweet).to.haveOwnProperty('id_str');
 
       const firstUser = firstTweet.user;
-      expect(firstUser).to.haveOwnProperty('id_str')
+      expect(firstUser).to.haveOwnProperty('id_str');
     }
   }).timeout(60 * 1000);
 

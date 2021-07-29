@@ -126,7 +126,7 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
   }
 
   /** Check for presence of one of given v1/v2 error codes. */
-  hasErrorCode(...codes: (EApiV1ErrorCode | number)[] | (EApiV2ErrorCode | string)[]) {
+  hasErrorCode(...codes: (EApiV1ErrorCode | number)[] | (EApiV2ErrorCode | string)[]) {
     const errors = this.errors;
 
     // No errors
@@ -145,12 +145,12 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
     return (codes as string[]).includes(v2error.type);
   }
 
-  get errors(): (ErrorV1 | ErrorV2)[] | undefined {
+  get errors(): (ErrorV1 | ErrorV2)[] | undefined {
     return this.data?.errors;
   }
 
   get rateLimitError() {
-    return this.code === 420 || this.code === 429;
+    return this.code === 420 || this.code === 429;
   }
 
   get isAuthError() {

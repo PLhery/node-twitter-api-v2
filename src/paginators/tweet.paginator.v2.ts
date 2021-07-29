@@ -63,7 +63,7 @@ abstract class TweetTimelineV2Paginator<
     return {
       ...this._queryParams,
       until_id: this._realData.meta.oldest_id,
-      ...(maxResults ? { max_results: maxResults } : {})
+      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 
@@ -71,7 +71,7 @@ abstract class TweetTimelineV2Paginator<
     return {
       ...this._queryParams,
       since_id: this._realData.meta.newest_id,
-      ...(maxResults ? { max_results: maxResults } : {})
+      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 

@@ -3,7 +3,7 @@ import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
   TRequestBody,
-  TRequestQuery
+  TRequestQuery,
 } from './client-mixins/request-maker.mixin';
 import TweetStream from './stream/TweetStream';
 
@@ -164,7 +164,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       url,
       method: 'DELETE',
       query,
-      ...rest
+      ...rest,
     });
 
     return fullResponse ? resp : resp.data;

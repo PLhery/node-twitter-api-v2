@@ -5,7 +5,7 @@ import type {
   BearerTokenResult, LoginResult,
   RequestTokenArgs,
   RequestTokenResult,
-  Tweetv2SearchParams
+  Tweetv2SearchParams,
 } from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';

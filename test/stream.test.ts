@@ -16,7 +16,7 @@ describe('Tweet stream API v1.1', () => {
       // Awaits for a tweet
       streamv1Filter.on(ETwitterStreamEvent.ConnectionError, reject);
       streamv1Filter.on(ETwitterStreamEvent.ConnectionClosed, reject);
-      streamv1Filter.on(ETwitterStreamEvent.Data, event => {
+      streamv1Filter.on(ETwitterStreamEvent.Data, () => {
         numberOfTweets++;
 
         if (numberOfTweets >= 3) {
@@ -70,7 +70,7 @@ describe('Tweet stream API v2', () => {
     await Promise.race([
       // 10 seconds timeout
       new Promise(resolve => setTimeout(resolve, 10 * 1000)),
-      (async function() {
+      (async function () {
         streamV2.on(ETwitterStreamEvent.Data, tweet => eventTweetIds.push(tweet.data.id));
 
         for await (const tweet of streamV2) {

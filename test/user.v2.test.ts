@@ -1,18 +1,16 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi, TwitterApiReadOnly, TwitterApiReadWrite } from '../src';
+import { TwitterApi, TwitterApiReadOnly } from '../src';
 import { getAppClient, getUserClient } from '../src/test/utils';
 
 let client: TwitterApi;
 let roClient: TwitterApiReadOnly;
-let rwClient: TwitterApiReadWrite;
 let userClient: TwitterApi;
 
 describe('Users endpoints for v2 API', () => {
   before(async () => {
     client = await getAppClient();
     roClient = client.readOnly;
-    rwClient = client.readWrite;
     userClient = getUserClient();
   });
 
