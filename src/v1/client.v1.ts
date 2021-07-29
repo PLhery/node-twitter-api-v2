@@ -204,13 +204,16 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    *
    * If you don't have already a welcome message, create it with `.newWelcomeMessage`.
    */
-  public async setWelcomeDm(welcomeMessageId: string) {
+  public async setWelcomeDm(welcomeMessageId: string, deleteAssociatedWelcomeDmWhenDeletingRule = true) {
     const existingRules = await this.listWelcomeDmRules();
 
     if (existingRules.welcome_message_rules?.length) {
       for (const rule of existingRules.welcome_message_rules) {
         await this.deleteWelcomeDmRule(rule.id);
-        await this.deleteWelcomeDm(rule.welcome_message_id);
+
+        if (deleteAssociatedWelcomeDmWhenDeletingRule) {
+          await this.deleteWelcomeDm(rule.welcome_message_id);
+        }
       }
     }
 
