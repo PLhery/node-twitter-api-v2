@@ -9,7 +9,6 @@ let client: TwitterApi;
 const TARGET_USER_ID = process.env.TARGET_DM_USER_ID as string;
 const TEST_UUID = Math.random();
 let isDmTestEnabled = false;
-const DISABLED_DM_SEND = true;
 
 if (process.env.TARGET_DM_USER_ID) {
   isDmTestEnabled = true;
@@ -21,7 +20,7 @@ describe('DM endpoints for v1.1 API', () => {
   });
 
   it('.sendDm/.getDmEvent/.deleteDm - Send a new direct message and fetch it.', async () => {
-    if (!isDmTestEnabled || DISABLED_DM_SEND) {
+    if (!isDmTestEnabled) {
       return;
     }
 
@@ -54,7 +53,7 @@ describe('DM endpoints for v1.1 API', () => {
   }).timeout(60 * 1000);
 
   it('.listDmEvents/.deleteDm - List DM events and delete every available DM sent to TARGET USER ID.', async () => {
-    if (!isDmTestEnabled || DISABLED_DM_SEND) {
+    if (!isDmTestEnabled) {
       return;
     }
 
