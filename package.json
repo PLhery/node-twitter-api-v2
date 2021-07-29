@@ -22,8 +22,7 @@
     "test-stream": "npm run mocha test/stream.test.ts",
     "test-media": "npm run mocha test/media-upload.test.ts",
     "test-auth": "npm run mocha test/auth.test.ts",
-    "prepublish": "npm run build",
-    "prepare": "npm run build"
+    "prepublish": "npm run build"
   },
   "repository": "github:plhery/node-twitter-api-v2",
   "author": "Paul-Louis Hery <paullouis.hery+twitterapi@gmail.com> (https://twitter.com/plhery)",
