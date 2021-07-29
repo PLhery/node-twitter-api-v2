@@ -1,3 +1,9 @@
+1.2.0
+-----
+- Fix: fetchLast was throwing an error with timelines #43
+- Feat: Add .meta and .includes in v2 paginators #35 #46
+- Feat: Add some missing attributes to tweetEntity typings #42
+  
 1.1.1
 -----
 - Fix: in streams, the KeepAlive was not emitted #33
