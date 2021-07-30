@@ -1,7 +1,8 @@
 // Tweets
 import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+import { UserV2 } from './user.v2.types';
 
 /// -- Timelines --
 
@@ -54,6 +55,31 @@ export interface Tweetv2FieldsParams {
   'user.fields': TypeOrArrayOf<TTweetv2UserField> | string;
 }
 
+// - Tweet count -
+
+export interface TweetV2CountParams {
+  query: string;
+  end_time?: string;
+  start_time?: string;
+  until_id?: string;
+  since_id?: string;
+  granularity?: 'day' | 'hour' | 'minute';
+}
+
+export interface TweetV2CountAllParams {
+  next_token: string;
+}
+
+export type TweetV2CountResult = DataAndMetaV2<{
+  start: string;
+  end: string;
+  tweet_count: number;
+}, {
+  total_tweet_count: number;
+}>;
+
+export type TweetV2CountAllResult = TweetV2CountResult & DataV2<{ next_token: string }>;
+
 // - Timeline results -
 
 export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
@@ -78,3 +104,11 @@ export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;
 export type TweetV2LikeResult = DataV2<{
   liked: boolean;
 }>;
+
+export type TweetV2LikedByResult = DataAndIncludeV2<UserV2[], ApiV2Includes>;
+
+/// -- Retweets
+
+export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
+
+export type TweetV2RetweetedByResult = DataMetaAndIncludeV2<UserV2[], { result_count: number }, ApiV2Includes>;

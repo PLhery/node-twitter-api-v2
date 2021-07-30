@@ -2,7 +2,7 @@
 import type { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
 import type { ApiV2Includes } from './tweet.definition.v2';
 import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
-import type { TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
+import type { TTweetv2MediaField, TTweetv2PlaceField, TTweetv2PollField, TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
 import type { TypeOrArrayOf } from '../shared.types';
 
 export type TUserV2Expansion = 'pinned_tweet_id';
@@ -11,8 +11,22 @@ export type TUserV2Expansion = 'pinned_tweet_id';
 
 export interface UsersV2Params {
   expansions: TypeOrArrayOf<TUserV2Expansion>;
-  'tweet.fields': TypeOrArrayOf<TTweetv2TweetField>;
-  'user.fields': TypeOrArrayOf<TTweetv2UserField>;
+  'media.fields': TypeOrArrayOf<TTweetv2MediaField> | string;
+  'place.fields': TypeOrArrayOf<TTweetv2PlaceField> | string;
+  'poll.fields': TypeOrArrayOf<TTweetv2PollField> | string;
+  'tweet.fields': TypeOrArrayOf<TTweetv2TweetField> | string;
+  'user.fields': TypeOrArrayOf<TTweetv2UserField> | string;
+}
+
+export interface UserV2TimelineParams {
+  expansions?: TypeOrArrayOf<TUserV2Expansion>;
+  'media.fields'?: TypeOrArrayOf<TTweetv2MediaField> | string;
+  'place.fields'?: TypeOrArrayOf<TTweetv2PlaceField> | string;
+  'poll.fields'?: TypeOrArrayOf<TTweetv2PollField> | string;
+  'tweet.fields'?: TypeOrArrayOf<TTweetv2TweetField> | string;
+  'user.fields'?: TypeOrArrayOf<TTweetv2UserField> | string;
+  max_results?: number;
+  pagination_token?: string;
 }
 
 export interface FollowersV2Params {
@@ -46,6 +60,12 @@ export type UserV2UnfollowResult = DataV2<{
 export type UserV2BlockResult = DataV2<{
   blocking: boolean;
 }>;
+
+export type UserV2TimelineResult = DataMetaAndIncludeV2<UserV2[], {
+  result_count: number;
+  previous_token?: string;
+  next_token?: string;
+}, ApiV2Includes>;
 
 // - Entities -
 

@@ -3,6 +3,7 @@ import TwitterApiv2ReadOnly from './client.v2.read';
 import type {
   TweetV2HideReplyResult,
   TweetV2LikeResult,
+  TweetV2RetweetResult,
   UserV2BlockResult,
   UserV2FollowResult,
   UserV2UnfollowResult
@@ -63,6 +64,27 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public unlike(loggedUserId: string, targetTweetId: string) {
     return this.delete<TweetV2LikeResult>(`users/${loggedUserId}/likes/${targetTweetId}`);
+  }
+
+  /**
+   * Causes the user ID identified in the path parameter to Retweet the target Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/post-users-id-retweets
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public retweet(loggedUserId: string, targetTweetId: string) {
+    return this.post<TweetV2RetweetResult>(`users/${loggedUserId}/retweets`, { tweet_id: targetTweetId });
+  }
+
+  /**
+   * Allows a user or authenticated user ID to remove the Retweet of a Tweet.
+   * The request succeeds with no action when the user sends a request to a user they're not Retweeting the Tweet or have already removed the Retweet of.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-user_id-likes
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public unretweet(loggedUserId: string, targetTweetId: string) {
+    return this.delete<TweetV2RetweetResult>(`users/${loggedUserId}/retweets/${targetTweetId}`);
   }
 
   /* Users */

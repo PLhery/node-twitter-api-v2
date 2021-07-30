@@ -16,6 +16,14 @@ import {
   StreamingV2UpdateRulesResult,
   TweetV2SingleResult,
   TweetV2PaginableTimelineParams,
+  TweetV2CountResult,
+  TweetV2CountParams,
+  TweetV2CountAllResult,
+  TweetV2CountAllParams,
+  TweetV2RetweetedByResult,
+  TweetV2LikedByResult,
+  UserV2TimelineParams,
+  UserV2TimelineResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -24,6 +32,7 @@ import {
   TweetUserTimelineV2Paginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
+import { UserBlockingUsersV2Paginator } from '../paginators/user.paginator.v2';
 
 /**
  * Base Twitter v2 client with only read right.
@@ -94,6 +103,40 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public tweets(tweetIds: string | string[], options: Partial<Tweetv2FieldsParams> = {}) {
     return this.get<TweetV2LookupResult>('tweets', { ids: tweetIds, ...options });
+  }
+
+  /**
+   * The recent Tweet counts endpoint returns count of Tweets from the last seven days that match a search query.
+   * OAuth2 Bearer auth only.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-recent
+   */
+  public tweetCountRecent(query: string, options: Partial<TweetV2CountParams> = {}) {
+    return this.get<TweetV2CountResult>('tweets/counts/recent', { query, ...options });
+  }
+
+  /**
+   * The recent Tweet counts endpoint returns count of Tweets from the last seven days that match a search query.
+   * OAuth2 Bearer auth only.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-all
+   */
+  public tweetCountAll(query: string, options: Partial<TweetV2CountAllParams> = {}) {
+    return this.get<TweetV2CountAllResult>('tweets/counts/all', { query, ...options });
+  }
+
+  /**
+   * Allows you to get information about who has Retweeted a Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/get-tweets-id-retweeted_by
+   */
+  public tweetRetweetedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
+    return this.get<TweetV2RetweetedByResult>(`tweets/${tweetId}/retweeted_by`, options);
+  }
+
+  /**
+   * Allows you to get information about who has Liked a Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-tweets-id-liking_users
+   */
+  public tweetLikedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
+    return this.get<TweetV2LikedByResult>(`tweets/${tweetId}/liking_users`, options);
   }
 
   /**
@@ -182,6 +225,30 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public following(userId: string, options: Partial<FollowersV2Params> = {}) {
     return this.get<FollowersV2Result>(`users/${userId}/following`, options);
+  }
+
+  /**
+   * Allows you to get information about a user’s liked Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
+   */
+  public userLikedTweets(userId: string, options: Partial<Tweetv2FieldsParams> = {}) {
+    return this.get<TweetV2LookupResult>(`users/${userId}/liked_tweets`, options);
+  }
+
+  /**
+   * Allows you to get information about a user’s liked Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
+   */
+   public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
+    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/blocking`, options, { fullResponse: true });
+
+    return new UserBlockingUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: { userId },
+    });
   }
 
   /* Streaming API */
