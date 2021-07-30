@@ -25,7 +25,7 @@ export interface MessageCreateCtaV1 {
   type: 'web_url';
   url: string;
   label: string;
-  /** Only when messages are retrived from API */
+  /** Only when messages are retrieved from API */
   tco_url?: string;
 }
 
