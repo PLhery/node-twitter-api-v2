@@ -1,6 +1,9 @@
 export enum ETwitterStreamEvent {
   ConnectionError = 'connection error',
   ConnectionClosed = 'connection closed',
+  ConnectionLost = 'connection lost',
+  ReconnectAttempt = 'reconnect attempt',
+  Reconnected = 'reconnected',
   ReconnectError = 'reconnect error',
   ReconnectLimitExceeded = 'reconnect limit exceeded',
   DataKeepAlive = 'data keep-alive',
