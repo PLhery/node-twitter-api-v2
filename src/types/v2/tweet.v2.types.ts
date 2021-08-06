@@ -1,7 +1,7 @@
 // Tweets
 import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, MetaV2 } from './shared.v2.types';
 import { UserV2 } from './user.v2.types';
 
 /// -- Timelines --
@@ -74,11 +74,11 @@ export type TweetV2CountResult = DataAndMetaV2<{
   start: string;
   end: string;
   tweet_count: number;
-}, {
+}[], {
   total_tweet_count: number;
 }>;
 
-export type TweetV2CountAllResult = TweetV2CountResult & DataV2<{ next_token: string }>;
+export type TweetV2CountAllResult = TweetV2CountResult & MetaV2<{ next_token: string }>;
 
 // - Timeline results -
 
