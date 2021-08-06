@@ -236,8 +236,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * Allows you to get information about a user’s liked Tweets.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
+   * Returns a list of users who are blocked by the specified user ID. User ID must be th authentificating user.
+   * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
    public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
     const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/blocking`, options, { fullResponse: true });

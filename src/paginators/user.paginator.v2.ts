@@ -12,6 +12,10 @@ abstract class UserTimelineV2Paginator<
     const resultData = result.data ?? [];
     this._rateLimit = response.rateLimit!;
 
+    if (!this._realData.data) {
+      this._realData.data = [];
+    }
+
     if (isNextPage) {
       this._realData.meta.result_count += result.meta.result_count;
       this._realData.meta.next_token = result.meta.next_token;
@@ -80,7 +84,7 @@ abstract class UserTimelineV2Paginator<
    * Users returned by paginator.
    */
   get users() {
-    return this._realData.data;
+    return this._realData.data ?? [];
   }
 
   get meta() {
