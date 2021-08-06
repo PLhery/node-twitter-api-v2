@@ -5,14 +5,12 @@ import { getAppClient, getUserClient } from '../src/test/utils';
 
 let client: TwitterApi;
 let roClient: TwitterApiReadOnly;
-let rwClient: TwitterApiReadWrite;
 let userClient: TwitterApi;
 
 describe('Users endpoints for v2 API', () => {
   before(async () => {
     client = await getAppClient();
     roClient = client.readOnly;
-    rwClient = client.readWrite;
     userClient = getUserClient();
   });
 
@@ -141,6 +139,16 @@ describe('Users endpoints for v2 API', () => {
     // unblock jack
     const unblockInfo = await readWrite.v2.unblock(currentUser.id_str, '12');
     expect(unblockInfo.data.blocking).to.equal(false);
+  }).timeout(60 * 1000);
+
+  it('.userLikedTweets - Last tweets liked by a user', async () => {
+    const { readOnly } = userClient;
+
+    const jackLikedTweets = await readOnly.v2.userLikedTweets('12', { 'tweet.fields': ['created_at', 'source'] });
+    expect(jackLikedTweets.data).to.have.length.greaterThan(0);
+
+    expect(jackLikedTweets.data[0].created_at).to.be.a('string');
+    expect(jackLikedTweets.data[0].source).to.be.a('string');
   }).timeout(60 * 1000);
 });
 
