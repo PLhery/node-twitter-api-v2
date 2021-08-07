@@ -79,7 +79,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Allows a user or authenticated user ID to remove the Retweet of a Tweet.
    * The request succeeds with no action when the user sends a request to a user they're not Retweeting the Tweet or have already removed the Retweet of.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-user_id-likes
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/delete-users-id-retweets-tweet_id
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
