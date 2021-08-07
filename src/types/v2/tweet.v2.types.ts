@@ -66,7 +66,7 @@ export interface TweetV2CountParams {
   granularity?: 'day' | 'hour' | 'minute';
 }
 
-export interface TweetV2CountAllParams {
+export interface TweetV2CountAllParams extends TweetV2CountParams {
   next_token: string;
 }
 

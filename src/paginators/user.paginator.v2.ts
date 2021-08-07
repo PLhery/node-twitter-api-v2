@@ -103,3 +103,19 @@ export class UserBlockingUsersV2Paginator extends UserTimelineV2Paginator<UserV2
     return this._endpoint.replace(':id', this._sharedParams.userId);
   }
 }
+
+export class UserFollowersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { userId: string }> {
+  protected _endpoint = 'users/:id/followers';
+
+  protected getEndpoint() {
+    return this._endpoint.replace(':id', this._sharedParams.userId);
+  }
+}
+
+export class UserFollowingV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { userId: string }> {
+  protected _endpoint = 'users/:id/following';
+
+  protected getEndpoint() {
+    return this._endpoint.replace(':id', this._sharedParams.userId);
+  }
+}

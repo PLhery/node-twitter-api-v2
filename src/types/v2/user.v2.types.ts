@@ -29,24 +29,23 @@ export interface UserV2TimelineParams {
   pagination_token?: string;
 }
 
-export interface FollowersV2Params {
-  expansions: TypeOrArrayOf<TUserV2Expansion>;
-  max_results: number;
-  pagination_token: string;
-  'tweet.fields': TypeOrArrayOf<TTweetv2TweetField>;
-  'user.fields': TypeOrArrayOf<TTweetv2UserField>;
+export interface FollowersV2Params extends UserV2TimelineParams {
+  asPaginator?: boolean;
+}
+
+export interface FollowersV2ParamsWithoutPaginator extends FollowersV2Params {
+  asPaginator?: false;
+}
+
+// Polymorphism for { asPaginator: true } prop
+export interface FollowersV2ParamsWithPaginator extends FollowersV2Params {
+  asPaginator: true;
 }
 
 // - Results -
 
 export type UserV2Result = DataAndIncludeV2<UserV2, ApiV2Includes>;
 export type UsersV2Result = DataAndIncludeV2<UserV2[], ApiV2Includes>;
-
-export type FollowersV2Result = DataMetaAndIncludeV2<UserV2[], {
-  result_count: number;
-  previous_token?: string;
-  next_token?: string;
-}, ApiV2Includes>;
 
 export type UserV2FollowResult = DataV2<{
   following: boolean;
@@ -66,6 +65,9 @@ export type UserV2TimelineResult = DataMetaAndIncludeV2<UserV2[], {
   previous_token?: string;
   next_token?: string;
 }, ApiV2Includes>;
+
+/** @deprecated Use {UserV2TimelineResult} instead. */
+export type FollowersV2Result = UserV2TimelineResult;
 
 // - Entities -
 

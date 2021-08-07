@@ -1,7 +1,7 @@
 import TwitterApiSubClient from '../client.subclient';
 import { API_V2_PREFIX } from '../globals';
 import {
-  FollowersV2Result, FollowersV2Params, Tweetv2FieldsParams,
+  FollowersV2Result, Tweetv2FieldsParams,
   Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
   UsersV2Result, UsersV2Params, StreamingV2GetRulesParams,
   StreamingV2GetRulesResult, TweetV2LookupResult,
@@ -24,6 +24,9 @@ import {
   TweetV2LikedByResult,
   UserV2TimelineParams,
   UserV2TimelineResult,
+  FollowersV2ParamsWithPaginator,
+  FollowersV2Params,
+  FollowersV2ParamsWithoutPaginator,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -32,7 +35,7 @@ import {
   TweetUserTimelineV2Paginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
-import { UserBlockingUsersV2Paginator } from '../paginators/user.paginator.v2';
+import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator } from '../paginators/user.paginator.v2';
 
 /**
  * Base Twitter v2 client with only read right.
@@ -115,8 +118,11 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * The recent Tweet counts endpoint returns count of Tweets from the last seven days that match a search query.
+   * This endpoint is only available to those users who have been approved for the Academic Research product track.
+   * The full-archive search endpoint returns the complete history of public Tweets matching a search query;
+   * since the first Tweet was created March 26, 2006.
    * OAuth2 Bearer auth only.
+   * **This endpoint has pagination, yet it is not supported by bundled paginators. Use `next_token` to fetch next page.**
    * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-all
    */
   public tweetCountAll(query: string, options: Partial<TweetV2CountAllParams> = {}) {
@@ -215,16 +221,48 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns a list of users who are followers of the specified user ID.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-followers
    */
-  public followers(userId: string, options: Partial<FollowersV2Params> = {}) {
-    return this.get<FollowersV2Result>(`users/${userId}/followers`, options);
+  public followers(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
+  public followers(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowersV2Paginator>;
+  public async followers(userId: string, options: FollowersV2Params = {}) {
+    const { asPaginator, ...parameters } = options;
+
+    if (!asPaginator) {
+      return this.get<UserV2TimelineResult>(`users/${userId}/followers`, parameters as Partial<UserV2TimelineParams>);
+    }
+
+    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/followers`, parameters as Partial<UserV2TimelineParams>, { fullResponse: true });
+
+    return new UserFollowersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: parameters as Partial<UserV2TimelineParams>,
+      sharedParams: { userId },
+    });
   }
 
   /**
    * Returns a list of users the specified user ID is following.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-following
    */
-  public following(userId: string, options: Partial<FollowersV2Params> = {}) {
-    return this.get<FollowersV2Result>(`users/${userId}/following`, options);
+  public following(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
+  public following(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowingV2Paginator>;
+  public async following(userId: string, options: FollowersV2Params = {}) {
+    const { asPaginator, ...parameters } = options;
+
+    if (!asPaginator) {
+      return this.get<UserV2TimelineResult>(`users/${userId}/following`, parameters as Partial<UserV2TimelineParams>);
+    }
+
+    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/following`, parameters as Partial<UserV2TimelineParams>, { fullResponse: true });
+
+    return new UserFollowingV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: parameters as Partial<UserV2TimelineParams>,
+      sharedParams: { userId },
+    });
   }
 
   /**
@@ -236,7 +274,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * Returns a list of users who are blocked by the specified user ID. User ID must be th authentificating user.
+   * Returns a list of users who are blocked by the specified user ID. User ID must be the authenticating user.
    * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
    public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
@@ -275,15 +313,15 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Similarly, to delete one or more rules, submit a delete JSON body with an array of list of existing rule IDs.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
    */
-   public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
-   public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
-   public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
-     return this.post<StreamingV2UpdateRulesResult>(
-       'tweets/search/stream/rules',
-       options,
-       { query },
-     );
-   }
+  public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
+  public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
+  public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
+    return this.post<StreamingV2UpdateRulesResult>(
+      'tweets/search/stream/rules',
+      options,
+      { query },
+    );
+  }
 
   /**
    * Streams about 1% of all Tweets in real-time.
