@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import type { IncomingMessage, ClientRequest } from 'http';
 import { RequestHandlerHelper, TRequestFullData } from '../client-mixins/request-maker.mixin';
 import { ETwitterStreamEvent } from '../types';
+import TweetStreamEventCombiner from './TweetStreamEventCombiner';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
 interface ITweetStreamError {
@@ -238,12 +239,7 @@ export class TweetStream<T = any> extends EventEmitter {
   }
 
   async *[Symbol.asyncIterator](): AsyncGenerator<T, void, undefined> {
-    let stack: T[] = [];
-    const pusher = (data: T) => {
-      stack.push(data);
-    };
-
-    this.on(ETwitterStreamEvent.Data, pusher);
+    const eventCombiner = new TweetStreamEventCombiner(this);
 
     try {
       while (true) {
@@ -251,30 +247,17 @@ export class TweetStream<T = any> extends EventEmitter {
           throw new Error('Connection closed');
         }
 
-        if (stack.length) {
-          const toGive = stack;
-          stack = [];
-          yield* toGive;
+        if (eventCombiner.hasStack()) {
+          yield* eventCombiner.popStack();
         }
 
-        await new Promise<T>((resolve, reject) => {
-          const rejecter = (error: any) => {
-            this.off(ETwitterStreamEvent.Data, resolver);
-            reject(error);
-          };
-          const resolver = (data: T) => {
-            this.off(ETwitterStreamEvent.Error, rejecter);
-            this.off(ETwitterStreamEvent.ConnectionClosed, rejecter);
-            resolve(data);
-          };
-
-          this.once(ETwitterStreamEvent.Data, resolver);
-          this.once(ETwitterStreamEvent.Error, rejecter);
-          this.once(ETwitterStreamEvent.ConnectionClosed, rejecter);
-        });
+        const { type, payload } = await eventCombiner.nextEvent();
+        if (type === 'error') {
+          throw payload;
+        }
       }
     } finally {
-      this.off(ETwitterStreamEvent.Data, pusher);
+      eventCombiner.destroy();
     }
   }
 }
