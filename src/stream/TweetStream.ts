@@ -188,6 +188,7 @@ export class TweetStream<T = any> extends EventEmitter {
     this.res = res;
 
     this.emit(ETwitterStreamEvent.Reconnected);
+    this.parser.reset();
     this.initEventsFromRequest();
   }
 

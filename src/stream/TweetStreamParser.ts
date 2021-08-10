@@ -43,6 +43,11 @@ export default class TweetStreamParser extends EventEmitter {
 
     this.currentMessage = chunk.slice(start, size);
   }
+
+  /** Reset the currently stored message (f.e. on connection reset) */
+  reset() {
+    this.currentMessage = '';
+  }
 }
 
 export enum EStreamParserEvent {
