@@ -54,17 +54,20 @@ export abstract class ClientRequestMaker {
    * The request URL should not contains a query string, prefers using `parameters` for GET request.
    * If you need to pass a body AND query string parameter, duplicate parameters in the body.
    */
-  send<T = any>(options: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
-    const args = this.getHttpRequestArgs(options);
+  send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
+    const args = this.getHttpRequestArgs(requestParams);
+    const options = { method: args.method, headers: args.headers };
 
-    return this.httpSend(
-      args.url,
-      {
-        method: args.method,
-        headers: args.headers,
-      },
-      args.body,
-    );
+    if (args.body) {
+      RequestParamHelpers.setBodyLengthHeader(options, args.body);
+    }
+
+    return new RequestHandlerHelper<T>({
+      url: args.url,
+      options,
+      body: args.body,
+    })
+      .makeRequest();
   }
 
   /**
@@ -73,17 +76,21 @@ export abstract class ClientRequestMaker {
    * The request URL should not contains a query string, prefers using `parameters` for GET request.
    * If you need to pass a body AND query string parameter, duplicate parameters in the body.
    */
-  sendStream<T = any>(options: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> {
-    const args = this.getHttpRequestArgs(options);
+  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> {
+    const args = this.getHttpRequestArgs(requestParams);
+    const options = { method: args.method, headers: args.headers };
 
-    return this.httpStream(
-      args.url,
-      {
-        method: args.method,
-        headers: args.headers,
-      },
-      args.body,
-    );
+    if (args.body) {
+      RequestParamHelpers.setBodyLengthHeader(options, args.body);
+    }
+
+    return new RequestHandlerHelper<T>({
+      url: args.url,
+      options,
+      body: args.body,
+      payloadIsError: requestParams.payloadIsError,
+    })
+      .makeRequestAsStream();
   }
 
 
@@ -174,23 +181,5 @@ export abstract class ClientRequestMaker {
       headers,
       body,
     };
-  }
-
-  protected httpSend<T = any>(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TwitterResponse<T>> {
-    if (body) {
-      RequestParamHelpers.setBodyLengthHeader(options, body);
-    }
-
-    return new RequestHandlerHelper<T>({ url, options, body })
-      .makeRequest();
-  }
-
-  protected httpStream<T = any>(url: string, options: RequestOptions, body?: string | Buffer, payloadIsError?: (data: any) => boolean) : Promise<TweetStream> {
-    if (body) {
-      RequestParamHelpers.setBodyLengthHeader(options, body);
-    }
-
-    return new RequestHandlerHelper<T>({ url, options, body, payloadIsError })
-      .makeRequestAsStream();
   }
 }
