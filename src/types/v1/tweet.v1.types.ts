@@ -90,6 +90,7 @@ export interface UploadMediaV1Params {
   additionalOwners: string;
   maxConcurrentUploads: number;
   target: 'tweet' | 'dm';
+  shared?: boolean;
 }
 
 export interface MediaMetadataV1Params {
