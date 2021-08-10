@@ -17,7 +17,9 @@ export class TweetStreamEventCombiner<T> extends EventEmitter {
 
     // Init events from stream
     stream.on(ETwitterStreamEvent.Data, this.onStreamData);
-    stream.on(ETwitterStreamEvent.Error, this.onStreamError);
+    // Ignore reconnect errors: Don't close event combiner until connection error/closed
+    stream.on(ETwitterStreamEvent.ConnectionError, this.onStreamError);
+    stream.on(ETwitterStreamEvent.TweetParseError, this.onStreamError);
     stream.on(ETwitterStreamEvent.ConnectionClosed, this.onStreamError);
   }
 
@@ -42,7 +44,8 @@ export class TweetStreamEventCombiner<T> extends EventEmitter {
   destroy() {
     this.removeAllListeners();
     this.stream.off(ETwitterStreamEvent.Data, this.onStreamData);
-    this.stream.off(ETwitterStreamEvent.Error, this.onStreamError);
+    this.stream.off(ETwitterStreamEvent.ConnectionError, this.onStreamError);
+    this.stream.off(ETwitterStreamEvent.TweetParseError, this.onStreamError);
     this.stream.off(ETwitterStreamEvent.ConnectionClosed, this.onStreamError);
   }
 

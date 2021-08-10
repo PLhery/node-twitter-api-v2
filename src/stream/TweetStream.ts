@@ -7,8 +7,9 @@ import TweetStreamEventCombiner from './TweetStreamEventCombiner';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
 interface ITweetStreamError {
-  type: ETwitterStreamEvent.ConnectionError | ETwitterStreamEvent.TweetParseError | ETwitterStreamEvent.ReconnectError;
-  error: Error;
+  type: ETwitterStreamEvent.ConnectionError | ETwitterStreamEvent.TweetParseError
+    | ETwitterStreamEvent.ReconnectError | ETwitterStreamEvent.TwitterError;
+  error: any;
 }
 
 export class TweetStream<T = any> extends EventEmitter {
@@ -35,6 +36,7 @@ export class TweetStream<T = any> extends EventEmitter {
 
   // Event typings
   on(event: ETwitterStreamEvent.Data, handler: (data: T) => any): this;
+  on(event: ETwitterStreamEvent.TwitterError, handler: (error: any) => any): this;
   on(event: ETwitterStreamEvent.Error, handler: (errorPayload: ITweetStreamError) => any): this;
   on(event: ETwitterStreamEvent.ConnectionLost, handler: () => any): this;
   on(event: ETwitterStreamEvent.ConnectionError, handler: (error: Error) => any): this;
@@ -86,6 +88,7 @@ export class TweetStream<T = any> extends EventEmitter {
     this.parser.on(EStreamParserEvent.ParsedData, (eventData: any) => {
       if (payloadIsError && payloadIsError(eventData)) {
         this.emit(ETwitterStreamEvent.TwitterError, eventData);
+        this.emit(ETwitterStreamEvent.Error, { type: ETwitterStreamEvent.TwitterError, error: eventData });
       }
       else {
         this.emit(ETwitterStreamEvent.Data, eventData);
