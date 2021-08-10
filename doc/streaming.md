@@ -254,6 +254,6 @@ All events are part of enum `ETwitterStreamEvent` exported by the package.
 - `.ReconnectLimitExceeded`: Emitted when `.autoReconnectRetries` limit exceeds.
 - `.DataKeepAlive`: Emitted when Twitter sends a `\r\n` to maintain connection open.
 - `.Data`: Emitted with stream data, when Twitter sends something.
-- `.TwitterError`: Emitted when Twitter sends a JSON error payload.
+- `.DataError`: Emitted when Twitter sends a JSON error payload.
 - `.TweetParseError`: When the thing sent by Twitter cannot be JSON-parsed. Contains the parse error.
 - `.Error`: Emitted either when a `.ConnectionError` or a `.TweetParseError` occurs. Contains `{ type: .ConnectionError | .TweetParseError, error: any }`.
