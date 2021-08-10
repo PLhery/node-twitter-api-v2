@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import type { IncomingMessage, ClientRequest } from 'http';
 import RequestHandlerHelper from '../client-mixins/request-handler.helper';
-import { TRequestFullData } from '../client-mixins/request-maker.mixin';
+import { TRequestFullStreamData } from '../client-mixins/request-maker.mixin';
 import { ETwitterStreamEvent } from '../types';
 import TweetStreamEventCombiner from './TweetStreamEventCombiner';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
@@ -24,7 +24,7 @@ export class TweetStream<T = any> extends EventEmitter {
   constructor(
     protected req: ClientRequest,
     protected res: IncomingMessage,
-    protected requestData: TRequestFullData,
+    protected requestData: TRequestFullStreamData,
   ) {
     super();
 
@@ -81,8 +81,15 @@ export class TweetStream<T = any> extends EventEmitter {
   }
 
   protected initEventsFromParser() {
+    const payloadIsError = this.requestData.payloadIsError;
+
     this.parser.on(EStreamParserEvent.ParsedData, (eventData: any) => {
-      this.emit(ETwitterStreamEvent.Data, eventData);
+      if (payloadIsError && payloadIsError(eventData)) {
+        this.emit(ETwitterStreamEvent.TwitterError, eventData);
+      }
+      else {
+        this.emit(ETwitterStreamEvent.Data, eventData);
+      }
     });
 
     this.parser.on(EStreamParserEvent.ParseError, (error: any) => {
@@ -126,21 +133,19 @@ export class TweetStream<T = any> extends EventEmitter {
     }
   }
 
-  /** Terminate connection to Twitter. */
-  close() {
+  protected closeWithoutEmit() {
     this.unbindTimeouts();
-    this.emit(ETwitterStreamEvent.ConnectionClosed);
-
     this.req.removeAllListeners();
     this.res.removeAllListeners();
 
-    if ('destroy' in this.req) {
-      this.req.destroy();
-    }
-    else {
-      // Deprecated - use .destroy instead.
-      (this.req as ClientRequest).abort();
-    }
+    // Close connection silentely
+    this.req.destroy();
+  }
+
+  /** Terminate connection to Twitter. */
+  close() {
+    this.emit(ETwitterStreamEvent.ConnectionClosed);
+    this.closeWithoutEmit();
   }
 
   /** Unbind all listeners, and close connection. */
@@ -174,7 +179,7 @@ export class TweetStream<T = any> extends EventEmitter {
   /** Make a new request to reconnect to Twitter. */
   async reconnect() {
     if (!this.req.destroyed) {
-      this.close();
+      this.closeWithoutEmit();
     }
 
     const { req, res } = await new RequestHandlerHelper(this.requestData).makeRequestAndResolveWhenReady();
@@ -191,17 +196,7 @@ export class TweetStream<T = any> extends EventEmitter {
 
     // Close the request if necessary
     if (!this.req.destroyed) {
-      this.req.removeAllListeners();
-      this.res.removeAllListeners();
-
-      // Close connection silentely
-      if ('destroy' in this.req) {
-        this.req.destroy();
-      }
-      else {
-        // Deprecated - use .destroy instead.
-        (this.req as ClientRequest).abort();
-      }
+      this.closeWithoutEmit();
     }
 
     // Terminate stream by events if necessary (no auto-reconnect or retries exceeded)

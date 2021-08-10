@@ -7,6 +7,7 @@ import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
 
 export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
+export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
 export type TRequestStringQuery = Record<string, string>;
 export type TRequestBody = Record<string, any> | Buffer;
@@ -28,6 +29,10 @@ export interface IGetHttpRequestArgs {
   body?: TRequestBody;
   headers?: Record<string, string>;
   forceBodyMode?: TBodyMode;
+}
+
+export interface IGetStreamRequestArgs {
+  payloadIsError?: (data: any) => boolean;
 }
 
 export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode'>;
@@ -68,7 +73,7 @@ export abstract class ClientRequestMaker {
    * The request URL should not contains a query string, prefers using `parameters` for GET request.
    * If you need to pass a body AND query string parameter, duplicate parameters in the body.
    */
-  sendStream<T = any>(options: IGetHttpRequestArgs) : Promise<TweetStream<T>> {
+  sendStream<T = any>(options: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> {
     const args = this.getHttpRequestArgs(options);
 
     return this.httpStream(
@@ -180,12 +185,12 @@ export abstract class ClientRequestMaker {
       .makeRequest();
   }
 
-  protected httpStream<T = any>(url: string, options: RequestOptions, body?: string | Buffer) : Promise<TweetStream> {
+  protected httpStream<T = any>(url: string, options: RequestOptions, body?: string | Buffer, payloadIsError?: (data: any) => boolean) : Promise<TweetStream> {
     if (body) {
       RequestParamHelpers.setBodyLengthHeader(options, body);
     }
 
-    return new RequestHandlerHelper<T>({ url, options, body })
+    return new RequestHandlerHelper<T>({ url, options, body, payloadIsError })
       .makeRequestAsStream();
   }
 }

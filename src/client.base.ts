@@ -27,6 +27,7 @@ type TClientRequestArgsDataResponse = TClientRequestArgs & { fullResponse?: fals
 export type TStreamClientRequestArgs = TCustomizableRequestArgs & {
   prefix?: string;
   query?: TRequestQuery;
+  payloadIsError?: (data: any) => boolean;
 };
 
 /**

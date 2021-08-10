@@ -13,3 +13,6 @@ export function trimUndefinedProperties(object: any) {
   }
 }
 
+export function isTweetStreamV2ErrorPayload(payload: any) {
+  return typeof payload === 'object' && 'errors' in payload;
+}

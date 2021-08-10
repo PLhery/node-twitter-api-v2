@@ -3,10 +3,10 @@ import { TwitterApiV2Settings } from '../settings';
 import TweetStream from '../stream/TweetStream';
 import { ApiRequestError, ApiResponseError } from '../types';
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
-import type { TRequestFullData } from './request-maker.mixin';
+import type { TRequestFullData, TRequestFullStreamData } from './request-maker.mixin';
 import type { IncomingMessage, ClientRequest } from 'http';
 
-type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData };
+type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
 type TRequestRejecter = (error: ApiRequestError) => void;
@@ -24,7 +24,7 @@ export class RequestHandlerHelper<T> {
   protected req!: ClientRequest;
   protected responseData = '';
 
-  constructor(protected requestData: TRequestFullData) {}
+  constructor(protected requestData: TRequestFullData | TRequestFullStreamData) {}
 
   get href() {
     return this.requestData.url;
@@ -218,7 +218,7 @@ export class RequestHandlerHelper<T> {
 
   async makeRequestAsStream() {
     const { req, res, requestData } = await this.makeRequestAndResolveWhenReady();
-    return new TweetStream<T>(req, res, requestData);
+    return new TweetStream<T>(req, res, requestData as TRequestFullStreamData);
   }
 
   makeRequestAndResolveWhenReady() {

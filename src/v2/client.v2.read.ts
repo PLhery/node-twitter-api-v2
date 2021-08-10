@@ -1,7 +1,7 @@
 import TwitterApiSubClient from '../client.subclient';
 import { API_V2_PREFIX } from '../globals';
 import {
-  FollowersV2Result, Tweetv2FieldsParams,
+  Tweetv2FieldsParams,
   Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
   UsersV2Result, UsersV2Params, StreamingV2GetRulesParams,
   StreamingV2GetRulesResult, TweetV2LookupResult,
@@ -27,6 +27,8 @@ import {
   FollowersV2ParamsWithPaginator,
   FollowersV2Params,
   FollowersV2ParamsWithoutPaginator,
+  TweetSearchV2StreamParams,
+  TweetV2SingleStreamResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -36,6 +38,7 @@ import {
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator } from '../paginators/user.paginator.v2';
+import { isTweetStreamV2ErrorPayload } from '../helpers';
 
 /**
  * Base Twitter v2 client with only read right.
@@ -295,8 +298,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Streams Tweets in real-time based on a specific set of filter rules.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
    */
-  public searchStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream<TweetV2SingleResult>('tweets/search/stream', options);
+  public searchStream(options: Partial<TweetSearchV2StreamParams> = {}) {
+    return this.getStream<TweetV2SingleStreamResult>('tweets/search/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
   }
 
   /**
@@ -328,6 +331,6 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
    */
   public sampleStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options);
+    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
   }
 }

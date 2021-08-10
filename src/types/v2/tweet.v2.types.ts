@@ -1,7 +1,7 @@
 // Tweets
 import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, MetaV2 } from './shared.v2.types';
+import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, IncludeV2, MetaV2 } from './shared.v2.types';
 import { UserV2 } from './user.v2.types';
 
 /// -- Timelines --
@@ -55,6 +55,12 @@ export interface Tweetv2FieldsParams {
   'user.fields': TypeOrArrayOf<TTweetv2UserField> | string;
 }
 
+// - Tweet stream -
+
+export interface TweetSearchV2StreamParams extends Tweetv2FieldsParams {
+  backfill_minutes: number;
+}
+
 // - Tweet count -
 
 export interface TweetV2CountParams {
@@ -94,6 +100,9 @@ export type TweetV2UserTimelineResult = Tweetv2TimelineResult;
 
 export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
 export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;
+export type TweetV2SingleStreamResult = TweetV2SingleResult & {
+  matching_rules: { id: string | number, tag: string }[];
+};
 
 /// -- Replies --
 

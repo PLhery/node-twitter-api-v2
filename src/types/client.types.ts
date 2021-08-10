@@ -8,6 +8,7 @@ export enum ETwitterStreamEvent {
   ReconnectLimitExceeded = 'reconnect limit exceeded',
   DataKeepAlive = 'data keep-alive',
   Data = 'data event content',
+  TwitterError = 'data twitter error',
   TweetParseError = 'data tweet parse error',
   Error = 'stream error',
 }
