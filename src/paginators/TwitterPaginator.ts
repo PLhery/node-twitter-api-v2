@@ -147,15 +147,11 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let paginator = this;
 
-    while (this._isRateLimitOk) {
+    while (this._isRateLimitOk && paginator.getItemArray().length > 0) {
       const next = await paginator.next(this._maxResultsWhenFetchLast);
       this._rateLimit = next._rateLimit;
       const items = next.getItemArray();
       yield* items;
-
-      if (!items.length) {
-        break;
-      }
 
       paginator = next;
     }

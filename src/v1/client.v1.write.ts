@@ -137,6 +137,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
           media_type: mimeType,
           media_category: mediaCategory,
           additional_owners: options.additionalOwners,
+          shared: options.shared ? true : undefined,
         },
         { prefix: API_V1_1_UPLOAD_PREFIX },
       );
