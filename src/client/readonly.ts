@@ -23,13 +23,13 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
   public get v1() {
     if (this._v1) return this._v1;
-    
+
     return this._v1 = new TwitterApiv1ReadOnly(this);
   }
 
   public get v2() {
     if (this._v2) return this._v2;
-    
+
     return this._v2 = new TwitterApiv2ReadOnly(this);
   }
 
@@ -55,19 +55,19 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     return this.v2.search(what, options);
   }
 
-  
+
   /* Authentification */
 
   /**
    * Generate the OAuth request token link for user-based OAuth 1.0 auth.
-   * 
+   *
    * ```ts
    * // Instanciate TwitterApi with consumer keys
    * const client = new TwitterApi({ appKey: 'consumer_key', appSecret: 'consumer_secret' });
-   * 
+   *
    * const tokenRequest = await client.generateAuthLink('oob-or-your-callback-url');
    * // redirect end-user to tokenRequest.url
-   * 
+   *
    * // Save tokenRequest.oauth_token_secret somewhere, it will be needed for next auth step.
    * ```
    */
@@ -85,22 +85,22 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
   /**
    * Obtain access to user-based OAuth 1.0 auth.
-   * 
+   *
    * After user is redirect from your callback, use obtained oauth_token and oauth_verifier to
    * instanciate the new TwitterApi instance.
-   * 
+   *
    * ```ts
    * // Use the saved oauth_token_secret associated to oauth_token returned by callback
-   * const requestClient = new TwitterApi({ 
-   *  appKey: 'consumer_key', 
-   *  appSecret: 'consumer_secret', 
-   *  accessToken: 'oauth_token', 
-   *  accessSecret: 'oauth_token_secret' 
+   * const requestClient = new TwitterApi({
+   *  appKey: 'consumer_key',
+   *  appSecret: 'consumer_secret',
+   *  accessToken: 'oauth_token',
+   *  accessSecret: 'oauth_token_secret'
    * });
-   * 
+   *
    * // Use oauth_verifier obtained from callback request
    * const { client: userClient } = await requestClient.login('oauth_verifier');
-   * 
+   *
    * // {userClient} is a valid {TwitterApi} object you can use for future requests
    * ```
    */
@@ -128,13 +128,13 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
   /**
    * Enable application-only authentification.
-   * 
+   *
    * To make the request, instanciate TwitterApi with consumer and secret.
-   * 
+   *
    * ```ts
    * const requestClient = new TwitterApi({ appKey: 'consumer', appSecret: 'secret' });
    * const appClient = await requestClient.appLogin();
-   * 
+   *
    * // Use {appClient} to make requests
    * ```
    */

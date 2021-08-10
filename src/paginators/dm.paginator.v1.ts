@@ -18,7 +18,7 @@ export class DmEventsV1Paginator extends TwitterPaginator<ReceivedDMEventsV1, Ge
     return {
       ...this._queryParams,
       cursor: this._realData.next_cursor,
-      ...(maxResults ? { count: maxResults } : {})
+      ...(maxResults ? { count: maxResults } : {}),
     };
   }
 
@@ -59,7 +59,7 @@ export class WelcomeDmV1Paginator extends TwitterPaginator<WelcomeDirectMessageL
     return {
       ...this._queryParams,
       cursor: this._realData.next_cursor,
-      ...(maxResults ? { count: maxResults } : {})
+      ...(maxResults ? { count: maxResults } : {}),
     };
   }
 

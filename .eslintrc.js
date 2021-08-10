@@ -28,6 +28,7 @@ module.exports = {
     'member-access': 'off',
     'member-ordering': 'off',
     'object-literal-sort-keys': 'off',
+    'no-trailing-spaces': 'error',
     '@typescript-eslint/no-inferrable-types': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
