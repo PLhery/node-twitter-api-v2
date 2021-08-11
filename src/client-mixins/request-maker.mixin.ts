@@ -154,6 +154,11 @@ export abstract class ClientRequestMaker {
       headers['x-user-agent'] = 'Node.twitter-api-v2';
     }
 
+    // Add protocol to URL if needed
+    if (!url.startsWith('http')) {
+      url = 'https://' + url;
+    }
+
     const query = RequestParamHelpers.formatQueryToString(rawQuery);
     url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
 
