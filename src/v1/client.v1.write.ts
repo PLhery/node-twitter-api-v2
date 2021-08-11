@@ -277,7 +277,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
             segment_index: chunkIndex,
             media: mediaBufferPart,
           },
-          { prefix: API_V1_1_UPLOAD_PREFIX, forceBodyMode: 'form-data' },
+          { prefix: API_V1_1_UPLOAD_PREFIX },
         );
 
         currentUploads.add(request);

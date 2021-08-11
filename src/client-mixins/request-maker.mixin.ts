@@ -232,8 +232,10 @@ class RequestParamHelpers {
     }
 
     if (requestUrl.hostname === 'upload.twitter.com') {
-      // json except for APPEND command, that is form-data.
-      // this should be explicitely set.
+      if (requestUrl.pathname === '/1.1/media/upload.json') {
+        return 'form-data';
+      }
+      // json except for media/upload command, that is form-data.
       return 'json';
     }
 
