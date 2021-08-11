@@ -6,11 +6,11 @@ import type { TBodyMode, TRequestBody, TRequestQuery, TRequestStringQuery } from
 
 export class RequestParamHelpers {
   static readonly JSON_1_1_ENDPOINTS = new Set([
-    'direct_messages/events/new',
-    'direct_messages/welcome_messages/new',
-    'direct_messages/welcome_messages/rules/new',
-    'media/metadata/create',
-    'collections/entries/curate',
+    'direct_messages/events/new.json',
+    'direct_messages/welcome_messages/new.json',
+    'direct_messages/welcome_messages/rules/new.json',
+    'media/metadata/create.json',
+    'collections/entries/curate.json',
   ]);
 
   static formatQueryToString(query: TRequestQuery) {
@@ -28,17 +28,23 @@ export class RequestParamHelpers {
     return formattedQuery;
   }
 
-  static autoDetectBodyType(url: string): TBodyMode {
-    if (url.includes('.twitter.com/2')) {
+  static autoDetectBodyType(url: string) : TBodyMode {
+    const requestUrl = new URL(url);
+
+    if (requestUrl.pathname.startsWith('/2/') || requestUrl.pathname.startsWith('/labs/2/')) {
       // Twitter API v2 always has JSON-encoded requests, right?
       return 'json';
     }
 
-    if (url.startsWith('https://upload.twitter.com/1.1/media')) {
-      return 'form-data';
+    if (requestUrl.hostname === 'upload.twitter.com') {
+      if (requestUrl.pathname === '/1.1/media/upload.json') {
+        return 'form-data';
+      }
+      // json except for media/upload command, that is form-data.
+      return 'json';
     }
 
-    const endpoint = url.split('.twitter.com/1.1/', 2)[1];
+    const endpoint = requestUrl.pathname.split('/1.1/', 2)[1];
 
     if (this.JSON_1_1_ENDPOINTS.has(endpoint)) {
       return 'json';
