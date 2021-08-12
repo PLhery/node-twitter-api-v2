@@ -28,6 +28,11 @@ export interface TweetV2PaginableTimelineParams extends TweetV2TimelineParams {
   pagination_token?: string;
 }
 
+export interface TweetV2PaginableListParams extends Partial<Tweetv2FieldsParams> {
+  pagination_token?: string;
+  max_results?: number | string;
+}
+
 export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParams {
   exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
 }
@@ -93,6 +98,12 @@ export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
   oldest_id: string;
   result_count: number;
   next_token?: string;
+}, ApiV2Includes>;
+
+export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], {
+  result_count: number;
+  next_token?: string;
+  previous_token?: string;
 }, ApiV2Includes>;
 
 export type Tweetv2SearchResult = Tweetv2TimelineResult;

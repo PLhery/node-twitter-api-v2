@@ -29,12 +29,15 @@ import {
   FollowersV2ParamsWithoutPaginator,
   TweetSearchV2StreamParams,
   TweetV2SingleStreamResult,
+  TweetV2PaginableListParams,
+  Tweetv2ListResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
   TweetSearchRecentV2Paginator,
   TweetUserMentionTimelineV2Paginator,
   TweetUserTimelineV2Paginator,
+  TweetV2UserLikedTweetsPaginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator } from '../paginators/user.paginator.v2';
@@ -272,8 +275,16 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Allows you to get information about a user’s liked Tweets.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
    */
-  public userLikedTweets(userId: string, options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.get<TweetV2LookupResult>(`users/${userId}/liked_tweets`, options);
+  public async userLikedTweets(userId: string, options: Partial<TweetV2PaginableListParams> = {}) {
+    const initialRq = await this.get<Tweetv2ListResult>(`users/${userId}/liked_tweets`, options, { fullResponse: true });
+
+    return new TweetV2UserLikedTweetsPaginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: { userId },
+    });
   }
 
   /**
