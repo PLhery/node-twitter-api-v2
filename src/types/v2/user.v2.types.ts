@@ -60,6 +60,10 @@ export type UserV2BlockResult = DataV2<{
   blocking: boolean;
 }>;
 
+export type UserV2MuteResult = DataV2<{
+  muting: boolean;
+}>;
+
 export type UserV2TimelineResult = DataMetaAndIncludeV2<UserV2[], {
   result_count: number;
   previous_token?: string;
