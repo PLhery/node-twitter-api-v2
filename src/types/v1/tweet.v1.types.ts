@@ -49,7 +49,7 @@ export interface TweetV1 {
 // - Params -
 
 export interface AskTweetV1Params {
-  tweet_mode?: 'extended' | 'compat';
+  tweet_mode?: 'extended' | 'compat';
   include_entities?: boolean;
   trim_user?: boolean;
 }

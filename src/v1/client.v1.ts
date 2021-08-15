@@ -169,7 +169,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
     return this.post<WelcomeDmRuleV1Result>('direct_messages/welcome_messages/rules/new.json', {
       welcome_message_rule: { welcome_message_id: welcomeMessageId },
     }, {
-      forceBodyMode: 'json', 
+      forceBodyMode: 'json',
     });
   }
 

@@ -4,7 +4,7 @@ import { TwitterApi } from '../src';
 import { getAppClient, getUserClient, sleepTest } from '../src/test/utils';
 
 let client: TwitterApi;
-let userClient = getUserClient();
+const userClient = getUserClient();
 
 describe('Tweets endpoints for v2 API', () => {
   before(async () => {

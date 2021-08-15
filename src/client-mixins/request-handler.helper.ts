@@ -153,7 +153,7 @@ export class RequestHandlerHelper<T> {
         resolve({
           data,
           headers: res.headers,
-          rateLimit
+          rateLimit,
         });
       });
     };

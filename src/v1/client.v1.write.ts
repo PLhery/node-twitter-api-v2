@@ -8,7 +8,7 @@ import {
   SendTweetV1Params,
   TUploadableMedia,
   TweetV1,
-  UploadMediaV1Params
+  UploadMediaV1Params,
 } from '../types';
 import fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
@@ -37,7 +37,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     const queryParams: Partial<SendTweetV1Params> = {
       status,
       tweet_mode: 'extended',
-      ...payload
+      ...payload,
     };
 
     return this.post<TweetV1>('statuses/update.json', queryParams);
@@ -146,7 +146,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       await this.mediaChunkedUpload(fileHandle, chunkLength, mediaData.media_id_string, options.maxConcurrentUploads);
 
       // Finalize media
-      let fullMediaData = await this.post<MediaStatusV1Result>(
+      const fullMediaData = await this.post<MediaStatusV1Result>(
         UPLOAD_ENDPOINT,
         {
           command: 'FINALIZE',
@@ -165,6 +165,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     } finally {
       // Close file if any
       if (typeof file === 'number') {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         fs.close(file, () => {});
       }
       else if (typeof fileHandle! === 'object' && !(fileHandle instanceof Buffer)) {
@@ -174,6 +175,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   protected async awaitForMediaProcessingCompletion(fullMediaData: MediaStatusV1Result) {
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       fullMediaData = await this.mediaInfo(fullMediaData.media_id_string);
 
@@ -225,6 +227,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     } catch (e) {
       // Close file if any
       if (typeof file === 'number') {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         fs.close(file, () => {});
       }
       else if (typeof fileHandle! === 'object' && !(fileHandle instanceof Buffer)) {

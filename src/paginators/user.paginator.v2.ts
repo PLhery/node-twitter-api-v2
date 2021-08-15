@@ -56,7 +56,7 @@ abstract class UserTimelineV2Paginator<
     return {
       ...this._queryParams,
       pagination_token: this._realData.meta.next_token,
-      ...(maxResults ? { max_results: maxResults } : {})
+      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 
@@ -64,7 +64,7 @@ abstract class UserTimelineV2Paginator<
     return {
       ...this._queryParams,
       pagination_token: this._realData.meta.previous_token,
-      ...(maxResults ? { max_results: maxResults } : {})
+      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 

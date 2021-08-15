@@ -1,7 +1,7 @@
 import type { TypeOrArrayOf } from '../shared.types';
 
 export interface AskTweetStreamV1Params {
-  tweet_mode?: 'extended' | 'compat';
+  tweet_mode?: 'extended' | 'compat';
   /** Specifies whether stall warnings should be delivered. */
   stall_warnings: boolean;
 }

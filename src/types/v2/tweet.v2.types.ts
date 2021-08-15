@@ -1,7 +1,7 @@
 // Tweets
 import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, IncludeV2, MetaV2 } from './shared.v2.types';
+import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, MetaV2 } from './shared.v2.types';
 import { UserV2 } from './user.v2.types';
 
 /// -- Timelines --

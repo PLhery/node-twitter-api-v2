@@ -12,13 +12,13 @@ export default class TwitterApiReadWrite extends TwitterApiReadOnly {
   /* Direct access to subclients */
   public get v1() {
     if (this._v1) return this._v1;
-    
+
     return this._v1 = new TwitterApiv1ReadWrite(this);
   }
 
   public get v2() {
     if (this._v2) return this._v2;
-    
+
     return this._v2 = new TwitterApiv2ReadWrite(this);
   }
 
