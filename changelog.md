@@ -1,9 +1,20 @@
+1.3.0
+-----
+- Doc: Improve rate-limit documentation #47 #32
+- Feat: Public Direct Messages (DMs) 1.1 endpoints support: wrappers, typings, docs and tests #48
+- Feat: New 05/06/07-2021 v2 endpoints wrappers #50
+- Feat: Paginator mode for .following/.followers for v2 #50
+- Fix: Many fixes for tweet streams auto-reconnect, handle connection errors more smoothly #50
+- Feat: New events for tweet streams, that includes lost connection and reconnections #50
+- Feat: Handle stream errors deliveries in a dedicated .DataError event (for v2 tweet streams) #50
+- Fix: Corrections for body-mode auto-detection (mainly for manual API requests) #53
+
 1.2.0
 -----
 - Fix: fetchLast was throwing an error with timelines #43
 - Feat: Add .meta and .includes in v2 paginators #35 #46
 - Feat: Add some missing attributes to tweetEntity typings #42
-  
+
 1.1.1
 -----
 - Fix: in streams, the KeepAlive was not emitted #33
