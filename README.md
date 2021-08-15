@@ -19,7 +19,7 @@ Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 an
 ## Why?
 
 Sometimes, you just want to quickly bootstrap an application using the Twitter API.
-Even if they're a lot a available librairies on the JavaScript ecosystem, they usually just
+Even if they're a lot of available libraries on the JavaScript ecosystem, they usually just
 provide wrappers around HTTP methods, and some of them are bloated with many dependencies.
 
 `twitter-api-v2` meant to provide full endpoint wrapping, from method name to response data,
@@ -29,7 +29,7 @@ A small feature comparaison with other libs:
 
 | Package        | API version(s) | Response typings | Media helpers | Pagination | Subdependencies |  Size (gzip)  |
 | -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|
-| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~11.7 kB      |
+| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~13.7 kB      |
 | twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     |
 | twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     |
 | twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       |
