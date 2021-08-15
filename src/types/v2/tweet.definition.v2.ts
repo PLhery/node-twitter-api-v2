@@ -33,6 +33,7 @@ export interface MediaObjectV2 {
   width?: number;
   url?: string;
   preview_image_url?: string;
+  alt_text?: string;
   non_public_metrics?: PlaybackCountV2;
   organic_metrics?: OrganicMetricV2;
   promoted_metrics?: OrganicMetricV2;

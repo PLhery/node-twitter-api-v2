@@ -234,7 +234,8 @@ const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 ### Methods / properties
 
 - `.autoReconnect: boolean` / defaults `false` / Set this to `true` to enable experimental reconnect feature.
-- `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by `min((attempt ** 2) * 100, 20000)` milliseconds.
+- `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by `min((attempt ** 2) * 1000, 25000)` milliseconds.
+- `.keepAliveTimeoutMs: number` / default `120000` (2 minutes) / Defined whenever connection should be automatically closed if nothing is received from Twitter during this time (it should not happend in any situation, because Twitter sends keep-alive packets). **Can be set to `Infinity` to disable this feature**.
 - `.close()`: Emits `ConnectionClosed` event and terminates connection.
 - `.destroy()`: Same as `close()`, but unbind all registred event listeners before.
 - `.clone(): Promise<TweetStream>`: Returns a new `TweetStream` with the same request parameters, with the same event listeners bound.
@@ -246,9 +247,13 @@ All events are part of enum `ETwitterStreamEvent` exported by the package.
 
 - `.ConnectionError`: Emitted with the `err` parameter given by `request.on('error')` or `response.on('error')` handlers.
 - `.ConnectionClosed`: Emitted when `.close()` is called or when the connection is manually closed by distant server.
+- `.ConnectionLost`: When nothing is received from Twitter during `.keepAliveTimeoutMs` milliseconds, emit this event and start either close or reconnection process.
+- `.ReconnectAttempt`: Emitted **before** a reconnect attempt is made (payload: attempt `number`).
+- `.Reconnected`: Emitted when a reconnection attempt succeeds.
 - `.ReconnectError`: Emitted when a auto-reconnect try attempt has failed. Event data is a `number` representing the number of times the request has been **re-made** (starts from `0`).
 - `.ReconnectLimitExceeded`: Emitted when `.autoReconnectRetries` limit exceeds.
 - `.DataKeepAlive`: Emitted when Twitter sends a `\r\n` to maintain connection open.
 - `.Data`: Emitted with stream data, when Twitter sends something.
+- `.DataError`: Emitted when Twitter sends a JSON error payload.
 - `.TweetParseError`: When the thing sent by Twitter cannot be JSON-parsed. Contains the parse error.
 - `.Error`: Emitted either when a `.ConnectionError` or a `.TweetParseError` occurs. Contains `{ type: .ConnectionError | .TweetParseError, error: any }`.

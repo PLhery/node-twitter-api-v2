@@ -80,7 +80,7 @@ export class OAuth1Helper {
 
     return {
       // Remove the last ,
-      Authorization: header_value.substr(0, header_value.length - 1) ,
+      Authorization: header_value.slice(0, header_value.length - 1) ,
     };
   }
 
@@ -151,7 +151,7 @@ export class OAuth1Helper {
     }
 
     // Remove the last character
-    return dataStr.substr(0, dataStr.length - 1);
+    return dataStr.slice(0, dataStr.length - 1);
   }
 
   protected getBaseUrl(url: string) {
@@ -163,31 +163,17 @@ export default OAuth1Helper;
 
 // Helper functions //
 
-function mergeObject<A, B>(obj1: A, obj2: B): A & B {
-  const source1 = obj1 || {};
-  const source2 = obj2 || {};
-
-  const merged = source1 as A & B;
-
-  for (const key in source2) {
-    // @ts-expect-error: Because key source is unverified.
-    merged[key] = source2[key];
-  }
-
-  return merged;
+function mergeObject<A extends object, B extends object>(obj1: A, obj2: B): A & B {
+  return {
+    ...obj1 || {},
+    ...obj2 || {},
+  };
 }
 
 function sortObject<T extends object>(data: T) {
-  const keys = Object.keys(data);
-  const result = [];
-
-  keys.sort();
-
-  for (const key of keys) {
-    result.push({ key, value: data[key as keyof typeof data] });
-  }
-
-  return result;
+  return Object.keys(data)
+    .sort()
+    .map(key => ({ key, value: data[key as keyof typeof data] }));
 }
 
 function deParam(string: string) {

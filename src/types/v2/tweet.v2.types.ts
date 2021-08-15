@@ -1,7 +1,8 @@
 // Tweets
 import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, MetaV2 } from './shared.v2.types';
+import { UserV2 } from './user.v2.types';
 
 /// -- Timelines --
 
@@ -27,6 +28,11 @@ export interface TweetV2PaginableTimelineParams extends TweetV2TimelineParams {
   pagination_token?: string;
 }
 
+export interface TweetV2PaginableListParams extends Partial<Tweetv2FieldsParams> {
+  pagination_token?: string;
+  max_results?: number | string;
+}
+
 export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParams {
   exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
 }
@@ -35,7 +41,7 @@ export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys
   | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id'
   | 'geo.place_id' | 'entities.mentions.username' | 'referenced_tweets.id.author_id';
 export type TTweetv2MediaField = 'duration_ms' | 'height' | 'media_key' | 'preview_image_url' | 'type'
-  | 'url' | 'width' | 'public_metrics' | 'non_public_metrics' | 'organic_metrics';
+  | 'url' | 'width' | 'public_metrics' | 'non_public_metrics' | 'organic_metrics' | 'alt_text';
 export type TTweetv2PlaceField = 'contained_within' | 'country' | 'country_code' | 'full_name' | 'geo' | 'id' | 'name' | 'place_type';
 export type TTweetv2PollField = 'duration_minutes' | 'end_datetime' | 'id' | 'options' | 'voting_status';
 export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotations' | 'conversation_id'
@@ -54,6 +60,37 @@ export interface Tweetv2FieldsParams {
   'user.fields': TypeOrArrayOf<TTweetv2UserField> | string;
 }
 
+// - Tweet stream -
+
+export interface TweetSearchV2StreamParams extends Tweetv2FieldsParams {
+  backfill_minutes: number;
+}
+
+// - Tweet count -
+
+export interface TweetV2CountParams {
+  query: string;
+  end_time?: string;
+  start_time?: string;
+  until_id?: string;
+  since_id?: string;
+  granularity?: 'day' | 'hour' | 'minute';
+}
+
+export interface TweetV2CountAllParams extends TweetV2CountParams {
+  next_token: string;
+}
+
+export type TweetV2CountResult = DataAndMetaV2<{
+  start: string;
+  end: string;
+  tweet_count: number;
+}[], {
+  total_tweet_count: number;
+}>;
+
+export type TweetV2CountAllResult = TweetV2CountResult & MetaV2<{ next_token: string }>;
+
 // - Timeline results -
 
 export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
@@ -63,11 +100,20 @@ export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
   next_token?: string;
 }, ApiV2Includes>;
 
+export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], {
+  result_count: number;
+  next_token?: string;
+  previous_token?: string;
+}, ApiV2Includes>;
+
 export type Tweetv2SearchResult = Tweetv2TimelineResult;
 export type TweetV2UserTimelineResult = Tweetv2TimelineResult;
 
 export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
 export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;
+export type TweetV2SingleStreamResult = TweetV2SingleResult & {
+  matching_rules: { id: string | number, tag: string }[];
+};
 
 /// -- Replies --
 
@@ -78,3 +124,11 @@ export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;
 export type TweetV2LikeResult = DataV2<{
   liked: boolean;
 }>;
+
+export type TweetV2LikedByResult = DataAndIncludeV2<UserV2[], ApiV2Includes>;
+
+/// -- Retweets
+
+export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
+
+export type TweetV2RetweetedByResult = DataMetaAndIncludeV2<UserV2[], { result_count: number }, ApiV2Includes>;
