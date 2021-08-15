@@ -1,18 +1,16 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi, TwitterApiReadOnly, TwitterApiReadWrite } from '../src';
+import { TwitterApi, TwitterApiReadOnly } from '../src';
 import { getAppClient, getUserClient } from '../src/test/utils';
 
 let client: TwitterApi;
 let roClient: TwitterApiReadOnly;
-let rwClient: TwitterApiReadWrite;
 let userClient: TwitterApi;
 
 describe('Users endpoints for v2 API', () => {
   before(async () => {
     client = await getAppClient();
     roClient = client.readOnly;
-    rwClient = client.readWrite;
     userClient = getUserClient();
   });
 
@@ -108,7 +106,7 @@ describe('Users endpoints for v2 API', () => {
     expect(unfollowInfo.data.following).to.equal(false);
   }).timeout(60 * 1000);
 
-  it('.block/.unblock - Block/unblock a user', async () => {
+  it('.block/.unblock/.userBlockingUsers - Block, list then unblock a user', async () => {
     const { readOnly, readWrite } = userClient;
 
     const currentUser = await readOnly.currentUser();
@@ -119,9 +117,39 @@ describe('Users endpoints for v2 API', () => {
     // Sleep 2 seconds
     await new Promise(resolve => setTimeout(resolve, 1000 * 2));
 
+    const blocksOfUser = await readWrite.v2.userBlockingUsers(currentUser.id_str, { 'user.fields': ['created_at', 'protected'] });
+
+    expect(blocksOfUser.users).to.have.length.greaterThan(0);
+
+    const firstBlockedUser = blocksOfUser.users[0];
+    const lengthInitial = blocksOfUser.users.length;
+
+    expect(firstBlockedUser.id).to.be.a('string');
+    expect(firstBlockedUser.created_at).to.be.a('string');
+    expect(firstBlockedUser.protected).to.be.a('boolean');
+
+    if (blocksOfUser.meta.next_token) {
+      await blocksOfUser.fetchNext();
+      expect(lengthInitial).to.not.equal(blocksOfUser.users.length);
+    }
+
+    // Sleep 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 1000 * 2));
+
     // unblock jack
     const unblockInfo = await readWrite.v2.unblock(currentUser.id_str, '12');
     expect(unblockInfo.data.blocking).to.equal(false);
+  }).timeout(60 * 1000);
+
+  it('.userLikedTweets - Last tweets liked by a user', async () => {
+    const { readOnly } = userClient;
+
+    const jackLikedTweets = await readOnly.v2.userLikedTweets('12', { 'tweet.fields': ['created_at', 'source'] });
+    expect(jackLikedTweets.tweets).to.have.length.greaterThan(0);
+
+    expect(jackLikedTweets.tweets[0].created_at).to.be.a('string');
+    expect(jackLikedTweets.tweets[0].source).to.be.a('string');
+    expect(jackLikedTweets.meta.next_token).to.be.a('string');
   }).timeout(60 * 1000);
 });
 

@@ -126,4 +126,18 @@ describe('Tweets endpoints for v2 API', () => {
     const { data: { liked: likedAfterUnlike } } = await userClient.v2.unlike(me.id_str, '20');
     expect(likedAfterUnlike).to.equal(false);
   }).timeout(60 * 1000);
+
+  it('.tweetLikedBy - Get users that liked a tweet', async () => {
+    const usersThatLiked = await userClient.v2.tweetLikedBy('20', { 'user.fields': ['created_at'] });
+    expect(usersThatLiked.data).to.have.length.greaterThan(0);
+
+    expect(usersThatLiked.data[0].created_at).to.be.a('string');
+  }).timeout(60 * 1000);
+
+  it('.tweetRetweetedBy - Get users that retweeted a tweet', async () => {
+    const usersThatRt = await userClient.v2.tweetRetweetedBy('20', { 'user.fields': ['created_at'] });
+    expect(usersThatRt.data).to.have.length.greaterThan(0);
+
+    expect(usersThatRt.data[0].created_at).to.be.a('string');
+  }).timeout(60 * 1000);
 });

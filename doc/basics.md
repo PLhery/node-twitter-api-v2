@@ -10,11 +10,18 @@
 
 Import the default export/`TwitterApi` variable from `twitter-api-v2` module.
 
+**Developer note:** Default export is a TypeScript-CommonJS-wrapped default export —
+it isn't a regular ECMA module default export. See example below.
+
 ```ts
+// This will ONLY work with TypeScript on module: "commonjs"
 import TwitterApi from 'twitter-api-v2';
-// or
+
+// This will work on TypeScript (with commonJS and ECMA)
+// AND with Node.js in ECMA mode (.mjs files, type: "module" in package.json)
 import { TwitterApi } from 'twitter-api-v2';
-// or, in CommonJS
+
+// This will work with Node.js on CommonJS mode (TypeScript or not)
 const { TwitterApi } = require('twitter-api-v2');
 ```
 

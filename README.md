@@ -101,6 +101,8 @@ await twitterClient.v2.get('tweets/search/recent', { query: 'nodeJS', max_result
 const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
 ```
 
+**Note:** Top-level use of `await` is not available in most of Node.js usage. You might need to wrap `await`s into async functions. See [MDN related documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+
 ### Basics
 
 You want **to know more about client usage? See [the Basics](./doc/basics.md)**!

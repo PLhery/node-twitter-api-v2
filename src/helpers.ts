@@ -13,3 +13,9 @@ export function trimUndefinedProperties(object: any) {
   }
 }
 
+export function isTweetStreamV2ErrorPayload(payload: any) {
+  // Is error only if 'errors' is present and 'data' does not exists
+  return typeof payload === 'object'
+    && 'errors' in payload
+    && !('data' in payload);
+}

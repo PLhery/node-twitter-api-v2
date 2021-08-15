@@ -3,8 +3,10 @@ import TwitterApiv2ReadOnly from './client.v2.read';
 import type {
   TweetV2HideReplyResult,
   TweetV2LikeResult,
+  TweetV2RetweetResult,
   UserV2BlockResult,
   UserV2FollowResult,
+  UserV2MuteResult,
   UserV2UnfollowResult
 } from '../types';
 import TwitterApiv2LabsReadWrite from '../v2-labs/client.v2.labs.write';
@@ -50,7 +52,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
-   public like(loggedUserId: string, targetTweetId: string) {
+  public like(loggedUserId: string, targetTweetId: string) {
     return this.post<TweetV2LikeResult>(`users/${loggedUserId}/likes`, { tweet_id: targetTweetId });
   }
 
@@ -63,6 +65,27 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public unlike(loggedUserId: string, targetTweetId: string) {
     return this.delete<TweetV2LikeResult>(`users/${loggedUserId}/likes/${targetTweetId}`);
+  }
+
+  /**
+   * Causes the user ID identified in the path parameter to Retweet the target Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/post-users-id-retweets
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public retweet(loggedUserId: string, targetTweetId: string) {
+    return this.post<TweetV2RetweetResult>(`users/${loggedUserId}/retweets`, { tweet_id: targetTweetId });
+  }
+
+  /**
+   * Allows a user or authenticated user ID to remove the Retweet of a Tweet.
+   * The request succeeds with no action when the user sends a request to a user they're not Retweeting the Tweet or have already removed the Retweet of.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/delete-users-id-retweets-tweet_id
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public unretweet(loggedUserId: string, targetTweetId: string) {
+    return this.delete<TweetV2RetweetResult>(`users/${loggedUserId}/retweets/${targetTweetId}`);
   }
 
   /* Users */
@@ -107,5 +130,26 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public unblock(loggedUserId: string, targetUserId: string) {
     return this.delete<UserV2BlockResult>(`users/${loggedUserId}/blocking/${targetUserId}`);
+  }
+
+  /**
+   * Allows an authenticated user ID to mute the target user.
+   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/post-users-user_id-muting
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public mute(loggedUserId: string, targetUserId: string) {
+    return this.post<UserV2MuteResult>(`users/${loggedUserId}/muting`, { target_user_id: targetUserId });
+  }
+
+  /**
+   * Allows an authenticated user ID to unmute the target user.
+   * The request succeeds with no action when the user sends a request to a user they're not muting or have already unmuted.
+   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/delete-users-user_id-muting
+   *
+   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   */
+  public unmute(loggedUserId: string, targetUserId: string) {
+    return this.delete<UserV2MuteResult>(`users/${loggedUserId}/muting/${targetUserId}`);
   }
 }

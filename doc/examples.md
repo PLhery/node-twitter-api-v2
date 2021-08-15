@@ -91,3 +91,9 @@ for await (const { data: tweet } of stream) {
 ```
 
 ***WIP — TODO***
+
+See [the v1.1 comprehensive documentation](./v1.md)
+and [the v2 comprehensive documentation](./v2.md) for more examples with each available endpoint.
+
+All returned types and parameters only reflect available data on Twitter API documentation. For each implemented endpoint,
+you have a link to documentation available in JSDoc comment.

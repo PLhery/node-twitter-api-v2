@@ -1,7 +1,7 @@
 import TwitterApiSubClient from '../client.subclient';
 import { API_V2_PREFIX } from '../globals';
 import {
-  FollowersV2Result, FollowersV2Params, Tweetv2FieldsParams,
+  Tweetv2FieldsParams,
   Tweetv2SearchParams, Tweetv2SearchResult, UserV2Result,
   UsersV2Result, UsersV2Params, StreamingV2GetRulesParams,
   StreamingV2GetRulesResult, TweetV2LookupResult,
@@ -16,14 +16,32 @@ import {
   StreamingV2UpdateRulesResult,
   TweetV2SingleResult,
   TweetV2PaginableTimelineParams,
+  TweetV2CountResult,
+  TweetV2CountParams,
+  TweetV2CountAllResult,
+  TweetV2CountAllParams,
+  TweetV2RetweetedByResult,
+  TweetV2LikedByResult,
+  UserV2TimelineParams,
+  UserV2TimelineResult,
+  FollowersV2ParamsWithPaginator,
+  FollowersV2Params,
+  FollowersV2ParamsWithoutPaginator,
+  TweetSearchV2StreamParams,
+  TweetV2SingleStreamResult,
+  TweetV2PaginableListParams,
+  Tweetv2ListResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
   TweetSearchRecentV2Paginator,
   TweetUserMentionTimelineV2Paginator,
   TweetUserTimelineV2Paginator,
+  TweetV2UserLikedTweetsPaginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
+import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator } from '../paginators/user.paginator.v2';
+import { isTweetStreamV2ErrorPayload } from '../helpers';
 
 /**
  * Base Twitter v2 client with only read right.
@@ -94,6 +112,43 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public tweets(tweetIds: string | string[], options: Partial<Tweetv2FieldsParams> = {}) {
     return this.get<TweetV2LookupResult>('tweets', { ids: tweetIds, ...options });
+  }
+
+  /**
+   * The recent Tweet counts endpoint returns count of Tweets from the last seven days that match a search query.
+   * OAuth2 Bearer auth only.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-recent
+   */
+  public tweetCountRecent(query: string, options: Partial<TweetV2CountParams> = {}) {
+    return this.get<TweetV2CountResult>('tweets/counts/recent', { query, ...options });
+  }
+
+  /**
+   * This endpoint is only available to those users who have been approved for the Academic Research product track.
+   * The full-archive search endpoint returns the complete history of public Tweets matching a search query;
+   * since the first Tweet was created March 26, 2006.
+   * OAuth2 Bearer auth only.
+   * **This endpoint has pagination, yet it is not supported by bundled paginators. Use `next_token` to fetch next page.**
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-all
+   */
+  public tweetCountAll(query: string, options: Partial<TweetV2CountAllParams> = {}) {
+    return this.get<TweetV2CountAllResult>('tweets/counts/all', { query, ...options });
+  }
+
+  /**
+   * Allows you to get information about who has Retweeted a Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/get-tweets-id-retweeted_by
+   */
+  public tweetRetweetedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
+    return this.get<TweetV2RetweetedByResult>(`tweets/${tweetId}/retweeted_by`, options);
+  }
+
+  /**
+   * Allows you to get information about who has Liked a Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-tweets-id-liking_users
+   */
+  public tweetLikedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
+    return this.get<TweetV2LikedByResult>(`tweets/${tweetId}/liking_users`, options);
   }
 
   /**
@@ -172,16 +227,80 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns a list of users who are followers of the specified user ID.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-followers
    */
-  public followers(userId: string, options: Partial<FollowersV2Params> = {}) {
-    return this.get<FollowersV2Result>(`users/${userId}/followers`, options);
+  public followers(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
+  public followers(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowersV2Paginator>;
+  public async followers(userId: string, options: FollowersV2Params = {}) {
+    const { asPaginator, ...parameters } = options;
+
+    if (!asPaginator) {
+      return this.get<UserV2TimelineResult>(`users/${userId}/followers`, parameters as Partial<UserV2TimelineParams>);
+    }
+
+    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/followers`, parameters as Partial<UserV2TimelineParams>, { fullResponse: true });
+
+    return new UserFollowersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: parameters as Partial<UserV2TimelineParams>,
+      sharedParams: { userId },
+    });
   }
 
   /**
    * Returns a list of users the specified user ID is following.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-following
    */
-  public following(userId: string, options: Partial<FollowersV2Params> = {}) {
-    return this.get<FollowersV2Result>(`users/${userId}/following`, options);
+  public following(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
+  public following(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowingV2Paginator>;
+  public async following(userId: string, options: FollowersV2Params = {}) {
+    const { asPaginator, ...parameters } = options;
+
+    if (!asPaginator) {
+      return this.get<UserV2TimelineResult>(`users/${userId}/following`, parameters as Partial<UserV2TimelineParams>);
+    }
+
+    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/following`, parameters as Partial<UserV2TimelineParams>, { fullResponse: true });
+
+    return new UserFollowingV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: parameters as Partial<UserV2TimelineParams>,
+      sharedParams: { userId },
+    });
+  }
+
+  /**
+   * Allows you to get information about a user’s liked Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
+   */
+  public async userLikedTweets(userId: string, options: Partial<TweetV2PaginableListParams> = {}) {
+    const initialRq = await this.get<Tweetv2ListResult>(`users/${userId}/liked_tweets`, options, { fullResponse: true });
+
+    return new TweetV2UserLikedTweetsPaginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: { userId },
+    });
+  }
+
+  /**
+   * Returns a list of users who are blocked by the specified user ID. User ID must be the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
+   */
+   public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
+    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/blocking`, options, { fullResponse: true });
+
+    return new UserBlockingUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: { userId },
+    });
   }
 
   /* Streaming API */
@@ -190,8 +309,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Streams Tweets in real-time based on a specific set of filter rules.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
    */
-  public searchStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream<TweetV2SingleResult>('tweets/search/stream', options);
+  public searchStream(options: Partial<TweetSearchV2StreamParams> = {}) {
+    return this.getStream<TweetV2SingleStreamResult>('tweets/search/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
   }
 
   /**
@@ -208,21 +327,21 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Similarly, to delete one or more rules, submit a delete JSON body with an array of list of existing rule IDs.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
    */
-   public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
-   public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
-   public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
-     return this.post<StreamingV2UpdateRulesResult>(
-       'tweets/search/stream/rules',
-       options,
-       { query },
-     );
-   }
+  public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
+  public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
+  public updateStreamRules(options: StreamingV2UpdateRulesParams, query: Partial<StreamingV2UpdateRulesQuery> = {}) {
+    return this.post<StreamingV2UpdateRulesResult>(
+      'tweets/search/stream/rules',
+      options,
+      { query },
+    );
+  }
 
   /**
    * Streams about 1% of all Tweets in real-time.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
    */
   public sampleStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options);
+    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
   }
 }
