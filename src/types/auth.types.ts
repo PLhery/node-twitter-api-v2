@@ -3,6 +3,8 @@ import type TwitterApi from '../client';
 export interface RequestTokenArgs {
   authAccessType: 'read' | 'write';
   linkMode: 'authenticate' | 'authorize';
+  forceLogin: boolean;
+  screenName: string;
 }
 
 export interface RequestTokenResult {
