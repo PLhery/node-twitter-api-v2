@@ -2,8 +2,8 @@ import 'mocha';
 import { expect } from 'chai';
 import { TwitterApi } from '../src';
 import { getUserClient } from '../src/test/utils';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let client: TwitterApi;
 const dirname = __dirname;
