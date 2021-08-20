@@ -45,16 +45,14 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       return this._currentUser;
     }
 
-    return this._currentUser = await this.v1.verifyCredentials();
+    return (this._currentUser = await this.v1.verifyCredentials());
   }
-
 
   /* Shortcuts to endpoints */
 
   public search(what: string, options?: Partial<Tweetv2SearchParams>) {
     return this.v2.search(what, options);
   }
-
 
   /* Authentification */
 
@@ -71,14 +69,24 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * // Save tokenRequest.oauth_token_secret somewhere, it will be needed for next auth step.
    * ```
    */
-  public async generateAuthLink(oauth_callback = 'oob', { authAccessType, linkMode = 'authenticate' }: Partial<RequestTokenArgs> = {}) {
+  public async generateAuthLink(
+    oauth_callback = 'oob',
+    {
+      authAccessType,
+      linkMode = 'authenticate',
+      forceLogin,
+      screenName,
+    }: Partial<RequestTokenArgs> = {}
+  ) {
     const oauth_result = await this.post<RequestTokenResult>(
       'https://api.twitter.com/oauth/request_token',
       { oauth_callback, x_auth_access_type: authAccessType }
     );
-
+    let url = `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauth_result.oauth_token)}`;
+    if (forceLogin != null) url += `&force_login=${forceLogin}`;
+    if (screenName != null) url += `&screen_name=${screenName}`;
     return {
-      url: `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauth_result.oauth_token)}`,
+      url,
       ...oauth_result,
     };
   }
