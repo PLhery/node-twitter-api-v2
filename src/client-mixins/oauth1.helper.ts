@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 // ----------------------------------------------------------
 // LICENSE: This code partially belongs to oauth-1.0a package

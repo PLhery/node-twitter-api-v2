@@ -1,4 +1,4 @@
-import fs from 'fs';
+import * as fs from 'fs';
 import type { TUploadableMedia, TUploadTypeV1 } from '../types';
 
 // -------------

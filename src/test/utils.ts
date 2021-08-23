@@ -1,5 +1,5 @@
 import { TwitterApi } from '..';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 dotenv.config({ path: __dirname + '/../../.env' });
 

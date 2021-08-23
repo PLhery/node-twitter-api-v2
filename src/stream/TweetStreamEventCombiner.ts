@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { ETwitterStreamEvent } from '../types';
 import type TweetStream from './TweetStream';
 

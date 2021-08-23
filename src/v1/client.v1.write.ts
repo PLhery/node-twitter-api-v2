@@ -10,7 +10,7 @@ import {
   TweetV1,
   UploadMediaV1Params,
 } from '../types';
-import fs from 'fs';
+import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
 
 const UPLOAD_ENDPOINT = 'media/upload.json';

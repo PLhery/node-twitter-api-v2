@@ -1,5 +1,5 @@
 import type { BooleanString, NumberString } from '../shared.types';
-import type fs from 'fs';
+import type * as fs from 'fs';
 import { UserV1 } from './user.v1.types';
 import { CoordinateV1, PlaceV1, TweetEntitiesV1, TweetExtendedEntitiesV1 } from './entities.v1.types';
 
