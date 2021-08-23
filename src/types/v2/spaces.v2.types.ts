@@ -1,7 +1,7 @@
-import { TypeOrArrayOf } from "../shared.types";
-import { DataAndIncludeV2, DataV2 } from "./shared.v2.types";
-import { TTweetv2UserField } from "./tweet.v2.types";
-import { UserV2 } from "./user.v2.types";
+import type { TypeOrArrayOf } from '../shared.types';
+import type { DataAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { TTweetv2UserField } from './tweet.v2.types';
+import type { UserV2 } from './user.v2.types';
 
 export interface SpaceV2FieldsParams {
   expansions: TypeOrArrayOf<TSpaceV2Expansion> | string;
