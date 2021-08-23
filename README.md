@@ -1,12 +1,16 @@
 # Twitter API v2
 
+[![Version badge](https://badgen.net/github/release/PLhery/node-twitter-api-v2)](https://github.com/PLhery/node-twitter-api-v2)
+[![Checks badge](https://badgen.net/github/checks/PLhery/node-twitter-api-v2)](https://github.com/PLhery/node-twitter-api-v2/actions/workflows/CI.yml)
+[![Package size badge](https://badgen.net/bundlephobia/minzip/twitter-api-v2)](https://bundlephobia.com/package/twitter-api-v2)
+
 Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
 ## Highlights
 
 ✅ **Ready for v2 and good ol' v1.1 Twitter API**
 
-✅ **Light: No dependencies, 11.7kb minified+gzipped**
+✅ **Light: No dependencies, 13.7kb minified+gzipped**
 
 ✅ **Bundled types for request parameters and responses**
 
@@ -27,13 +31,13 @@ using descriptive typings for read/write/DMs rights, request parameters and resp
 
 A small feature comparaison with other libs:
 
-| Package        | API version(s) | Response typings | Media helpers | Pagination | Subdependencies |  Size (gzip)  |
-| -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|
-| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~13.7 kB      |
-| twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     |
-| twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     |
-| twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       |
-| twitter-v2     | v2             | ❌               | ❌             | ❌         | 7               | ~4.5 kB       |
+| Package        | API version(s) | Response typings | Media helpers | Pagination | Subdependencies |  Size (gzip)  | Install size  |
+| -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|  -------------:|
+| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~13.7 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
+| twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     | [![twit install size badge](https://badgen.net/packagephobia/install/twit)](https://packagephobia.com/result?p=twit) |
+| twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     | [![twitter install size badge](https://badgen.net/packagephobia/install/twitter)](https://packagephobia.com/result?p=twitter) |
+| twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       | [![twitter-lite install size badge](https://badgen.net/packagephobia/install/twitter-lite)](https://packagephobia.com/result?p=twitter-lite) |
+| twitter-v2     | v2             | ❌               | ❌             | ❌         | 7               | ~4.5 kB       | [![twitter-v2 install size badge](https://badgen.net/packagephobia/install/twitter-v2)](https://packagephobia.com/result?p=twitter-v2) |
 
 \**No support for `media/upload`, cannot send a `multipart/form-data` encoded-body without tricks*
 
