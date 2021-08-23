@@ -31,6 +31,11 @@ import {
   TweetV2SingleStreamResult,
   TweetV2PaginableListParams,
   Tweetv2ListResult,
+  SpaceV2FieldsParams,
+  SpaceV2LookupResult,
+  SpaceV2CreatorLookupParams,
+  SpaceV2SearchParams,
+  SpaceV2SingleResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -301,6 +306,40 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       queryParams: { ...options },
       sharedParams: { userId },
     });
+  }
+
+  /* Spaces */
+
+  /**
+   * Get a single space by ID.
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
+   */
+  public space(spaceId: string, options: Partial<SpaceV2FieldsParams> = {}) {
+    return this.get<SpaceV2SingleResult>(`spaces/${spaceId}`, options);
+  }
+
+  /**
+   * Get spaces using their IDs.
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
+   */
+  public spaces(spaceIds: string | string[], options: Partial<SpaceV2FieldsParams> = {}) {
+    return this.get<SpaceV2LookupResult>('spaces', { ids: spaceIds, ...options });
+  }
+
+  /**
+   * Get spaces using their creator user ID(s). (no pagination available)
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
+   */
+  public spacesByCreators(creatorIds: string | string[], options: Partial<SpaceV2CreatorLookupParams> = {}) {
+    return this.get<SpaceV2LookupResult>('spaces/by/creator_ids', { user_ids: creatorIds, ...options });
+  }
+
+  /**
+   * Search through spaces using multiple params. (no pagination available)
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/search/api-reference/get-spaces-search
+   */
+  public searchSpaces(options: SpaceV2SearchParams) {
+    return this.get<SpaceV2LookupResult>('spaces/search', options as Partial<SpaceV2SearchParams>);
   }
 
   /* Streaming API */
