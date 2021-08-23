@@ -1,7 +1,7 @@
 # Twitter API v2
 
 [![Version badge](https://badgen.net/github/release/PLhery/node-twitter-api-v2)](https://github.com/PLhery/node-twitter-api-v2)
-[![Checks badge](https://badgen.net/github/checks/PLhery/node-twitter-api-v2)](https://github.com/PLhery/node-twitter-api-v2/actions/workflows/CI.yml)
+[![Checks badge](https://github.com/PLhery/node-twitter-api-v2/actions/workflows/CI.yml/badge.svg)](https://github.com/PLhery/node-twitter-api-v2/actions/workflows/CI.yml)
 [![Package size badge](https://badgen.net/bundlephobia/minzip/twitter-api-v2)](https://bundlephobia.com/package/twitter-api-v2)
 
 Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
@@ -31,7 +31,7 @@ using descriptive typings for read/write/DMs rights, request parameters and resp
 
 A small feature comparaison with other libs:
 
-| Package        | API version(s) | Response typings | Media helpers | Pagination | Subdependencies |  Size (gzip)  | Install size  |
+| Package        | API version(s) | Response typings | Media helpers | Pagination | Subdeps |  Size (gzip)  | Install size  |
 | -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|  -------------:|
 | twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~13.7 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
 | twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     | [![twit install size badge](https://badgen.net/packagephobia/install/twit)](https://packagephobia.com/result?p=twit) |
