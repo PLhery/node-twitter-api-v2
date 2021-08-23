@@ -99,8 +99,8 @@ See the [documentation for v1 client API](./v1.md) or [documentation for v2 clie
 If the endpoint-wrapper for your request has not been made yet, don't leave!
 You can make requests on your own!
 
-- `.get` and `.delete`, that takes `(partialUrl: string, query?: TRequestQuery)` in parameters
-- `.post`, `.put` and `.patch` that takes `(partialUrl: string, body?: TRequestBody)` in parameters
+- `.get` and `.delete`, that takes `(partialUrl: string, query?: TRequestQuery, requestSettings?: TGetClientRequestArgs)` in parameters
+- `.post`, `.put` and `.patch` that takes `(partialUrl: string, body?: TRequestBody, requestSettings?: TGetClientRequestArgs)` in parameters
 
 ```ts
 // Don't forget the .json in most of the v1 endpoints!
@@ -108,6 +108,29 @@ client.v1.get('statuses/user_timeline.json', { user_id: 14 });
 
 // or, for v2
 client.v2.get('users/14/tweets');
+```
+
+#### Specify request args
+
+Sometimes, you need to customize request settings (API prefix, body mode, response mode). You can pass request options through the **third parameter** of HTTP methods wrappers.
+```ts
+// [prefix]
+// Customize API prefix (prefix that will be prepended to URL in first argument)
+client.v1.post('media/upload.json', { media: Buffer.alloc(1024) }, { prefix: 'https://upload.twitter.com/1.1/' })
+
+// [forceBodyMode]
+// Customize body mode (if automatic body detection don't work)
+// Body mode can be 'url', 'form-data', 'json' or 'raw' [only with buffers]
+client.v1.post('statuses/update.json', { status: 'Hello' }, { forceBodyMode: 'url' })
+
+// [fullResponse]
+// Obtain the full response object with rate limits
+const res = await client.v1.get('statuses/home_timeline.json', undefined, { fullResponse: true })
+console.log(res.rateLimit, res.data)
+
+// [headers]
+// Customize sent HTTP headers
+client.v1.post('statuses/update.json', { status: 'Hello' }, { headers: { 'X-Custom-Header': 'My Header Value' } })
 ```
 
 ### Advanced: make a custom signed request
@@ -237,3 +260,31 @@ manualFullResponse.data; // TweetV1TimelineResult
 // Rate limit information
 manualFullResponse.rateLimit; // { limit: number, remaining: number, reset: number }
 ```
+
+## Error handling
+
+When a request fails, you get a `ApiRequestError` or a `ApiResponseError` object (both instances of `Error`), that contain useful information about whats happening.
+
+- An `ApiRequestError` happens when the request **failed to sent** (network error, bad URL...).
+- An `ApiResponseError` happens when **Twitter replies with an error**.
+
+Some properties are common for both objects:
+- `error` is `true`
+- `type` contains either `ETwitterApiError.Request` or `ETwitterApiError.Response` (depending of error)
+- `request` containing node's raw `ClientRequest` instance
+
+### Specific properties of `ApiRequestError`
+- `requestError`, an instance of `Error` that has been thrown through `request.on('error')` handler
+
+### Specific properties of `ApiResponseError`
+- `data`, containing parsed Twitter response data (type of `TwitterApiErrorData`)
+- `code` is a `number` containing the HTTP error code (`401`, `404`, ...)
+- `response`, containing raw node's `IncomingMessage` instance
+- `headers`, containing `IncomingHttpHeaders`
+- `rateLimit` (can be undefined or `TwitterRateLimit`), containing parsed rate limit headers (if any)
+- (getter) `errors`, direct access of parsed Twitter errors (`(ErrorV1 | ErrorV2)[]` or `undefined`)
+- (getter) `rateLimitError`, `true` if this error is fired because a rate limit has been hit
+- (getter) `isAuthError`, `true` if this error is fired because logged user cannot do this action (invalid token, invalid app rights...)
+
+### Specific methods of `ApiResponseError`
+- `hasErrorCode(code: number | EApiV1ErrorCode | EApiV2ErrorCode)`: Tells if given Twitter error code is present in error response
