@@ -78,16 +78,22 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       screenName,
     }: Partial<RequestTokenArgs> = {}
   ) {
-    const oauth_result = await this.post<RequestTokenResult>(
+    const oauthResult = await this.post<RequestTokenResult>(
       'https://api.twitter.com/oauth/request_token',
       { oauth_callback, x_auth_access_type: authAccessType }
     );
-    let url = `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauth_result.oauth_token)}`;
-    if (forceLogin != null) url += `&force_login=${forceLogin}`;
-    if (screenName != null) url += `&screen_name=${screenName}`;
+    let url = `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauthResult.oauth_token)}`;
+
+    if (forceLogin !== undefined) {
+      url += `&force_login=${encodeURIComponent(forceLogin)}`;
+    }
+    if (screenName !== undefined) {
+      url += `&screen_name=${encodeURIComponent(screenName)}`;
+    }
+
     return {
       url,
-      ...oauth_result,
+      ...oauthResult,
     };
   }
 
