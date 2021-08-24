@@ -1,5 +1,5 @@
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
 import type { TTweetv2UserField } from './tweet.v2.types';
 import type { UserV2 } from './user.v2.types';
 
@@ -32,7 +32,7 @@ export interface SpaceV2SearchParams extends Partial<SpaceV2FieldsParams> {
 type SpaceV2Includes = { users?: UserV2[] };
 
 export type SpaceV2SingleResult = DataV2<SpaceV2>;
-export type SpaceV2LookupResult = DataAndIncludeV2<SpaceV2[], SpaceV2Includes>;
+export type SpaceV2LookupResult = DataMetaAndIncludeV2<SpaceV2[], { result_count: number }, SpaceV2Includes>;
 
 // - Entities -
 
