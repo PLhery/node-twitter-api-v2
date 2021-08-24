@@ -28,7 +28,7 @@ describe('Spaces endpoints for v2 API', () => {
 
       const singleSpace = await client.v2.space(space.id);
       const singleSpaceThroughLookup = await client.v2.spaces([space.id]);
-      const spacesOfCreator = await client.v2.spacesByCreators([space.creator_id!])
+      const spacesOfCreator = await client.v2.spacesByCreators([space.creator_id!]);
 
       expect(singleSpace.data.id).to.equal(space.id);
       expect(singleSpaceThroughLookup.data[0].id).to.equal(space.id);
