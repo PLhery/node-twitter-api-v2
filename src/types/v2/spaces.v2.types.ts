@@ -39,15 +39,16 @@ export type SpaceV2LookupResult = DataAndIncludeV2<SpaceV2[], SpaceV2Includes>;
 export interface SpaceV2 {
   id: string;
   state: TSpaceV2State;
-  created_at: string;
-  host_ids: string[];
-  lang: string;
-  is_ticketed: boolean;
-  invited_user_ids: string[];
-  participant_count: number;
-  scheduled_start: string;
-  speaker_ids: string[];
-  started_at: string;
-  title: string;
-  updated_at: string;
+  created_at?: string;
+  host_ids?: string[];
+  lang?: string;
+  is_ticketed?: boolean;
+  invited_user_ids?: string[];
+  participant_count?: number;
+  scheduled_start?: string;
+  speaker_ids?: string[];
+  started_at?: string;
+  title?: string;
+  creator_id?: string;
+  updated_at?: string;
 }
