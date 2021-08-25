@@ -26,8 +26,13 @@ import {
   MediaStatusV1Result,
   OembedTweetV1Params,
   OembedTweetV1Result,
+  MuteUserListV1Result,
+  MuteUserListV1Params,
+  MuteUserIdsV1Result,
+  MuteUserIdsV1Params,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
+import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -147,6 +152,44 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public verifyCredentials(options: Partial<VerifyCredentialsV1Params> = {}) {
     return this.get<UserV1>('account/verify_credentials.json', options);
+  }
+
+  /**
+   * Returns an array of user objects the authenticating user has muted.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/get-mutes-users-list
+   */
+  public async listMutedUsers(options: Partial<MuteUserListV1Params> = {}) {
+    const queryParams: Partial<MuteUserListV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<MuteUserListV1Result>('mutes/users/list.json', queryParams, { fullResponse: true });
+
+    return new MuteUserListV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns an array of numeric user ids the authenticating user has muted.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/get-mutes-users-ids
+   */
+  public async listMutedUserIds(options: Partial<MuteUserIdsV1Params> = {}) {
+    const queryParams: Partial<MuteUserIdsV1Params> = {
+      stringify_ids: true,
+      ...options,
+    };
+    const initialRq = await this.get<MuteUserIdsV1Result>('mutes/users/ids.json', queryParams, { fullResponse: true });
+
+    return new MuteUserIdsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
   }
 
   /* Media upload API */

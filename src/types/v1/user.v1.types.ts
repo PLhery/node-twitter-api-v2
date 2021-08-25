@@ -39,4 +39,36 @@ export interface VerifyCredentialsV1Params {
   include_email?: boolean;
 }
 
+// GET mutes/users/list
+export interface MuteUserListV1Params {
+  cursor?: string;
+  include_entities?: boolean;
+  skip_status?: string;
+  tweet_mode?: 'extended';
+}
+
+// GET mutes/users/ids
+export interface MuteUserIdsV1Params {
+  stringify_ids?: boolean;
+  cursor?: string;
+}
+
 // - Results -
+
+// GET mutes/users/list
+export interface MuteUserListV1Result {
+  next_cursor?: string;
+  next_cursor_str?: string;
+  previous_cursor?: string;
+  previous_cursor_str?: string;
+  users: UserV1[];
+}
+
+// GET mutes/users/ids
+export interface MuteUserIdsV1Result {
+  next_cursor?: string;
+  next_cursor_str?: string;
+  previous_cursor?: string;
+  previous_cursor_str?: string;
+  ids: string[];
+}
