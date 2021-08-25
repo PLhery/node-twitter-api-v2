@@ -54,6 +54,14 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     });
   }
 
+  /**
+   * Delete an existing tweet belonging to you.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-destroy-id
+   */
+  public deleteTweet(tweetId: string) {
+    return this.post<TweetV1>(`statuses/destroy/${tweetId}.json`, { tweet_mode: 'extended' });
+  }
+
   /* Media upload API */
 
   /**
