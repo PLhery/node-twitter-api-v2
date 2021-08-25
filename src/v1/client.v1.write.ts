@@ -9,6 +9,8 @@ import {
   TUploadableMedia,
   TweetV1,
   UploadMediaV1Params,
+  UserV1,
+  ReportSpamV1Params,
 } from '../types';
 import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
@@ -60,6 +62,17 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    */
   public deleteTweet(tweetId: string) {
     return this.post<TweetV1>(`statuses/destroy/${tweetId}.json`, { tweet_mode: 'extended' });
+  }
+
+  /* User API */
+
+  /**
+   * Report the specified user as a spam account to Twitter.
+   * Additionally, optionally performs the equivalent of POST blocks/create on behalf of the authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/post-users-report_spam
+   */
+  public reportUserAsSpam(options: ReportSpamV1Params) {
+    return this.post<UserV1>('users/report_spam.json', { tweet_mode: 'extended', ...options });
   }
 
   /* Media upload API */

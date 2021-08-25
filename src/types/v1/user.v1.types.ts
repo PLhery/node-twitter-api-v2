@@ -53,6 +53,13 @@ export interface MuteUserIdsV1Params {
   cursor?: string;
 }
 
+// POST users/report_spam
+export interface ReportSpamV1Params {
+  screen_name?: string;
+  user_id?: string;
+  perform_block?: boolean;
+}
+
 // - Results -
 
 // GET mutes/users/list
