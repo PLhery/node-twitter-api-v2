@@ -105,6 +105,21 @@ export interface MediaSubtitleV1Param {
 
 export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;
 
+export interface OembedTweetV1Params {
+  url: string;
+  maxwidth?: number;
+  hide_media?: boolean;
+  hide_thread?: boolean;
+  omit_script?: boolean;
+  align?: 'left' | 'right' | 'center' | 'none';
+  related?: string;
+  lang?: string;
+  theme?: 'light' | 'dark';
+  link_color?: string;
+  widget_type?: 'video';
+  dnt?: boolean;
+}
+
 // - Results -
 
 export type TweetV1TimelineResult = TweetV1[];
@@ -136,4 +151,16 @@ export interface MediaStatusV1Result {
   };
 }
 
-
+export interface OembedTweetV1Result {
+  url: string;
+  author_name: string;
+  author_url: string;
+  html: string;
+  width: number;
+  height: number | null;
+  type: string;
+  cache_age: string;
+  provider_name: string;
+  provider_url: string;
+  version: string;
+}

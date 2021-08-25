@@ -24,6 +24,8 @@ import {
   TweetV1UserTimelineParams,
   TweetV1,
   MediaStatusV1Result,
+  OembedTweetV1Params,
+  OembedTweetV1Result,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 
@@ -32,6 +34,24 @@ import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Pagi
  */
 export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
+
+  /* Tweets */
+
+  /**
+   * Returns a single Tweet, specified by either a Tweet web URL or the Tweet ID, in an oEmbed-compatible format.
+   * The returned HTML snippet will be automatically recognized as an Embedded Tweet when Twitter's widget JavaScript is included on the page.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-oembed
+   */
+  public oembedTweet(tweetId: string, options: Partial<OembedTweetV1Params> = {}) {
+    return this.get<OembedTweetV1Result>(
+      'oembed',
+      {
+        url: `https://twitter.com/i/statuses/${tweetId}`,
+        ...options,
+      },
+      { prefix: 'https://publish.twitter.com/' },
+    );
+  }
 
   /* Tweets timelines */
 

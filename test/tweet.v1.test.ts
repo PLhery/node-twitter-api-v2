@@ -54,4 +54,9 @@ describe('Tweets endpoints for v1.1 API', () => {
     }
 
   }).timeout(60 * 1000);
+
+  it('.oembedTweet - Get a embed tweet', async () => {
+    const embedTweet = await client.v1.oembedTweet('20');
+    expect(embedTweet.html).to.be.a('string');
+  }).timeout(60 * 1000);
 });
