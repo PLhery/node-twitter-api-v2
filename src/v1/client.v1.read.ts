@@ -30,9 +30,11 @@ import {
   MuteUserListV1Params,
   MuteUserIdsV1Result,
   MuteUserIdsV1Params,
+  UserSearchV1Params,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
+import { UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -185,6 +187,27 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     const initialRq = await this.get<MuteUserIdsV1Result>('mutes/users/ids.json', queryParams, { fullResponse: true });
 
     return new MuteUserIdsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Provides a simple, relevance-based search interface to public user accounts on Twitter.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-search
+   */
+  public async searchUsers(query: string, options: Partial<UserSearchV1Params> = {}) {
+    const queryParams: Partial<UserSearchV1Params> = {
+      q: query,
+      tweet_mode: 'extended',
+      page: 1,
+      ...options,
+    };
+    const initialRq = await this.get<UserV1[]>('users/search.json', queryParams, { fullResponse: true });
+
+    return new UserSearchV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,

@@ -60,6 +60,14 @@ export interface ReportSpamV1Params {
   perform_block?: boolean;
 }
 
+export interface UserSearchV1Params {
+  q?: string;
+  page?: number;
+  count?: number;
+  include_entities?: boolean;
+  tweet_mode?: 'extended';
+}
+
 // - Results -
 
 // GET mutes/users/list
