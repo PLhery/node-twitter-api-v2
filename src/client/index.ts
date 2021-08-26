@@ -42,6 +42,33 @@ export class TwitterApi extends TwitterApiReadWrite {
 
     return (error as TwitterApiError).data.errors ?? [];
   }
+
+  /** Extract another image size than obtained in a `profile_image_url` or `profile_image_url_https` field of a user object. */
+  public static getProfileImageInSize(profileImageUrl: string, size: 'normal' | 'bigger' | 'mini' | 'original') {
+    const lastPart = profileImageUrl.split('/').pop()!;
+    const sizes = ['normal', 'bigger', 'mini'];
+
+    let originalUrl = profileImageUrl;
+
+    for (const availableSize of sizes) {
+      if (lastPart.includes(`_${availableSize}`)) {
+        originalUrl = profileImageUrl.replace(`_${availableSize}`, '');
+        break;
+      }
+    }
+
+    if (size === 'original') {
+      return originalUrl;
+    }
+
+    const extPos = originalUrl.lastIndexOf('.');
+    if (extPos !== -1) {
+      const ext = originalUrl.slice(extPos + 1);
+      return originalUrl.slice(0, extPos) + '_' + size + '.' + ext;
+    } else {
+      return originalUrl + '_' + size;
+    }
+  }
 }
 
 export { default as TwitterApiReadWrite } from './readwrite';
