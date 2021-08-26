@@ -133,3 +133,41 @@ export type TweetV2LikedByResult = DataAndIncludeV2<UserV2[], ApiV2Includes>;
 export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
 
 export type TweetV2RetweetedByResult = DataMetaAndIncludeV2<UserV2[], { result_count: number }, ApiV2Includes>;
+
+/// -- Batch compliance
+
+export interface BatchComplianceJobV2 {
+  resumable: false;
+  type: 'tweets' | 'users';
+  download_expires_at: string;
+  created_at: string;
+  upload_url: string;
+  download_url: string;
+  id: string;
+  status: 'created' | 'complete' | 'in_progress' | 'expired' | 'failed';
+  upload_expires_at: string;
+  error?: string;
+}
+
+export interface BatchComplianceSearchV2Params {
+  type: 'tweets' | 'users';
+  status?: 'created' | 'complete' | 'in_progress' | 'expired' | 'failed';
+}
+
+export interface BatchComplianceV2Params {
+  type: 'tweets' | 'users';
+  name?: string;
+  ids: string[] | Buffer;
+}
+
+export interface BatchComplianceV2JobResult {
+  id: string;
+  action: 'delete';
+  created_at: string;
+  redacted_at?: string;
+  reason: 'deleted' | 'suspended' | 'protected' | 'scrub_geo' | 'deactivated';
+}
+
+export type BatchComplianceListV2Result = DataV2<BatchComplianceJobV2[]>;
+
+export type BatchComplianceV2Result = DataV2<BatchComplianceJobV2>;
