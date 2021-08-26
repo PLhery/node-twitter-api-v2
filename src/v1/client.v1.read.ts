@@ -32,6 +32,8 @@ import {
   MuteUserIdsV1Params,
   UserSearchV1Params,
   AccountSettingsV1,
+  ProfileBannerSizeV1,
+  ProfileBannerSizeV1Params,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
@@ -216,7 +218,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     });
   }
 
-  /* Account API */
+  /* Account/user API */
 
   /**
    * Get current account settings for authenticating user.
@@ -224,6 +226,15 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public accountSettings() {
     return this.get<AccountSettingsV1>('account/settings.json');
+  }
+
+  /**
+   * Returns a map of the available size variations of the specified user's profile banner.
+   * If the user has not uploaded a profile banner, a HTTP 404 will be served instead.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-users-profile_banner
+   */
+  public userProfileBannerSizes(params: ProfileBannerSizeV1Params) {
+    return this.get<ProfileBannerSizeV1>('users/profile_banner.json', params);
   }
 
   /* Media upload API */

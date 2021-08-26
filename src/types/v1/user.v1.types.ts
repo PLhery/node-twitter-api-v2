@@ -78,6 +78,24 @@ export interface AccountSettingsV1Params {
   lang?: string;
 }
 
+// GET users/profile_banner
+export type ProfileBannerSizeV1Params = { user_id: string } | { screen_name: string };
+
+// POST account/update_profile_banner
+export interface ProfileBannerUpdateV1Params {
+  width?: number;
+  height?: number;
+  offset_left?: number;
+  offset_top?: number;
+}
+
+// POST account/update_profile_image
+export interface ProfileImageUpdateV1Params {
+  include_entities?: boolean;
+  skip_status?: boolean;
+  tweet_mode?: 'extended';
+}
+
 // - Results -
 
 // GET mutes/users/list
@@ -96,6 +114,27 @@ export interface MuteUserIdsV1Result {
   previous_cursor?: string;
   previous_cursor_str?: string;
   ids: string[];
+}
+
+// GET users/profile_banner
+export interface BannerSizeV1 {
+  h: number;
+  w: number;
+  url: string;
+}
+
+export interface ProfileBannerSizeV1 {
+  sizes: {
+    ipad: BannerSizeV1;
+    ipad_retina: BannerSizeV1;
+    web: BannerSizeV1;
+    web_retina: BannerSizeV1;
+    mobile: BannerSizeV1;
+    mobile_retina: BannerSizeV1;
+    '300x100': BannerSizeV1;
+    '600x200': BannerSizeV1;
+    '1500x500': BannerSizeV1;
+  };
 }
 
 // GET account/settings
