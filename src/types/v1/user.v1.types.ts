@@ -78,6 +78,18 @@ export interface AccountSettingsV1Params {
   lang?: string;
 }
 
+// POST account/update_profile
+export interface AccountProfileV1Params {
+  name?: string;
+  url?: string;
+  location?: string;
+  description?: string;
+  profile_link_color?: string;
+  include_entities?: boolean;
+  skip_status?: boolean;
+  tweet_mode?: 'extended';
+}
+
 // GET users/profile_banner
 export type ProfileBannerSizeV1Params = { user_id: string } | { screen_name: string };
 

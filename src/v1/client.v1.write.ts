@@ -15,6 +15,7 @@ import {
   AccountSettingsV1Params,
   ProfileBannerUpdateV1Params,
   ProfileImageUpdateV1Params,
+  AccountProfileV1Params,
 } from '../types';
 import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
@@ -87,6 +88,14 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    */
   public updateAccountSettings(options: Partial<AccountSettingsV1Params>) {
     return this.post<AccountSettingsV1>('account/settings.json', options);
+  }
+
+  /**
+   * Sets some values that users are able to set under the "Account" tab of their settings page.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile
+   */
+  public updateAccountProfile(options: Partial<AccountProfileV1Params>) {
+    return this.post<UserV1>('account/update_profile.json', options);
   }
 
   /**
