@@ -31,6 +31,7 @@ import {
   MuteUserIdsV1Result,
   MuteUserIdsV1Params,
   UserSearchV1Params,
+  AccountSettingsV1,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
@@ -213,6 +214,16 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
       instance: this,
       queryParams,
     });
+  }
+
+  /* Account API */
+
+  /**
+   * Get current account settings for authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-settings
+   */
+  public accountSettings() {
+    return this.get<AccountSettingsV1>('account/settings.json');
   }
 
   /* Media upload API */

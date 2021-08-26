@@ -11,6 +11,8 @@ import {
   UploadMediaV1Params,
   UserV1,
   ReportSpamV1Params,
+  AccountSettingsV1,
+  AccountSettingsV1Params,
 } from '../types';
 import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
@@ -73,6 +75,16 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    */
   public reportUserAsSpam(options: ReportSpamV1Params) {
     return this.post<UserV1>('users/report_spam.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /* Account API */
+
+  /**
+   * Update current account settings for authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-settings
+   */
+  public updateAccountSettings(options: Partial<AccountSettingsV1Params>) {
+    return this.post<AccountSettingsV1>('account/settings.json', options);
   }
 
   /* Media upload API */

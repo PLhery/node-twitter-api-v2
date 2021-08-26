@@ -68,6 +68,16 @@ export interface UserSearchV1Params {
   tweet_mode?: 'extended';
 }
 
+// POST account/settings
+export interface AccountSettingsV1Params {
+  sleep_time_enabled?: boolean;
+  start_sleep_time?: number;
+  end_sleep_time?: number;
+  time_zone?: string;
+  trend_location_woeid?: number;
+  lang?: string;
+}
+
 // - Results -
 
 // GET mutes/users/list
@@ -86,4 +96,43 @@ export interface MuteUserIdsV1Result {
   previous_cursor?: string;
   previous_cursor_str?: string;
   ids: string[];
+}
+
+// GET account/settings
+export interface AccountSettingsV1 {
+  time_zone: {
+    name: string;
+    utc_offset: number;
+    tzinfo_name: string;
+  };
+  protected: boolean;
+  screen_name: string;
+  always_use_https: boolean;
+  use_cookie_personalization: boolean;
+  sleep_time: {
+    enabled: boolean;
+    end_time: string | null;
+    start_time: string | null;
+  };
+  geo_enabled: boolean;
+  language: string;
+  discoverable_by_email: boolean;
+  discoverable_by_mobile_phone: boolean;
+  display_sensitive_media: boolean;
+  allow_contributor_request: 'all' | 'following' | string;
+  allow_dms_from: 'all' | 'following' | string;
+  allow_dm_groups_from: 'all' | 'following' | string;
+  translator_type: string;
+  trend_location: {
+    name: string;
+    countryCode: string;
+    url: string;
+    woeid: number;
+    placeType: {
+      name: string;
+      code: number;
+    };
+    parentid: number | null;
+    country: string;
+  }[];
 }
