@@ -29,13 +29,14 @@ export interface IGetHttpRequestArgs {
   body?: TRequestBody;
   headers?: Record<string, string>;
   forceBodyMode?: TBodyMode;
+  enableAuth?: boolean;
 }
 
 export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode' | 'enableAuth'>;
 
 export abstract class ClientRequestMaker {
   protected _bearerToken?: string;
@@ -144,7 +145,7 @@ export abstract class ClientRequestMaker {
     return headers;
   }
 
-  protected getHttpRequestArgs({ url, method, query: rawQuery = {}, body: rawBody = {}, headers, forceBodyMode }: IGetHttpRequestArgs) {
+  protected getHttpRequestArgs({ url, method, query: rawQuery = {}, body: rawBody = {}, headers, forceBodyMode, enableAuth }: IGetHttpRequestArgs) {
     let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
@@ -169,10 +170,14 @@ export abstract class ClientRequestMaker {
 
     // OAuth signature should not include parameters when using multipart.
     const bodyType = forceBodyMode ?? RequestParamHelpers.autoDetectBodyType(url);
-    // OAuth needs body signature only if body is URL encoded.
-    const bodyInSignature = ClientRequestMaker.BODY_METHODS.has(method) && bodyType === 'url';
 
-    headers = this.writeAuthHeaders({ headers, bodyInSignature, url, method, query, body: rawBody });
+    // If undefined or true, enable auth by headers
+    if (enableAuth !== false) {
+      // OAuth needs body signature only if body is URL encoded.
+      const bodyInSignature = ClientRequestMaker.BODY_METHODS.has(method) && bodyType === 'url';
+
+      headers = this.writeAuthHeaders({ headers, bodyInSignature, url, method, query, body: rawBody });
+    }
 
     if (ClientRequestMaker.BODY_METHODS.has(method)) {
       body = RequestParamHelpers.constructBodyParams(rawBody, headers, bodyType) || undefined;

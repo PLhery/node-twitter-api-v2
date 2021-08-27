@@ -31,6 +31,17 @@ import {
   TweetV2SingleStreamResult,
   TweetV2PaginableListParams,
   Tweetv2ListResult,
+  SpaceV2FieldsParams,
+  SpaceV2LookupResult,
+  SpaceV2CreatorLookupParams,
+  SpaceV2SearchParams,
+  SpaceV2SingleResult,
+  BatchComplianceSearchV2Params,
+  BatchComplianceListV2Result,
+  BatchComplianceV2Result,
+  BatchComplianceV2Params,
+  BatchComplianceV2JobResult,
+  BatchComplianceJobV2,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -303,6 +314,40 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
     });
   }
 
+  /* Spaces */
+
+  /**
+   * Get a single space by ID.
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
+   */
+  public space(spaceId: string, options: Partial<SpaceV2FieldsParams> = {}) {
+    return this.get<SpaceV2SingleResult>(`spaces/${spaceId}`, options);
+  }
+
+  /**
+   * Get spaces using their IDs.
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
+   */
+  public spaces(spaceIds: string | string[], options: Partial<SpaceV2FieldsParams> = {}) {
+    return this.get<SpaceV2LookupResult>('spaces', { ids: spaceIds, ...options });
+  }
+
+  /**
+   * Get spaces using their creator user ID(s). (no pagination available)
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
+   */
+  public spacesByCreators(creatorIds: string | string[], options: Partial<SpaceV2CreatorLookupParams> = {}) {
+    return this.get<SpaceV2LookupResult>('spaces/by/creator_ids', { user_ids: creatorIds, ...options });
+  }
+
+  /**
+   * Search through spaces using multiple params. (no pagination available)
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/search/api-reference/get-spaces-search
+   */
+  public searchSpaces(options: SpaceV2SearchParams) {
+    return this.get<SpaceV2LookupResult>('spaces/search', options as Partial<SpaceV2SearchParams>);
+  }
+
   /* Streaming API */
 
   /**
@@ -343,5 +388,75 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public sampleStream(options: Partial<Tweetv2FieldsParams> = {}) {
     return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
+  }
+
+  /* Batch compliance */
+
+  /**
+   * Returns a list of recent compliance jobs.
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs
+   */
+  public complianceJobs(options: BatchComplianceSearchV2Params) {
+    return this.get<BatchComplianceListV2Result>('compliance/jobs', options as Partial<BatchComplianceSearchV2Params>);
+  }
+
+  /**
+   * Get a single compliance job with the specified ID.
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs-id
+   */
+  public complianceJob(jobId: string) {
+    return this.get<BatchComplianceV2Result>(`compliance/jobs/${jobId}`);
+  }
+
+  /**
+   * Creates a new compliance job for Tweet IDs or user IDs, send your file, await result and parse it into an array.
+   * You can run one batch job at a time. Returns the created job, but **not the job result!**.
+   *
+   * You can obtain the result (**after job is completed**) with `.complianceJobResult`.
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/post-compliance-jobs
+   */
+  public async sendComplianceJob(jobParams: BatchComplianceV2Params) {
+    const job = await this.post<BatchComplianceV2Result>('compliance/jobs', { type: jobParams.type, name: jobParams.name });
+
+    // Send the IDs
+    const rawIdsBody = jobParams.ids instanceof Buffer ? jobParams.ids : Buffer.from(jobParams.ids.join('\n'));
+    // Upload the IDs
+    await this.put<void>(job.data.upload_url, rawIdsBody, {
+      forceBodyMode: 'raw',
+      enableAuth: false,
+      headers: { 'Content-Type': 'text/plain' },
+      prefix: '',
+    });
+
+    return job;
+  }
+
+  /**
+   * Get the result of a running or completed job, obtained through `.complianceJob`, `.complianceJobs` or `.sendComplianceJob`.
+   * If job is still running (`in_progress`), it will await until job is completed. **This could be quite long!**
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/post-compliance-jobs
+   */
+  public async complianceJobResult(job: BatchComplianceJobV2) {
+    let runningJob = job;
+    while (runningJob.status !== 'complete') {
+      if (runningJob.status === 'expired' || runningJob.status === 'failed') {
+        throw new Error('Job failed to be completed.');
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 3500));
+      runningJob = (await this.complianceJob(job.id)).data;
+    }
+
+    // Download and parse result
+    const result = await this.get<string>(job.download_url, undefined, {
+      enableAuth: false,
+      prefix: '',
+    });
+
+    return result
+      .trim()
+      .split('\n')
+      .filter(line => line)
+      .map(line => JSON.parse(line)) as BatchComplianceV2JobResult[];
   }
 }

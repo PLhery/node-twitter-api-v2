@@ -24,6 +24,7 @@
     "test-media": "npm run mocha test/media-upload.test.ts",
     "test-auth": "npm run mocha test/auth.test.ts",
     "test-dm": "npm run mocha test/dm.*.test.ts",
+    "test-space": "npm run mocha test/space.v2.test.ts",
     "test-account": "npm run mocha test/account.*.test.ts",
     "prepublish": "npm run build"
   },
