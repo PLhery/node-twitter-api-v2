@@ -111,6 +111,8 @@ const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/
 
 You want **to know more about client usage? See [the Basics](./doc/basics.md)**!
 
+This lib also provide a bunch of helpers to work around Twitter API responses. See [the helpers part here](./doc/helpers.md).
+
 ### Examples
 
 Wanna see that in action? Jump to [Examples part](./doc/examples.md).

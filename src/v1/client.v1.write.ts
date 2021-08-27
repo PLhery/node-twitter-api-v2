@@ -9,9 +9,18 @@ import {
   TUploadableMedia,
   TweetV1,
   UploadMediaV1Params,
+  UserV1,
+  ReportSpamV1Params,
+  AccountSettingsV1,
+  AccountSettingsV1Params,
+  ProfileBannerUpdateV1Params,
+  ProfileImageUpdateV1Params,
+  AccountProfileV1Params,
+  FriendshipV1,
+  FriendshipUpdateV1Params,
 } from '../types';
 import * as fs from 'fs';
-import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
+import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
 
 const UPLOAD_ENDPOINT = 'media/upload.json';
 
@@ -52,6 +61,84 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       in_reply_to_status_id,
       ...payload,
     });
+  }
+
+  /**
+   * Delete an existing tweet belonging to you.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-destroy-id
+   */
+  public deleteTweet(tweetId: string) {
+    return this.post<TweetV1>(`statuses/destroy/${tweetId}.json`, { tweet_mode: 'extended' });
+  }
+
+  /* User API */
+
+  /**
+   * Report the specified user as a spam account to Twitter.
+   * Additionally, optionally performs the equivalent of POST blocks/create on behalf of the authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/post-users-report_spam
+   */
+  public reportUserAsSpam(options: ReportSpamV1Params) {
+    return this.post<UserV1>('users/report_spam.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Turn on/off Retweets and device notifications from the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-update
+   */
+  public updateFriendship(options: Partial<FriendshipUpdateV1Params>) {
+    return this.post<FriendshipV1>('friendships/update.json', options);
+  }
+
+  /* Account API */
+
+  /**
+   * Update current account settings for authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-settings
+   */
+  public updateAccountSettings(options: Partial<AccountSettingsV1Params>) {
+    return this.post<AccountSettingsV1>('account/settings.json', options);
+  }
+
+  /**
+   * Sets some values that users are able to set under the "Account" tab of their settings page.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile
+   */
+  public updateAccountProfile(options: Partial<AccountProfileV1Params>) {
+    return this.post<UserV1>('account/update_profile.json', options);
+  }
+
+  /**
+   * Uploads a profile banner on behalf of the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner
+   */
+  public async updateAccountProfileBanner(file: TUploadableMedia, options: Partial<ProfileBannerUpdateV1Params> = {}) {
+    const queryParams = {
+      banner: await readFileIntoBuffer(file),
+      ...options,
+    };
+    return this.post<void>('account/update_profile_banner.json', queryParams, { forceBodyMode: 'form-data' });
+  }
+
+  /**
+   * Updates the authenticating user's profile image.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
+   */
+  public async updateAccountProfileImage(file: TUploadableMedia, options: Partial<ProfileImageUpdateV1Params> = {}) {
+    const queryParams = {
+      tweet_mode: 'extended',
+      image: await readFileIntoBuffer(file),
+      ...options,
+    };
+    return this.post<UserV1>('account/update_profile_image.json', queryParams, { forceBodyMode: 'form-data' });
+  }
+
+  /**
+   * Removes the uploaded profile banner for the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-remove_profile_banner
+   */
+  public removeAccountProfileBanner() {
+    return this.post<void>('account/remove_profile_banner.json');
   }
 
   /* Media upload API */

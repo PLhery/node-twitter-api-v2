@@ -7,6 +7,25 @@ import type { TUploadableMedia, TUploadTypeV1 } from '../types';
 
 export type TFileHandle = fs.promises.FileHandle | number | Buffer;
 
+export async function readFileIntoBuffer(file: TUploadableMedia) {
+  const handle = await getFileHandle(file);
+
+  if (typeof handle === 'number') {
+    return new Promise<Buffer>((resolve, reject) => {
+      fs.readFile(handle, (err, data) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(data);
+      });
+    });
+  } else if (handle instanceof Buffer) {
+    return handle;
+  } else {
+    return handle.readFile();
+  }
+}
+
 export function getFileHandle(file: TUploadableMedia) {
   if (typeof file === 'string') {
     return fs.promises.open(file, 'r');

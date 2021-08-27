@@ -24,14 +24,75 @@ import {
   TweetV1UserTimelineParams,
   TweetV1,
   MediaStatusV1Result,
+  OembedTweetV1Params,
+  OembedTweetV1Result,
+  MuteUserListV1Result,
+  MuteUserListV1Params,
+  MuteUserIdsV1Result,
+  MuteUserIdsV1Params,
+  UserSearchV1Params,
+  AccountSettingsV1,
+  ProfileBannerSizeV1,
+  ProfileBannerSizeV1Params,
+  FriendshipLookupV1Params,
+  FriendshipLookupV1,
+  FriendshipShowV1Params,
+  FriendshipV1,
+  FriendshipsIncomingV1Params,
+  FriendshipsIncomingV1Result,
+  UserShowV1Params,
+  UserLookupV1Params,
+  TweetShowV1Params,
+  TweetLookupV1Params,
+  TweetLookupNoMapV1Params,
+  TweetLookupMapV1Params,
+  TweetLookupMapV1Result,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
+import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
+import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 
 /**
  * Base Twitter v1 client with only read right.
  */
 export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
+
+  /* Tweets */
+
+  /**
+   * Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-show-id
+   */
+  public singleTweet(tweetId: string, options: Partial<TweetShowV1Params> = {}) {
+    return this.get<TweetV1>('statuses/show.json', { tweet_mode: 'extended', id: tweetId, ...options });
+  }
+
+  /**
+   * Returns fully-hydrated Tweet objects for up to 100 Tweets per request.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup
+   */
+  public tweets(ids: string | string[], options?: TweetLookupNoMapV1Params): Promise<UserV1[]>;
+  public tweets(ids: string | string[], options: TweetLookupMapV1Params): Promise<TweetLookupMapV1Result>;
+  public tweets(ids: string | string[], options: Partial<TweetLookupV1Params> = {}) {
+    return this.post<UserV1[] | TweetLookupMapV1Result>('statuses/lookup.json', { tweet_mode: 'extended', id: ids, ...options });
+  }
+
+  /**
+   * Returns a single Tweet, specified by either a Tweet web URL or the Tweet ID, in an oEmbed-compatible format.
+   * The returned HTML snippet will be automatically recognized as an Embedded Tweet when Twitter's widget JavaScript is included on the page.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-oembed
+   */
+  public oembedTweet(tweetId: string, options: Partial<OembedTweetV1Params> = {}) {
+    return this.get<OembedTweetV1Result>(
+      'oembed',
+      {
+        url: `https://twitter.com/i/statuses/${tweetId}`,
+        ...options,
+      },
+      { prefix: 'https://publish.twitter.com/' },
+    );
+  }
 
   /* Tweets timelines */
 
@@ -120,6 +181,24 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   /* Users */
 
   /**
+   * Returns a variety of information about the user specified by the required user_id or screen_name parameter.
+   * The author's most recent Tweet will be returned inline when possible.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-show
+   */
+  public user(user: UserShowV1Params) {
+    return this.get<UserV1>('users/show.json', { tweet_mode: 'extended', ...user });
+  }
+
+  /**
+   * Returns fully-hydrated user objects for up to 100 users per request,
+   * as specified by comma-separated values passed to the user_id and/or screen_name parameters.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-lookup
+   */
+  public users(query: UserLookupV1Params) {
+    return this.get<UserV1[]>('users/lookup.json', { tweet_mode: 'extended', ...query });
+  }
+
+  /**
    * Returns an HTTP 200 OK response code and a representation of the requesting user if authentication was successful;
    * returns a 401 status code and an error message if not.
    * Use this method to test if supplied user credentials are valid.
@@ -127,6 +206,148 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public verifyCredentials(options: Partial<VerifyCredentialsV1Params> = {}) {
     return this.get<UserV1>('account/verify_credentials.json', options);
+  }
+
+  /**
+   * Returns an array of user objects the authenticating user has muted.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/get-mutes-users-list
+   */
+  public async listMutedUsers(options: Partial<MuteUserListV1Params> = {}) {
+    const queryParams: Partial<MuteUserListV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<MuteUserListV1Result>('mutes/users/list.json', queryParams, { fullResponse: true });
+
+    return new MuteUserListV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns an array of numeric user ids the authenticating user has muted.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/get-mutes-users-ids
+   */
+  public async listMutedUserIds(options: Partial<MuteUserIdsV1Params> = {}) {
+    const queryParams: Partial<MuteUserIdsV1Params> = {
+      stringify_ids: true,
+      ...options,
+    };
+    const initialRq = await this.get<MuteUserIdsV1Result>('mutes/users/ids.json', queryParams, { fullResponse: true });
+
+    return new MuteUserIdsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Provides a simple, relevance-based search interface to public user accounts on Twitter.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-search
+   */
+  public async searchUsers(query: string, options: Partial<UserSearchV1Params> = {}) {
+    const queryParams: Partial<UserSearchV1Params> = {
+      q: query,
+      tweet_mode: 'extended',
+      page: 1,
+      ...options,
+    };
+    const initialRq = await this.get<UserV1[]>('users/search.json', queryParams, { fullResponse: true });
+
+    return new UserSearchV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /* Friendship API */
+
+  /**
+   * Returns detailed information about the relationship between two arbitrary users.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show
+   */
+  public friendship(sources: FriendshipShowV1Params) {
+    return this.get<FriendshipV1>('friendships/show.json', sources as Partial<FriendshipShowV1Params>);
+  }
+
+  /**
+   * Returns the relationships of the authenticating user to the comma-separated list of up to 100 screen_names or user_ids provided.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-lookup
+   */
+  public friendships(friendships: FriendshipLookupV1Params) {
+    return this.get<FriendshipLookupV1[]>('friendships/lookup.json', friendships as Partial<FriendshipLookupV1Params>);
+  }
+
+  /**
+   * Returns a collection of user_ids that the currently authenticated user does not want to receive retweets from.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-no_retweets-ids
+   */
+  public friendshipsNoRetweets() {
+    return this.get<string[]>('friendships/no_retweets/ids.json', { stringify_ids: true });
+  }
+
+  /**
+   * Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-incoming
+   */
+  public async friendshipsIncoming(options: Partial<FriendshipsIncomingV1Params> = {}) {
+    const queryParams: Partial<FriendshipsIncomingV1Params> = {
+      stringify_ids: true,
+      ...options,
+    };
+    const initialRq = await this.get<FriendshipsIncomingV1Result>('friendships/incoming.json', queryParams, { fullResponse: true });
+
+    return new FriendshipsIncomingV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns a collection of numeric IDs for every protected user for whom the authenticating user has a pending follow request.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-outgoing
+   */
+  public async friendshipsOutgoing(options: Partial<FriendshipsIncomingV1Params> = {}) {
+    const queryParams: Partial<FriendshipsIncomingV1Params> = {
+      stringify_ids: true,
+      ...options,
+    };
+    const initialRq = await this.get<FriendshipsIncomingV1Result>('friendships/outgoing.json', queryParams, { fullResponse: true });
+
+    return new FriendshipsOutgoingV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /* Account/user API */
+
+  /**
+   * Get current account settings for authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-settings
+   */
+  public accountSettings() {
+    return this.get<AccountSettingsV1>('account/settings.json');
+  }
+
+  /**
+   * Returns a map of the available size variations of the specified user's profile banner.
+   * If the user has not uploaded a profile banner, a HTTP 404 will be served instead.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-users-profile_banner
+   */
+  public userProfileBannerSizes(params: ProfileBannerSizeV1Params) {
+    return this.get<ProfileBannerSizeV1>('users/profile_banner.json', params);
   }
 
   /* Media upload API */
