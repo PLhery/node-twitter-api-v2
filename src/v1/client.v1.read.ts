@@ -42,6 +42,11 @@ import {
   FriendshipsIncomingV1Result,
   UserShowV1Params,
   UserLookupV1Params,
+  TweetShowV1Params,
+  TweetLookupV1Params,
+  TweetLookupNoMapV1Params,
+  TweetLookupMapV1Params,
+  TweetLookupMapV1Result,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
@@ -54,6 +59,24 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   protected _prefix = API_V1_1_PREFIX;
 
   /* Tweets */
+
+  /**
+   * Returns a single Tweet, specified by the id parameter. The Tweet's author will also be embedded within the Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-show-id
+   */
+  public singleTweet(tweetId: string, options: Partial<TweetShowV1Params> = {}) {
+    return this.get<TweetV1>('statuses/show.json', { tweet_mode: 'extended', id: tweetId, ...options });
+  }
+
+  /**
+   * Returns fully-hydrated Tweet objects for up to 100 Tweets per request.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup
+   */
+  public tweets(ids: string | string[], options?: TweetLookupNoMapV1Params): Promise<UserV1[]>;
+  public tweets(ids: string | string[], options: TweetLookupMapV1Params): Promise<TweetLookupMapV1Result>;
+  public tweets(ids: string | string[], options: Partial<TweetLookupV1Params> = {}) {
+    return this.post<UserV1[] | TweetLookupMapV1Result>('statuses/lookup.json', { tweet_mode: 'extended', id: ids, ...options });
+  }
 
   /**
    * Returns a single Tweet, specified by either a Tweet web URL or the Tweet ID, in an oEmbed-compatible format.

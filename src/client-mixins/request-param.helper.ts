@@ -124,7 +124,9 @@ export class RequestParamHelpers {
         const bodyProp = (body as any)[prop];
 
         if (this.isOAuthSerializable(bodyProp)) {
-          parameters[prop] = bodyProp;
+          parameters[prop] = typeof bodyProp === 'object' && bodyProp !== null && 'toString' in bodyProp
+            ? bodyProp.toString()
+            : bodyProp;
         }
       }
     }

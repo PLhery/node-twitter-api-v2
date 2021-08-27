@@ -44,9 +44,27 @@ export interface TweetV1 {
   withheld_copyright?: boolean;
   withheld_in_countries?: string[];
   withheld_scope?: string;
+  card_uri?: string;
 }
 
 // - Params -
+
+export interface TweetShowV1Params {
+  tweet_mode?: 'compat' | 'extended';
+  id?: string;
+  trim_user?: boolean;
+  include_my_retweet?: boolean;
+  include_entities?: boolean;
+  include_ext_alt_text?: boolean;
+  include_card_uri?: boolean;
+}
+
+export type TweetLookupV1Params = {
+  id?: string | string[];
+  map?: boolean;
+} & Omit<TweetShowV1Params, 'include_my_retweet'>;
+export type TweetLookupNoMapV1Params = TweetLookupV1Params & { map?: false };
+export type TweetLookupMapV1Params = TweetLookupV1Params & { map: true };
 
 export interface AskTweetV1Params {
   tweet_mode?: 'extended' | 'compat';
@@ -170,4 +188,10 @@ export interface OembedTweetV1Result {
   provider_name: string;
   provider_url: string;
   version: string;
+}
+
+export interface TweetLookupMapV1Result {
+  id: {
+    [tweetId: string]: TweetV1 | null;
+  };
 }

@@ -44,6 +44,7 @@ export interface MediaEntityV1 {
   type: 'photo' | 'video' | 'animated_gif';
   video_info?: MediaVideoInfoV1;
   additional_media_info?: AdditionalMediaInfoV1;
+  ext_alt_text?: string;
 }
 
 export interface MediaVideoInfoV1 {
