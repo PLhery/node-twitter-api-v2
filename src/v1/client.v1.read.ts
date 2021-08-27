@@ -34,10 +34,18 @@ import {
   AccountSettingsV1,
   ProfileBannerSizeV1,
   ProfileBannerSizeV1Params,
+  FriendshipLookupV1Params,
+  FriendshipLookupV1,
+  FriendshipShowV1Params,
+  FriendshipV1,
+  FriendshipsIncomingV1Params,
+  FriendshipsIncomingV1Result,
+  UserShowV1Params,
+  UserLookupV1Params,
 } from '../types';
 import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
-import { UserSearchV1Paginator } from '../paginators/user.paginator.v1';
+import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -150,6 +158,24 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
   /* Users */
 
   /**
+   * Returns a variety of information about the user specified by the required user_id or screen_name parameter.
+   * The author's most recent Tweet will be returned inline when possible.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-show
+   */
+  public user(user: UserShowV1Params) {
+    return this.get<UserV1>('users/show.json', { tweet_mode: 'extended', ...user });
+  }
+
+  /**
+   * Returns fully-hydrated user objects for up to 100 users per request,
+   * as specified by comma-separated values passed to the user_id and/or screen_name parameters.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-users-lookup
+   */
+  public users(query: UserLookupV1Params) {
+    return this.get<UserV1[]>('users/lookup.json', { tweet_mode: 'extended', ...query });
+  }
+
+  /**
    * Returns an HTTP 200 OK response code and a representation of the requesting user if authentication was successful;
    * returns a 401 status code and an error message if not.
    * Use this method to test if supplied user credentials are valid.
@@ -211,6 +237,70 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     const initialRq = await this.get<UserV1[]>('users/search.json', queryParams, { fullResponse: true });
 
     return new UserSearchV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /* Friendship API */
+
+  /**
+   * Returns detailed information about the relationship between two arbitrary users.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-show
+   */
+  public friendship(sources: FriendshipShowV1Params) {
+    return this.get<FriendshipV1>('friendships/show.json', sources as Partial<FriendshipShowV1Params>);
+  }
+
+  /**
+   * Returns the relationships of the authenticating user to the comma-separated list of up to 100 screen_names or user_ids provided.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-lookup
+   */
+  public friendships(friendships: FriendshipLookupV1Params) {
+    return this.get<FriendshipLookupV1[]>('friendships/lookup.json', friendships as Partial<FriendshipLookupV1Params>);
+  }
+
+  /**
+   * Returns a collection of user_ids that the currently authenticated user does not want to receive retweets from.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-no_retweets-ids
+   */
+  public friendshipsNoRetweets() {
+    return this.get<string[]>('friendships/no_retweets/ids.json', { stringify_ids: true });
+  }
+
+  /**
+   * Returns a collection of numeric IDs for every user who has a pending request to follow the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-incoming
+   */
+  public async friendshipsIncoming(options: Partial<FriendshipsIncomingV1Params> = {}) {
+    const queryParams: Partial<FriendshipsIncomingV1Params> = {
+      stringify_ids: true,
+      ...options,
+    };
+    const initialRq = await this.get<FriendshipsIncomingV1Result>('friendships/incoming.json', queryParams, { fullResponse: true });
+
+    return new FriendshipsIncomingV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns a collection of numeric IDs for every protected user for whom the authenticating user has a pending follow request.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friendships-outgoing
+   */
+  public async friendshipsOutgoing(options: Partial<FriendshipsIncomingV1Params> = {}) {
+    const queryParams: Partial<FriendshipsIncomingV1Params> = {
+      stringify_ids: true,
+      ...options,
+    };
+    const initialRq = await this.get<FriendshipsIncomingV1Result>('friendships/outgoing.json', queryParams, { fullResponse: true });
+
+    return new FriendshipsOutgoingV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,

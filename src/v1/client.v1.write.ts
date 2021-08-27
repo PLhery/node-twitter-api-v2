@@ -16,6 +16,8 @@ import {
   ProfileBannerUpdateV1Params,
   ProfileImageUpdateV1Params,
   AccountProfileV1Params,
+  FriendshipV1,
+  FriendshipUpdateV1Params,
 } from '../types';
 import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
@@ -78,6 +80,14 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    */
   public reportUserAsSpam(options: ReportSpamV1Params) {
     return this.post<UserV1>('users/report_spam.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Turn on/off Retweets and device notifications from the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-update
+   */
+  public updateFriendship(options: Partial<FriendshipUpdateV1Params>) {
+    return this.post<FriendshipV1>('friendships/update.json', options);
   }
 
   /* Account API */

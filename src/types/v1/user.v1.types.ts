@@ -33,6 +33,26 @@ export interface UserV1 {
 
 // - Params -
 
+type TUserIdOrScreenName = { user_id: string } | { screen_name: string };
+type TUserObjectParams = {
+  include_entities?: boolean;
+  skip_status?: boolean;
+  tweet_mode?: 'extended' | 'compat';
+};
+
+export interface DoubleEndedIdCursorV1Result {
+  next_cursor?: string;
+  next_cursor_str?: string;
+  previous_cursor?: string;
+  previous_cursor_str?: string;
+  ids: string[];
+}
+
+export interface DoubleEndedIdCursorV1Params {
+  stringify_ids?: boolean;
+  cursor?: string;
+}
+
 export interface VerifyCredentialsV1Params {
   include_entities?: boolean;
   skip_status?: boolean;
@@ -48,10 +68,7 @@ export interface MuteUserListV1Params {
 }
 
 // GET mutes/users/ids
-export interface MuteUserIdsV1Params {
-  stringify_ids?: boolean;
-  cursor?: string;
-}
+export interface MuteUserIdsV1Params extends DoubleEndedIdCursorV1Params {}
 
 // POST users/report_spam
 export interface ReportSpamV1Params {
@@ -91,7 +108,7 @@ export interface AccountProfileV1Params {
 }
 
 // GET users/profile_banner
-export type ProfileBannerSizeV1Params = { user_id: string } | { screen_name: string };
+export type ProfileBannerSizeV1Params = TUserIdOrScreenName;
 
 // POST account/update_profile_banner
 export interface ProfileBannerUpdateV1Params {
@@ -102,11 +119,34 @@ export interface ProfileBannerUpdateV1Params {
 }
 
 // POST account/update_profile_image
-export interface ProfileImageUpdateV1Params {
-  include_entities?: boolean;
-  skip_status?: boolean;
-  tweet_mode?: 'extended';
+export type ProfileImageUpdateV1Params = TUserObjectParams;
+
+export interface FriendshipShowV1Params {
+  source_id?: string;
+  source_screen_name?: string;
+  target_id?: string;
+  target_screen_name?: string;
 }
+
+export interface FriendshipLookupV1Params {
+  screen_name?: string | string[];
+  user_id?: string | string[];
+}
+
+export interface FriendshipsIncomingV1Params extends DoubleEndedIdCursorV1Params {}
+
+export interface FriendshipUpdateV1Params {
+  screen_name?: string;
+  user_id?: string;
+  device?: boolean;
+  retweets?: boolean;
+}
+
+export type UserShowV1Params = TUserIdOrScreenName & TUserObjectParams;
+export type UserLookupV1Params = {
+  user_id?: string | string[];
+  screen_name?: string | string[];
+} & TUserObjectParams;
 
 // - Results -
 
@@ -120,13 +160,7 @@ export interface MuteUserListV1Result {
 }
 
 // GET mutes/users/ids
-export interface MuteUserIdsV1Result {
-  next_cursor?: string;
-  next_cursor_str?: string;
-  previous_cursor?: string;
-  previous_cursor_str?: string;
-  ids: string[];
-}
+export interface MuteUserIdsV1Result extends DoubleEndedIdCursorV1Result {}
 
 // GET users/profile_banner
 export interface BannerSizeV1 {
@@ -187,3 +221,42 @@ export interface AccountSettingsV1 {
     country: string;
   }[];
 }
+
+export type TFriendshipConnectionV1 = 'following' | 'following_requested' | 'followed_by' | 'none' | 'blocking' | 'muting';
+
+export interface FriendshipRelationObjectV1 {
+  id: number;
+  id_str: string;
+  screen_name: string;
+  following: boolean;
+  followed_by: boolean;
+  live_following?: boolean;
+  following_received: boolean | null;
+  following_requested: boolean | null;
+  notifications_enabled?: boolean | null;
+  can_dm?: boolean | null;
+  blocking?: boolean | null;
+  blocked_by?: boolean | null;
+  muting?: boolean | null;
+  want_retweets?: boolean | null;
+  all_replies?: boolean | null;
+  marked_spam?: boolean | null;
+}
+
+export interface FriendshipV1 {
+  relationship: {
+    source: FriendshipRelationObjectV1;
+    target: FriendshipRelationObjectV1;
+  };
+}
+
+export interface FriendshipLookupV1 {
+  name: string;
+  screen_name: string;
+  id: number;
+  id_str: string;
+  connections: TFriendshipConnectionV1[];
+}
+
+// GET friendships/incoming
+export interface FriendshipsIncomingV1Result extends DoubleEndedIdCursorV1Result {}
