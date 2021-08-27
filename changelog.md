@@ -1,3 +1,14 @@
+1.4.0
+-----
+- Feat: Add every oauth/authenticate parameters #54 - thanks to @tbhmens
+- Fix: Set allowSyntheticDefaultImport to false to improve compat #57 - thanks to @PLHery
+- Feat: Add missing tweet.field items in type enumeration #60 - thanks to @filippkowalski
+- Doc: Add info about error handling #61
+- Feat: Endpoint wrappers for v2 Spaces endpoints #62
+- Feat: Endpoint wrappers for v2 Batch Compliance endpoints #62
+- Feat: Types & wrappers for account, friendships, users and tweets v1.1 endpoints #64
+- Fix: Incorrect encoding of '*' character in query strings #63 #64
+
 1.3.0
 -----
 - Doc: Improve rate-limit documentation #47 #32
