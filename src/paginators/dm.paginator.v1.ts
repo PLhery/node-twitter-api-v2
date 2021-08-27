@@ -1,7 +1,7 @@
 import type { GetDmListV1Args, ReceivedDMEventsV1, TReceivedDMEvent, TwitterResponse, ReceivedWelcomeDMCreateEventV1, WelcomeDirectMessageListV1Result } from '../types';
-import TwitterPaginator from './TwitterPaginator';
+import { CursoredV1Paginator } from './paginator.v1';
 
-export class DmEventsV1Paginator extends TwitterPaginator<ReceivedDMEventsV1, GetDmListV1Args, TReceivedDMEvent> {
+export class DmEventsV1Paginator extends CursoredV1Paginator<ReceivedDMEventsV1, GetDmListV1Args, TReceivedDMEvent> {
   protected _endpoint = 'direct_messages/events/list.json';
 
   protected refreshInstanceFromResult(response: TwitterResponse<ReceivedDMEventsV1>, isNextPage: true) {
@@ -14,20 +14,8 @@ export class DmEventsV1Paginator extends TwitterPaginator<ReceivedDMEventsV1, Ge
     }
   }
 
-  protected getNextQueryParams(maxResults?: number): GetDmListV1Args {
-    return {
-      ...this._queryParams,
-      cursor: this._realData.next_cursor,
-      ...(maxResults ? { count: maxResults } : {}),
-    };
-  }
-
   protected getPageLengthFromRequest(result: TwitterResponse<ReceivedDMEventsV1>) {
     return result.data.events.length;
-  }
-
-  protected isFetchLastOver(result: TwitterResponse<ReceivedDMEventsV1>) {
-    return result.data.next_cursor === undefined;
   }
 
   protected getItemArray() {
@@ -42,7 +30,7 @@ export class DmEventsV1Paginator extends TwitterPaginator<ReceivedDMEventsV1, Ge
   }
 }
 
-export class WelcomeDmV1Paginator extends TwitterPaginator<WelcomeDirectMessageListV1Result, GetDmListV1Args, ReceivedWelcomeDMCreateEventV1> {
+export class WelcomeDmV1Paginator extends CursoredV1Paginator<WelcomeDirectMessageListV1Result, GetDmListV1Args, ReceivedWelcomeDMCreateEventV1> {
   protected _endpoint = 'direct_messages/welcome_messages/list.json';
 
   protected refreshInstanceFromResult(response: TwitterResponse<WelcomeDirectMessageListV1Result>, isNextPage: true) {
@@ -55,20 +43,8 @@ export class WelcomeDmV1Paginator extends TwitterPaginator<WelcomeDirectMessageL
     }
   }
 
-  protected getNextQueryParams(maxResults?: number): GetDmListV1Args {
-    return {
-      ...this._queryParams,
-      cursor: this._realData.next_cursor,
-      ...(maxResults ? { count: maxResults } : {}),
-    };
-  }
-
   protected getPageLengthFromRequest(result: TwitterResponse<WelcomeDirectMessageListV1Result>) {
     return result.data.welcome_messages.length;
-  }
-
-  protected isFetchLastOver(result: TwitterResponse<WelcomeDirectMessageListV1Result>) {
-    return result.data.next_cursor === undefined;
   }
 
   protected getItemArray() {

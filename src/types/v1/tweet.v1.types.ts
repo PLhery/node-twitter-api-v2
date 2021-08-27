@@ -44,9 +44,27 @@ export interface TweetV1 {
   withheld_copyright?: boolean;
   withheld_in_countries?: string[];
   withheld_scope?: string;
+  card_uri?: string;
 }
 
 // - Params -
+
+export interface TweetShowV1Params {
+  tweet_mode?: 'compat' | 'extended';
+  id?: string;
+  trim_user?: boolean;
+  include_my_retweet?: boolean;
+  include_entities?: boolean;
+  include_ext_alt_text?: boolean;
+  include_card_uri?: boolean;
+}
+
+export type TweetLookupV1Params = {
+  id?: string | string[];
+  map?: boolean;
+} & Omit<TweetShowV1Params, 'include_my_retweet'>;
+export type TweetLookupNoMapV1Params = TweetLookupV1Params & { map?: false };
+export type TweetLookupMapV1Params = TweetLookupV1Params & { map: true };
 
 export interface AskTweetV1Params {
   tweet_mode?: 'extended' | 'compat';
@@ -103,7 +121,29 @@ export interface MediaSubtitleV1Param {
   display_name: string;
 }
 
+/**
+ * Link to a file that is usable as media.
+ * - `string`: File path
+ * - `Buffer`: File content, as binary buffer
+ * - `fs.promises.FileHandle`: Opened file with `fs.promises`
+ * - `number`: Opened file with `fs` classic functions
+ */
 export type TUploadableMedia = string | Buffer | fs.promises.FileHandle | number;
+
+export interface OembedTweetV1Params {
+  url: string;
+  maxwidth?: number;
+  hide_media?: boolean;
+  hide_thread?: boolean;
+  omit_script?: boolean;
+  align?: 'left' | 'right' | 'center' | 'none';
+  related?: string;
+  lang?: string;
+  theme?: 'light' | 'dark';
+  link_color?: string;
+  widget_type?: 'video';
+  dnt?: boolean;
+}
 
 // - Results -
 
@@ -136,4 +176,22 @@ export interface MediaStatusV1Result {
   };
 }
 
+export interface OembedTweetV1Result {
+  url: string;
+  author_name: string;
+  author_url: string;
+  html: string;
+  width: number;
+  height: number | null;
+  type: string;
+  cache_age: string;
+  provider_name: string;
+  provider_url: string;
+  version: string;
+}
 
+export interface TweetLookupMapV1Result {
+  id: {
+    [tweetId: string]: TweetV1 | null;
+  };
+}

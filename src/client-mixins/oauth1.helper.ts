@@ -80,7 +80,7 @@ export class OAuth1Helper {
 
     return {
       // Remove the last ,
-      Authorization: header_value.slice(0, header_value.length - 1) ,
+      Authorization: header_value.slice(0, header_value.length - 1),
     };
   }
 

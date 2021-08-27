@@ -53,8 +53,11 @@ export class RequestParamHelpers {
   }
 
   static constructGetParams(query: TRequestQuery) {
-    if (Object.keys(query).length)
-      return '?' + new URLSearchParams(query as Record<string, string>).toString();
+    if (Object.keys(query).length) {
+      return '?' + (new URLSearchParams(query as Record<string, string>)
+        .toString()
+        .replace(/\*/g, '%2A')); // URLSearchParams doesnt encode '*', but Twitter wants it encoded.
+    }
 
     return '';
   }
@@ -75,8 +78,11 @@ export class RequestParamHelpers {
     else if (mode === 'url') {
       headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
-      if (Object.keys(body).length)
-        return new URLSearchParams(body).toString();
+      if (Object.keys(body).length) {
+        return new URLSearchParams(body)
+          .toString()
+          .replace(/\*/g, '%2A'); // URLSearchParams doesnt encode '*', but Twitter wants it encoded.
+      }
 
       return '';
     }
@@ -124,7 +130,9 @@ export class RequestParamHelpers {
         const bodyProp = (body as any)[prop];
 
         if (this.isOAuthSerializable(bodyProp)) {
-          parameters[prop] = bodyProp;
+          parameters[prop] = typeof bodyProp === 'object' && bodyProp !== null && 'toString' in bodyProp
+            ? bodyProp.toString()
+            : bodyProp;
         }
       }
     }
