@@ -59,4 +59,18 @@ describe('Tweets endpoints for v1.1 API', () => {
     const embedTweet = await client.v1.oembedTweet('20');
     expect(embedTweet.html).to.be.a('string');
   }).timeout(60 * 1000);
+
+  it('.singleTweet/.tweets - Get multiple tweets', async () => {
+    const tweet = await client.v1.singleTweet('20');
+    expect(tweet.id_str).to.be.eq('20');
+
+    const tweets = await client.v1.tweets(['20', '12']);
+    expect(tweets).to.be.an('array');
+    expect(tweets).to.have.lengthOf(1);
+
+    const tweetMap = await client.v1.tweets(['20', '12'], { map: true });
+    expect(tweetMap).to.be.an('object');
+    expect(tweetMap.id[12]).to.equal(null);
+    expect(tweetMap.id[20]).to.be.an('object');
+  }).timeout(60 * 1000);
 });
