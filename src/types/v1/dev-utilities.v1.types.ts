@@ -24,14 +24,3 @@ export interface HelpLanguageV1Result {
   status: string;
   name: string;
 }
-
-export interface HelpConfigurationV1Result {
-  characters_reserved_per_media: number;
-  dm_text_character_limit: number;
-  max_media_per_upload: number;
-  photo_size_limit: number;
-  photo_sizes: MediaSizesV1;
-  short_url_length: number;
-  short_url_length_https: number;
-  non_username_paths: string[];
-}

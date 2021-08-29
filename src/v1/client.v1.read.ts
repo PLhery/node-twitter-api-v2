@@ -10,7 +10,6 @@ import {
   AppRateLimitV1Result,
   TAppRateLimitResourceV1,
   HelpLanguageV1Result,
-  HelpConfigurationV1Result,
   ReverseGeoCodeV1Params,
   ReverseGeoCodeV1Result,
   PlaceV1,
@@ -490,13 +489,5 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public supportedLanguages() {
     return this.get<HelpLanguageV1Result[]>('help/languages.json');
-  }
-
-  /**
-   * Returns the current configuration used by Twitter including twitter.com slugs which are not usernames, maximum photo resolutions, and t.co shortened URL length.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/developer-utilities/configuration/api-reference/get-help-configuration
-   */
-  public twitterConfigurationLimits() {
-    return this.get<HelpConfigurationV1Result>('help/configuration.json');
   }
 }
