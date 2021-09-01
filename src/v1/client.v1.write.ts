@@ -41,6 +41,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Post a new tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
   public tweet(status: string, payload: Partial<SendTweetV1Params> = {}) {
     const queryParams: Partial<SendTweetV1Params> = {
@@ -53,7 +54,8 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   /**
-   * Reply to an existing tweet.
+   * Reply to an existing tweet. Shortcut to `.tweet` with tweaked parameters.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
   public reply(status: string, in_reply_to_status_id: string, payload: Partial<SendTweetV1Params> = {}) {
     return this.tweet(status, {
