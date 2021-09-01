@@ -1,3 +1,9 @@
+1.4.1
+-----
+- Fix: Incorrect type union in MessageCreateAttachmentV1 & MessageCreateLocationV1
+- Doc: Added real-life examples
+- Doc: Add Twitter doc link to .tweet/.reply
+
 1.4.0
 -----
 - Feat: Add every oauth/authenticate parameters #54 - thanks to @tbhmens
