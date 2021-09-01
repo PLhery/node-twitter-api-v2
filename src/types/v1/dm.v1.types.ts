@@ -43,7 +43,7 @@ export interface MessageCreateQuickReplyV1 {
 export type MessageCreateAttachmentV1 = {
   type: 'media';
   media: { id: string };
-} & {
+} | {
   type: 'location';
   location: MessageCreateLocationV1;
 };
@@ -53,7 +53,7 @@ export type MessageCreateLocationV1 = {
   shared_coordinate: {
     coordinates: CoordinateV1;
   };
-} & {
+} | {
   type: 'shared_place';
   shared_place: {
     place: { id: string };
