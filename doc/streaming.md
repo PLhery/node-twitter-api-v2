@@ -2,7 +2,28 @@
 
 This lib supports streaming for v1 and v2 API.
 
-## Using streaming
+<!-- vscode-markdown-toc -->
+* [Using streaming](#Usingstreaming)
+* [Specific API v1.1 implementations](#SpecificAPIv1.1implementations)
+	* [Filter endpoint](#Filterendpoint)
+	* [Sample endpoint](#Sampleendpoint)
+* [Specific API v2 implementations](#SpecificAPIv2implementations)
+	* [Search endpoint](#Searchendpoint)
+	* [Search endpoint - Get applied rules](#Searchendpoint-Getappliedrules)
+	* [Search endpoint - Add or delete rules](#Searchendpoint-Addordeleterules)
+	* [Sample endpoint](#Sampleendpoint-1)
+* [Make a custom request](#Makeacustomrequest)
+* [`TweetStream` reference](#TweetStreamreference)
+	* [Methods / properties](#Methodsproperties)
+	* [Events](#Events)
+
+<!-- vscode-markdown-toc-config
+	numbering=false
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+## <a name='Usingstreaming'></a>Using streaming
 
 For both V1 and V2 APIs, streaming methods returns a `TweetStream` object.
 
@@ -70,11 +91,11 @@ for await (const { data } of stream) {
 }
 ```
 
-## Specific API v1.1 implementations
+## <a name='SpecificAPIv1.1implementations'></a>Specific API v1.1 implementations
 
 API v1.1 streaming-related endpoints works only with classic OAuth1.0a authentification.
 
-### Filter endpoint
+### <a name='Filterendpoint'></a>Filter endpoint
 
 Method: **`v1.filterStream`**.
 
@@ -96,7 +117,7 @@ const streamFilter = await client.v1.filterStream({
 // Event data will be tweets of v1 API.
 ```
 
-### Sample endpoint
+### <a name='Sampleendpoint'></a>Sample endpoint
 
 Method: **`v1.sampleStream`**.
 
@@ -114,11 +135,11 @@ const stream = await client.v1.sampleStream();
 // Event data will be tweets of v1 API.
 ```
 
-## Specific API v2 implementations
+## <a name='SpecificAPIv2implementations'></a>Specific API v2 implementations
 
 API v2 streaming-related endpoints works only with Bearer OAuth2 authentification.
 
-### Search endpoint
+### <a name='Searchendpoint'></a>Search endpoint
 
 Method: **`v2.searchStream`**.
 
@@ -136,7 +157,7 @@ const stream = await client.v2.searchStream();
 // Event data will be tweets of v2 API.
 ```
 
-### Search endpoint - Get applied rules
+### <a name='Searchendpoint-Getappliedrules'></a>Search endpoint - Get applied rules
 
 Method: **`v2.streamRules`**.
 
@@ -157,7 +178,7 @@ const rules = await client.v2.streamRules();
 console.log(rules.data.map(rule => rule.id));
 ```
 
-### Search endpoint - Add or delete rules
+### <a name='Searchendpoint-Addordeleterules'></a>Search endpoint - Add or delete rules
 
 Method: **`v2.updateStreamRules`**.
 
@@ -189,7 +210,7 @@ const deleteRules = await client.v2.updateStreamRules({
 });
 ```
 
-### Sample endpoint
+### <a name='Sampleendpoint-1'></a>Sample endpoint
 
 Method: **`v2.sampleStream`**.
 
@@ -207,7 +228,7 @@ const stream = await client.v2.sampleStream();
 // Event data will be tweets of v2 API.
 ```
 
-## Make a custom request
+## <a name='Makeacustomrequest'></a>Make a custom request
 
 If you know endpoint and parameters (or you don't want them to be parsed),
 you can make raw requests using shortcuts by HTTP methods:
@@ -229,9 +250,9 @@ const streamFilter = await client.v1.stream.getStream('statuses/filter.json', { 
 const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 ```
 
-## `TweetStream` reference
+## <a name='TweetStreamreference'></a>`TweetStream` reference
 
-### Methods / properties
+### <a name='Methodsproperties'></a>Methods / properties
 
 - `.autoReconnect: boolean` / defaults `false` / Set this to `true` to enable experimental reconnect feature.
 - `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by `min((attempt ** 2) * 1000, 25000)` milliseconds.
@@ -241,7 +262,7 @@ const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 - `.clone(): Promise<TweetStream>`: Returns a new `TweetStream` with the same request parameters, with the same event listeners bound.
 - `.reconnect(): Promise<void>`: Tries to make a new request to Twitter with the same original parameters. If successful, continue streaming with new response.
 
-### Events
+### <a name='Events'></a>Events
 
 All events are part of enum `ETwitterStreamEvent` exported by the package.
 
