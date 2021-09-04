@@ -5,6 +5,7 @@ import {
   TweetV1TimelineResult,
   TweetV1TimelineParams,
   TweetV1UserTimelineParams,
+  ListStatusesV1Params,
 } from '../types';
 
 /** A generic TwitterPaginator able to consume TweetV1 timelines. */
@@ -67,4 +68,9 @@ export class MentionTimelineV1Paginator extends TweetTimelineV1Paginator<TweetV1
 // User
 export class UserTimelineV1Paginator extends TweetTimelineV1Paginator<TweetV1TimelineResult, TweetV1UserTimelineParams> {
   protected _endpoint = 'statuses/user_timeline.json';
+}
+
+// Lists
+export class ListTimelineV1Paginator extends TweetTimelineV1Paginator<TweetV1TimelineResult, ListStatusesV1Params> {
+  protected _endpoint = 'lists/statuses.json';
 }
