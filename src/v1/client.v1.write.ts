@@ -18,9 +18,15 @@ import {
   AccountProfileV1Params,
   FriendshipV1,
   FriendshipUpdateV1Params,
+  ListV1,
+  ListCreateV1Params,
+  GetListV1Params,
+  AddOrRemoveListMembersV1Params,
+  UpdateListV1Params,
 } from '../types';
 import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
+import { hasMultipleItems } from '../helpers';
 
 const UPLOAD_ENDPOINT = 'media/upload.json';
 
@@ -141,6 +147,74 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    */
   public removeAccountProfileBanner() {
     return this.post<void>('account/remove_profile_banner.json');
+  }
+
+  /* Lists */
+
+  /**
+   * Creates a new list for the authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-create
+   */
+  public createList(options: ListCreateV1Params) {
+    return this.post<ListV1>('lists/create.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Updates the specified list. The authenticated user must own the list to be able to update it.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-update
+   */
+  public updateList(options: UpdateListV1Params) {
+    return this.post<ListV1>('lists/update.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Deletes the specified list. The authenticated user must own the list to be able to destroy it.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-destroy
+   */
+  public removeList(options: GetListV1Params) {
+    return this.post<ListV1>('lists/destroy.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Adds multiple members to a list, by specifying a comma-separated list of member ids or screen names.
+   * If you add a single `user_id` or `screen_name`, it will target `lists/members/create.json`, otherwise
+   * it will target `lists/members/create_all.json`.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-create_all
+   */
+  public addListMembers(options: AddOrRemoveListMembersV1Params) {
+    const hasMultiple = (options.user_id && hasMultipleItems(options.user_id)) || (options.screen_name && hasMultipleItems(options.screen_name));
+    const endpoint = hasMultiple ? 'lists/members/create_all.json' : 'lists/members/create.json';
+
+    return this.post<void>(endpoint, options);
+  }
+
+  /**
+   * Removes multiple members to a list, by specifying a comma-separated list of member ids or screen names.
+   * If you add a single `user_id` or `screen_name`, it will target `lists/members/destroy.json`, otherwise
+   * it will target `lists/members/destroy_all.json`.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-destroy_all
+   */
+  public removeListMembers(options: AddOrRemoveListMembersV1Params) {
+    const hasMultiple = (options.user_id && hasMultipleItems(options.user_id)) || (options.screen_name && hasMultipleItems(options.screen_name));
+    const endpoint = hasMultiple ? 'lists/members/destroy_all.json' : 'lists/members/destroy.json';
+
+    return this.post<void>(endpoint, options);
+  }
+
+  /**
+   * Subscribes the authenticated user to the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-create
+   */
+  public subscribeToList(options: GetListV1Params) {
+    return this.post<ListV1>('lists/subscribers/create.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Unsubscribes the authenticated user of the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-destroy
+   */
+  public unsubscribeOfList(options: GetListV1Params) {
+    return this.post<ListV1>('lists/subscribers/destroy.json', { tweet_mode: 'extended', ...options });
   }
 
   /* Media upload API */

@@ -19,3 +19,10 @@ export function isTweetStreamV2ErrorPayload(payload: any) {
     && 'errors' in payload
     && !('data' in payload);
 }
+
+export function hasMultipleItems(item: string | string[]) {
+  if (Array.isArray(item) && item.length > 1) {
+    return true;
+  }
+  return item.toString().includes(',');
+}

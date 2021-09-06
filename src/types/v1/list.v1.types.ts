@@ -16,6 +16,9 @@ export interface ListV1 {
   user: UserV1;
 }
 
+
+// PARAMS
+
 type TUserOrScreenName = { user_id: string } | { screen_name: string };
 
 export type ListListsV1Params = Partial<TUserOrScreenName> & { reverse?: boolean };
@@ -59,6 +62,26 @@ export interface ListMembershipsV1Params extends ListOwnershipsV1Params {
   filter_to_owned_lists?: boolean;
 }
 
+export interface ListStatusesV1Params extends TweetV1TimelineParams, GetListV1Params {
+  include_rts?: boolean;
+}
+
+export interface ListCreateV1Params {
+  name: string;
+  mode?: 'public' | 'private';
+  description?: string;
+  tweet_mode?: 'compat' | 'extended';
+}
+
+export interface AddOrRemoveListMembersV1Params extends GetListV1Params {
+  user_id?: string | string[];
+  screen_name?: string | string[];
+}
+
+export interface UpdateListV1Params extends Partial<ListCreateV1Params>, GetListV1Params {}
+
+// RESULTS
+
 export interface DoubleEndedListsCursorV1Result {
   next_cursor?: string;
   next_cursor_str?: string;
@@ -73,8 +96,4 @@ export interface DoubleEndedUsersCursorV1Result {
   previous_cursor?: string;
   previous_cursor_str?: string;
   users: UserV1[];
-}
-
-export interface ListStatusesV1Params extends TweetV1TimelineParams, GetListV1Params {
-  include_rts?: boolean;
 }
