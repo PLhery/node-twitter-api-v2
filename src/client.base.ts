@@ -131,7 +131,24 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    * (local data only, this should not ask anything to Twitter)
    */
   public hasHitRateLimit(endpoint: string) {
+    if (this.isRateLimitStatusObsolete(endpoint)) {
+      return false;
+    }
     return this.getLastRateLimitStatus(endpoint)?.remaining === 0;
+  }
+
+  /**
+   * Tells if you hit the returned Twitter rate limit for {endpoint} has expired.
+   * If client has no saved rate limit data for {endpoint}, this will gives you `true`.
+   */
+  public isRateLimitStatusObsolete(endpoint: string) {
+    const rateLimit = this.getLastRateLimitStatus(endpoint);
+
+    if (rateLimit === undefined) {
+      return true;
+    }
+    // Timestamps are exprimed in seconds, JS works with ms
+    return (rateLimit.reset * 1000) < Date.now();
   }
 
   /**

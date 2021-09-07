@@ -35,13 +35,14 @@ export interface IGetHttpRequestArgs {
   headers?: Record<string, string>;
   forceBodyMode?: TBodyMode;
   enableAuth?: boolean;
+  enableRateLimitSave?: boolean;
 }
 
 export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode' | 'enableAuth'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
 
 export abstract class ClientRequestMaker {
   protected _bearerToken?: string;
@@ -68,6 +69,7 @@ export abstract class ClientRequestMaker {
   send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     const args = this.getHttpRequestArgs(requestParams);
     const options = { method: args.method, headers: args.headers };
+    const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
 
     if (args.body) {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
@@ -77,7 +79,7 @@ export abstract class ClientRequestMaker {
       url: args.url,
       options,
       body: args.body,
-      rateLimitSaver: this.saveRateLimit.bind(this, args.rawUrl),
+      rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
     })
       .makeRequest();
   }
@@ -91,6 +93,7 @@ export abstract class ClientRequestMaker {
   sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> {
     const args = this.getHttpRequestArgs(requestParams);
     const options = { method: args.method, headers: args.headers };
+    const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
 
     if (args.body) {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
@@ -100,7 +103,7 @@ export abstract class ClientRequestMaker {
       url: args.url,
       options,
       body: args.body,
-      rateLimitSaver: this.saveRateLimit.bind(this, args.rawUrl),
+      rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       payloadIsError: requestParams.payloadIsError,
     })
       .makeRequestAsStream();
