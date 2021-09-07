@@ -1,4 +1,4 @@
-import { TClientTokens, TwitterApiBasicAuth, TwitterApiTokens, TwitterResponse } from './types';
+import { TClientTokens, TwitterApiBasicAuth, TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -124,6 +124,23 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       };
     }
     return { type: 'none' };
+  }
+
+  /**
+   * Tells if you hit the Twitter rate limit for {endpoint}.
+   * (local data only, this should not ask anything to Twitter)
+   */
+  public hasHitRateLimit(endpoint: string) {
+    return this.getLastRateLimitStatus(endpoint)?.remaining === 0;
+  }
+
+  /**
+   * Get the last obtained Twitter rate limit information for {endpoint}.
+   * (local data only, this should not ask anything to Twitter)
+   */
+  public getLastRateLimitStatus(endpoint: string): TwitterRateLimit | undefined {
+    const endpointWithPrefix = endpoint.match(/^https?:\/\//) ? endpoint : (this._prefix + endpoint);
+    return this._rateLimits[endpointWithPrefix];
   }
 
 

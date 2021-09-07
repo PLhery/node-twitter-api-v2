@@ -103,7 +103,7 @@ export interface SendTweetV1Params extends AskTweetV1Params {
 export type TUploadTypeV1 = 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | 'srt' | 'webp';
 
 export interface UploadMediaV1Params {
-  type: TUploadTypeV1;
+  type: TUploadTypeV1 | string;
   chunkLength: number;
   additionalOwners: string;
   maxConcurrentUploads: number;

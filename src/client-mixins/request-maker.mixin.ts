@@ -1,4 +1,4 @@
-import { TwitterResponse } from '../types';
+import { TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { RequestOptions } from 'https';
 import { trimUndefinedProperties } from '../helpers';
@@ -6,7 +6,12 @@ import OAuth1Helper from './oauth1.helper';
 import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
 
-export type TRequestFullData = { url: string, options: RequestOptions, body?: any };
+export type TRequestFullData = {
+  url: string,
+  options: RequestOptions,
+  body?: any,
+  rateLimitSaver?: (rateLimit: TwitterRateLimit) => any
+};
 export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
 export type TRequestStringQuery = Record<string, string>;
@@ -46,8 +51,13 @@ export abstract class ClientRequestMaker {
   protected _accessSecret?: string;
   protected _basicToken?: string;
   protected _oauth?: OAuth1Helper;
+  protected _rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
 
   protected static readonly BODY_METHODS = new Set(['POST', 'PUT', 'PATCH']);
+
+  protected saveRateLimit(originalUrl: string, rateLimit: TwitterRateLimit) {
+    this._rateLimits[originalUrl] = rateLimit;
+  }
 
   /**
    * Send a new request and returns a wrapped `Promise<TwitterResponse<T>`.
@@ -67,6 +77,7 @@ export abstract class ClientRequestMaker {
       url: args.url,
       options,
       body: args.body,
+      rateLimitSaver: this.saveRateLimit.bind(this, args.rawUrl),
     })
       .makeRequest();
   }
@@ -89,6 +100,7 @@ export abstract class ClientRequestMaker {
       url: args.url,
       options,
       body: args.body,
+      rateLimitSaver: this.saveRateLimit.bind(this, args.rawUrl),
       payloadIsError: requestParams.payloadIsError,
     })
       .makeRequestAsStream();
@@ -162,6 +174,7 @@ export abstract class ClientRequestMaker {
 
     const query = RequestParamHelpers.formatQueryToString(rawQuery);
     url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
+    const rawUrl = url;
 
     // Delete undefined parameters
     if (!(rawBody instanceof Buffer)) {
@@ -186,6 +199,7 @@ export abstract class ClientRequestMaker {
     url += RequestParamHelpers.constructGetParams(query);
 
     return {
+      rawUrl,
       url,
       method,
       headers,
