@@ -56,7 +56,7 @@ export interface ListOwnershipsV1Params {
   tweet_mode?: 'compat' | 'extended';
 }
 
-export interface ListSubscriptionsV1Params extends ListOwnershipsV1Params {}
+export type ListSubscriptionsV1Params = ListOwnershipsV1Params;
 
 export interface ListMembershipsV1Params extends ListOwnershipsV1Params {
   filter_to_owned_lists?: boolean;

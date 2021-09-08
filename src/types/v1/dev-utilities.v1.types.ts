@@ -1,4 +1,3 @@
-import { MediaSizesV1 } from './entities.v1.types';
 
 export type TAppRateLimitResourceV1 = 'help' | 'statuses' | 'friends' | 'followers'
   | 'users' | 'search' | 'trends' | 'favorites' | 'friendships' | 'direct_messages'

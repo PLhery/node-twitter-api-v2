@@ -68,7 +68,7 @@ export interface MuteUserListV1Params {
 }
 
 // GET mutes/users/ids
-export interface MuteUserIdsV1Params extends DoubleEndedIdCursorV1Params {}
+export type MuteUserIdsV1Params = DoubleEndedIdCursorV1Params;
 
 // POST users/report_spam
 export interface ReportSpamV1Params {
@@ -133,7 +133,7 @@ export interface FriendshipLookupV1Params {
   user_id?: string | string[];
 }
 
-export interface FriendshipsIncomingV1Params extends DoubleEndedIdCursorV1Params {}
+export type FriendshipsIncomingV1Params = DoubleEndedIdCursorV1Params;
 
 export interface FriendshipUpdateV1Params {
   screen_name?: string;
@@ -160,7 +160,7 @@ export interface MuteUserListV1Result {
 }
 
 // GET mutes/users/ids
-export interface MuteUserIdsV1Result extends DoubleEndedIdCursorV1Result {}
+export type MuteUserIdsV1Result = DoubleEndedIdCursorV1Result;
 
 // GET users/profile_banner
 export interface BannerSizeV1 {
@@ -259,4 +259,4 @@ export interface FriendshipLookupV1 {
 }
 
 // GET friendships/incoming
-export interface FriendshipsIncomingV1Result extends DoubleEndedIdCursorV1Result {}
+export type FriendshipsIncomingV1Result = DoubleEndedIdCursorV1Result;
