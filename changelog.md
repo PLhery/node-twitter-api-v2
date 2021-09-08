@@ -1,3 +1,10 @@
+1.5.0
+-----
+- Feat: v1.1 List endpoints, GET and POST, with doc, paginators and typings #70
+- Feat: Save rate limit information for last request of each endpoint #70
+- Doc: Documentation improvements for uploading media #68 #70
+- Doc: Fixed parameter name #67
+
 1.4.1
 -----
 - Fix: Incorrect type union in MessageCreateAttachmentV1 & MessageCreateLocationV1
