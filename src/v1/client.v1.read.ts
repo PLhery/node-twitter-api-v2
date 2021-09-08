@@ -46,10 +46,22 @@ import {
   TweetLookupNoMapV1Params,
   TweetLookupMapV1Params,
   TweetLookupMapV1Result,
+  ListListsV1Params,
+  ListV1,
+  ListMembersV1Params,
+  DoubleEndedUsersCursorV1Result,
+  ListMemberShowV1Params,
+  ListMembershipsV1Params,
+  DoubleEndedListsCursorV1Result,
+  ListOwnershipsV1Params,
+  GetListV1Params,
+  ListStatusesV1Params,
+  ListSubscriptionsV1Params,
 } from '../types';
-import { HomeTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
+import { HomeTimelineV1Paginator, ListTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
 import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
+import { ListMembershipsV1Paginator, ListMembersV1Paginator, ListOwnershipsV1Paginator, ListSubscribersV1Paginator, ListSubscriptionsV1Paginator } from '../paginators/list.paginator.v1';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -347,6 +359,157 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    */
   public userProfileBannerSizes(params: ProfileBannerSizeV1Params) {
     return this.get<ProfileBannerSizeV1>('users/profile_banner.json', params);
+  }
+
+  /* Lists */
+
+  /**
+   * Returns the specified list. Private lists will only be shown if the authenticated user owns the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-show
+   */
+  public list(options: GetListV1Params) {
+    return this.get<ListV1>('lists/show.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Returns all lists the authenticating or specified user subscribes to, including their own.
+   * If no user is given, the authenticating user is used.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-list
+   */
+  public lists(options: ListListsV1Params = {}) {
+    return this.get<ListV1[]>('lists/list.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Returns the members of the specified list. Private list members will only be shown if the authenticated user owns the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-members
+   */
+  public async listMembers(options: Partial<ListMembersV1Params> = {}) {
+    const queryParams: Partial<ListMembersV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<DoubleEndedUsersCursorV1Result>('lists/members.json', queryParams, { fullResponse: true });
+
+    return new ListMembersV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Check if the specified user is a member of the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-members-show
+   */
+  public listGetMember(options: ListMemberShowV1Params) {
+    return this.get<UserV1>('lists/members/show.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Returns the lists the specified user has been added to.
+   * If user_id or screen_name are not provided, the memberships for the authenticating user are returned.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-memberships
+   */
+  public async listMemberships(options: Partial<ListMembershipsV1Params> = {}) {
+    const queryParams: Partial<ListMembershipsV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<DoubleEndedListsCursorV1Result>('lists/memberships.json', queryParams, { fullResponse: true });
+
+    return new ListMembershipsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns the lists owned by the specified Twitter user. Private lists will only be shown if the authenticated user is also the owner of the lists.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-ownerships
+   */
+  public async listOwnerships(options: Partial<ListOwnershipsV1Params> = {}) {
+    const queryParams: Partial<ListOwnershipsV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<DoubleEndedListsCursorV1Result>('lists/ownerships.json', queryParams, { fullResponse: true });
+
+    return new ListOwnershipsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns a timeline of tweets authored by members of the specified list. Retweets are included by default.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-statuses
+   */
+  public async listStatuses(options: Partial<ListStatusesV1Params>) {
+    const queryParams: Partial<ListStatusesV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('lists/statuses.json', queryParams, { fullResponse: true });
+
+    return new ListTimelineV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns the subscribers of the specified list. Private list subscribers will only be shown if the authenticated user owns the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-subscribers
+   */
+  public async listSubscribers(options: Partial<ListMembersV1Params> = {}) {
+    const queryParams: Partial<ListMembersV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<DoubleEndedUsersCursorV1Result>('lists/subscribers.json', queryParams, { fullResponse: true });
+
+    return new ListSubscribersV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Check if the specified user is a subscriber of the specified list. Returns the user if they are a subscriber.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-subscribers-show
+   */
+  public listGetSubscriber(options: ListMemberShowV1Params) {
+    return this.get<UserV1>('lists/subscribers/show.json', { tweet_mode: 'extended', ...options });
+  }
+
+  /**
+   * Obtain a collection of the lists the specified user is subscribed to, 20 lists per page by default.
+   * Does not include the user's own lists.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/get-lists-subscriptions
+   */
+  public async listSubscriptions(options: Partial<ListSubscriptionsV1Params> = {}) {
+    const queryParams: Partial<ListSubscriptionsV1Params> = {
+      tweet_mode: 'extended',
+      ...options,
+    };
+    const initialRq = await this.get<DoubleEndedListsCursorV1Result>('lists/subscriptions.json', queryParams, { fullResponse: true });
+
+    return new ListSubscriptionsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
   }
 
   /* Media upload API */

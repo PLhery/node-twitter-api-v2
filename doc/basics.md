@@ -181,7 +181,50 @@ const stream = await client.sendStream({
 
 ## Rate limiting
 
-### Everywhere in this library
+### Get last rate limit info
+
+#### Using endpoint wrappers
+
+You can obtain lastly collected information of rate limit for each already used endpoint.
+
+First, you need to know **which endpoint URL is concerned by the used endpoint wrapper**, for example,
+for `.v1.tweets`, it is `statuses/lookup.json`. The endpoint is always specified in the lib documentation.
+
+Use the endpoint URL to know:
+- The last received status of rate limiting with `.getLastRateLimitStatus`
+- If the stored rate limit information has expired with `.isRateLimitStatusObsolete`
+- If you hit the rate limit the last time you called this endpoint, with `.hasHitRateLimit`
+
+```ts
+// Usage of statuses/lookup.json
+const tweets = await client.v1.tweets(['20', '30']);
+
+// Don't forget to add .v1, otherwise you need to prefix
+// your endpoint URL with https://api.twitter.com/... :)
+console.log(client.v1.getLastRateLimitStatus('statuses/lookup.json'));
+// => { limit: 900, remaining: 899, reset: 1631015719 }
+
+console.log(client.v1.isRateLimitStatusObsolete('statuses/lookup.json'));
+// => false if 'reset' property mentions a timestamp in the future
+
+console.log(client.v1.hasHitRateLimit('statuses/lookup.json'));
+// => false if 'remaining' property is > 0
+```
+
+#### Special case of HTTP methods helpers
+
+If you use a HTTP method helper (`.get`, `.post`, ...), you can get a **full response** object that directly contains the rate limit information,
+even if the request didn't fail!
+```ts
+const manualFullResponse = await client.v1.get<TweetV1TimelineResult>('statuses/home_timeline.json', { since_id: '20' }, { fullResponse: true });
+
+// Response data
+manualFullResponse.data; // TweetV1TimelineResult
+// Rate limit information
+manualFullResponse.rateLimit; // { limit: number, remaining: number, reset: number }
+```
+
+### Handle errors - Everywhere in this library
 
 This library helps you to handle rate limiting.
 When a request fails (with a Twitter response), it create a `ApiResponseError` instance and throw it.
@@ -244,21 +287,6 @@ Moreover, you can access current rate limit status for paginator's endpoint with
 ```ts
 const paginator = await client.v1.homeTimeline();
 console.log(paginator.rateLimit); // { limit: number, remaining: number, reset: number }
-```
-
-### Special case of HTTP methods helpers
-
-> This is the only way to get rate limit information when a Twitter request succeeds.
-
-If you use a HTTP method helper (`.get`, `.post`, ...), you can get a **full response** object that directly contains the rate limit information,
-even if the request didn't fail!
-```ts
-const manualFullResponse = await client.v1.get<TweetV1TimelineResult>('statuses/home_timeline.json', { since_id: '20' }, { fullResponse: true });
-
-// Response data
-manualFullResponse.data; // TweetV1TimelineResult
-// Rate limit information
-manualFullResponse.rateLimit; // { limit: number, remaining: number, reset: number }
 ```
 
 ## Error handling

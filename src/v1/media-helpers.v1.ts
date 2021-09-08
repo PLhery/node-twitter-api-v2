@@ -58,7 +58,7 @@ export async function getFileSizeFromFileHandle(fileHandle: TFileHandle) {
   }
 }
 
-export function getMimeType(file: TUploadableMedia, type?: TUploadTypeV1) {
+export function getMimeType(file: TUploadableMedia, type?: TUploadTypeV1 | string) {
   if (typeof file === 'string' && !type) {
     return getMimeByName(file);
   } else if (typeof type === 'string') {
@@ -79,7 +79,7 @@ function getMimeByName(name: string) {
   return 'image/jpeg';
 }
 
-function getMimeByType(type: TUploadTypeV1) {
+function getMimeByType(type: TUploadTypeV1 | string) {
   if (type === 'gif') return 'image/gif';
   if (type === 'jpg') return 'image/jpeg';
   if (type === 'png') return 'image/png';

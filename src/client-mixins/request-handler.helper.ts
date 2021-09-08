@@ -48,6 +48,10 @@ export class RequestHandlerHelper<T> {
         remaining: Number(res.headers['x-rate-limit-remaining']),
         reset: Number(res.headers['x-rate-limit-reset']),
       };
+
+      if (this.requestData.rateLimitSaver) {
+        this.requestData.rateLimitSaver(rateLimit);
+      }
     }
 
     return rateLimit;
