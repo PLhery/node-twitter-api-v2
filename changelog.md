@@ -1,3 +1,7 @@
+1.5.1
+-----
+- Fix: Fix return type for v1.1 'tweets' wrapper #72
+
 1.5.0
 -----
 - Feat: v1.1 List endpoints, GET and POST, with doc, paginators and typings #70
