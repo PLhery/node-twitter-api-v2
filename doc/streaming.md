@@ -34,26 +34,7 @@ import { ETwitterStreamEvent, TweetStream, TwitterApi, ETwitterApiError } from '
 
 const client = new TwitterApi(); // (create a client)
 
-let stream: TweetStream;
-try {
-  // For example, can be any stream function
-  stream = await client.v1.sampleStream();
-} catch (e) {
-  // e is either a TwitterApiRequestError or a TwitterApiError
-  if (e.type === ETwitterApiError.Request) {
-    // Thrown if request fails (network error).
-    console.log('Request failed.', e.requestError);
-  }
-  else if (e.type === ETwitterApiError.Response) {
-    // Thrown if Twitter responds with a bad HTTP status
-    console.log(
-      'Twitter didnt accept your request. HTTP code:',
-      e.code,
-      ', parsed response data:',
-      e.data,
-    );
-  }
-}
+const stream = await client.v1.sampleStream();
 
 // Awaits for a tweet
 stream.on(
@@ -93,7 +74,7 @@ for await (const { data } of stream) {
 
 ## <a name='SpecificAPIv1.1implementations'></a>Specific API v1.1 implementations
 
-API v1.1 streaming-related endpoints works only with classic OAuth1.0a authentification.
+API v1.1 streaming-related endpoints works only with classic OAuth 1.0a authentification.
 
 ### <a name='Filterendpoint'></a>Filter endpoint
 

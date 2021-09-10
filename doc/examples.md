@@ -9,6 +9,8 @@ All the used entities (classes, interfaces, enums...) are imported from `twitter
 All returned types and parameters only reflect available data on Twitter API documentation.
 For each implemented endpoint, you have a link to documentation available in JSDoc comment.
 
+**Note:** Top-level use of `await` is not available in most of Node.js usage. You might need to wrap `await`s into async functions. See [MDN related documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+
 ## Create a client
 
 ### With user credentials (act as a logged user)

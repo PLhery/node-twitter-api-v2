@@ -10,7 +10,7 @@ Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 an
 
 ✅ **Ready for v2 and good ol' v1.1 Twitter API**
 
-✅ **Light: No dependencies, 15.2kb minified+gzipped**
+✅ **Light: No dependencies, 16kb minified+gzipped**
 
 ✅ **Bundled types for request parameters and responses**
 
@@ -33,13 +33,59 @@ A small feature comparaison with other libs:
 
 | Package        | API version(s) | Response typings | Media helpers | Pagination | Subdeps |  Size (gzip)  | Install size  |
 | -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|  -------------:|
-| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~15.2 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
+| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~16 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
 | twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     | [![twit install size badge](https://badgen.net/packagephobia/install/twit)](https://packagephobia.com/result?p=twit) |
 | twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     | [![twitter install size badge](https://badgen.net/packagephobia/install/twitter)](https://packagephobia.com/result?p=twitter) |
 | twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       | [![twitter-lite install size badge](https://badgen.net/packagephobia/install/twitter-lite)](https://packagephobia.com/result?p=twitter-lite) |
 | twitter-v2     | v2             | ❌               | ❌             | ❌         | 7               | ~4.5 kB       | [![twitter-v2 install size badge](https://badgen.net/packagephobia/install/twitter-v2)](https://packagephobia.com/result?p=twitter-v2) |
 
 \**No support for `media/upload`, cannot send a `multipart/form-data` encoded-body without tricks*
+
+## How to use
+
+Install it through your favorite package manager:
+```bash
+yarn add twitter-api-v2
+# or
+npm i twitter-api-v2
+```
+
+Here's is a quick example of usage:
+
+```ts
+import TwitterApi from 'twitter-api-v2';
+
+// Instanciate with desired auth type (here's Bearer v2 auth)
+const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
+
+// Tell typescript it's a readonly app
+const roClient = twitterClient.readOnly;
+
+// Play with the built in methods
+const user = await roClient.v2.userByUsername('plhery');
+await twitterClient.v1.tweet('Hello, this is a test.');
+// You can upload media easily!
+await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
+```
+
+## Documentation
+
+Learn how to use the full potential of `twitter-api-v2`.
+
+- Get started
+  - [Create a client and make your first request](./doc/basics.md)
+  - [Handle Twitter authentification flows](./doc/auth.md)
+  - [Explore some examples](./doc/examples.md)
+- Use endpoints wrappers — ensure typings of request & response
+  - [Available endpoint wrappers for v1.1 API](./doc/v1.md)
+  - [Available endpoint wrappers for v2 API](./doc/v2.md)
+  - [Use Twitter streaming endpoints (v1.1 & v2)](./doc/streaming.md)
+- Deep diving into requests
+  - [Use direct HTTP-method wrappers](./doc/http-wrappers.md)
+  - [Use rate limit helpers](./doc/rate-limiting.md)
+  - [Handle errors](./doc/errors.md)
+  - [Master `twitter-api-v2` paginators](./doc/paginators.md)
+  - [Discover available helpers](./doc/helpers.md)
 
 ## Features
 
@@ -73,62 +119,3 @@ Here's the detailed feature list of `twitter-api-v2`:
 
 
 And last but not least, fully powered by native `Promise`s.
-
-## How to use
-
-Install it through your favorite package manager:
-```bash
-yarn add twitter-api-v2
-# or
-npm i twitter-api-v2
-```
-
-Here's is a quick example of usage:
-
-```ts
-import TwitterApi from 'twitter-api-v2';
-
-// Instanciate with desired auth type (here's Bearer v2 auth)
-const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
-
-// Tell typescript it's a readonly app
-const roClient = twitterClient.readOnly;
-
-// Play with the built in methods
-const user = await roClient.v2.userByUsername('plhery');
-await twitterClient.v1.tweet('Hello, this is a test.');
-// You can upload media easily!
-await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
-
-// Or manually call the API
-await twitterClient.v2.get('tweets/search/recent', { query: 'nodeJS', max_results: 100 });
-const tweets = await twitterClient.get('https://api.twitter.com/2/tweets/search/recent?query=nodeJS&max_results=100');
-```
-
-**Note:** Top-level use of `await` is not available in most of Node.js usage. You might need to wrap `await`s into async functions. See [MDN related documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
-
-### Basics
-
-You want **to know more about client usage? See [the Basics](./doc/basics.md)**!
-
-This lib also provide a bunch of helpers to work around Twitter API responses. See [the helpers part here](./doc/helpers.md).
-
-### Examples
-
-Wanna see that in action? Jump to [Examples part](./doc/examples.md).
-
-## Authentification
-
-Lost between the different ways to auth inside Twitter API?
-Don't know how to implement 3-legged OAuth flow?
-
-See [Authentification part](./doc/auth.md) to know more and have a comprehensive guide a every Twitter authentification process.
-
-## Streaming
-
-APIs dedicated to streaming are available in [Streaming part](./doc/streaming.md).
-
-## Full package API
-
-Each Twitter endpoint > method association is described in details inside [the v1.1 comprehensive documentation](./doc/v1.md)
-and [the v2 comprehensive documentation](./doc/v2.md).
