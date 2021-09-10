@@ -83,10 +83,10 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * Returns fully-hydrated Tweet objects for up to 100 Tweets per request.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-statuses-lookup
    */
-  public tweets(ids: string | string[], options?: TweetLookupNoMapV1Params): Promise<UserV1[]>;
+  public tweets(ids: string | string[], options?: TweetLookupNoMapV1Params): Promise<TweetV1[]>;
   public tweets(ids: string | string[], options: TweetLookupMapV1Params): Promise<TweetLookupMapV1Result>;
   public tweets(ids: string | string[], options: Partial<TweetLookupV1Params> = {}) {
-    return this.post<UserV1[] | TweetLookupMapV1Result>('statuses/lookup.json', { tweet_mode: 'extended', id: ids, ...options });
+    return this.post<TweetV1[] | TweetLookupMapV1Result>('statuses/lookup.json', { tweet_mode: 'extended', id: ids, ...options });
   }
 
   /**
