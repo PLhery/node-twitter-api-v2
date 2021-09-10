@@ -41,6 +41,34 @@ A small feature comparaison with other libs:
 
 \**No support for `media/upload`, cannot send a `multipart/form-data` encoded-body without tricks*
 
+## Features
+
+Here's the detailed feature list of `twitter-api-v2`:
+
+### Basics:
+- Support for v1.1 and **v2 of Twitter API**
+- Make signed HTTP requests to Twitter with every auth type: **OAuth 1.0a**, **OAuth2** and **Basic** HTTP Authorization
+- Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`),
+  that handle query string parse & format, automatic body formatting and more
+- High-class support for stream endpoints, with easy data consumption and auto-reconnect on stream errors
+
+### Request helpers:
+- Automatic paginator for endpoints like user and tweet timelines,
+  allowing payload consumption with modern asynchronous iterators until your rate-limit is hit
+- Convenient methods for authentication - generate auth links and ask for tokens to your users will be a breeze
+- Media upload with API v1.1, including **long video & subtitles support**, automatic media type detection,
+  **chunked upload** and support for **concurrent uploads**
+- Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
+- Bundled parsing of rate limit headers
+- Typed errors, meaningful error messages, error enumerations for both v1.1 and v2
+
+### Type-safe first:
+- **Typings for tweet, user, media entities (and more) are bundled!**
+- Type-safe wrapping of dedicated methods in 3 right level: *DM*/*Read-write*/*Read-only* (just like Twitter API do!) -
+  you can declare a read-only client - you will only see the methods associated with read-only endpoints
+
+And last but not least, fully powered by native `Promise`s.
+
 ## How to use
 
 Install it through your favorite package manager:
@@ -86,36 +114,3 @@ Learn how to use the full potential of `twitter-api-v2`.
   - [Handle errors](./doc/errors.md)
   - [Master `twitter-api-v2` paginators](./doc/paginators.md)
   - [Discover available helpers](./doc/helpers.md)
-
-## Features
-
-Here's the detailed feature list of `twitter-api-v2`:
-
-### Basics:
-- Support for v1.1 and **v2 of Twitter API**
-- Make signed HTTP requests to Twitter with every Twitter required auth type:
-  - classic **OAuth 1.0a** authentification for user-context endpoints
-  - **OAuth2 Bearer token** for app-only endpoints
-  - **Basic** HTTP Authorization, required for some auth endpoints or Entreprise API
-- Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`),
-  that handle query string parse & format, automatic body formatting and more
-- High-class support for stream endpoints, with easy data consumption and auto-reconnect on stream errors
-
-### Request helpers:
-- Automatic paginator for endpoints like user and tweet timelines,
-  allowing payload consumption with modern asynchronous iterators until your rate-limit is hit
-- Convenient methods for authentication - generate auth links and ask for tokens to your users will be a breeze
-- Media upload with API v1.1, including **long video & subtitles support**,  automatic media type detection,
-  **chunked upload** and support for **concurrent uploads**
-- Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
-  *(WIP - not all public endpoints are available)*
-- Bundled parsing of rate limit headers
-- Typed errors, meaningful error messages, error enumerations for both v1.1 and v2
-
-### Type-safe first:
-- **Typings for tweet, user, media entities (and more) are bundled in this package!**
-- Type-safe wrapping of dedicated methods in 3 right level: *DM*/*Read-write*/*Read-only* (just like Twitter API do!) -
-  you can declare a read-only client - you will only see the methods associated with read-only endpoints
-
-
-And last but not least, fully powered by native `Promise`s.

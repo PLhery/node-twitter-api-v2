@@ -61,6 +61,9 @@ stream.on(
   () => console.log('Twitter has a keep-alive packet.'),
 );
 
+// Enable reconnect feature
+stream.autoReconnect = true;
+
 // Be sure to close the stream where you don't want to consume data anymore from it
 stream.close();
 
@@ -235,7 +238,7 @@ const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 
 ### <a name='Methodsproperties'></a>Methods / properties
 
-- `.autoReconnect: boolean` / defaults `false` / Set this to `true` to enable experimental reconnect feature.
+- `.autoReconnect: boolean` / defaults `false` / Set this to `true` to enable reconnect feature.
 - `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by `min((attempt ** 2) * 1000, 25000)` milliseconds.
 - `.keepAliveTimeoutMs: number` / default `120000` (2 minutes) / Defined whenever connection should be automatically closed if nothing is received from Twitter during this time (it should not happend in any situation, because Twitter sends keep-alive packets). **Can be set to `Infinity` to disable this feature**.
 - `.close()`: Emits `ConnectionClosed` event and terminates connection.
