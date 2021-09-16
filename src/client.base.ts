@@ -1,4 +1,4 @@
-import { TClientTokens, TwitterApiBasicAuth, TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
+import { TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -49,6 +49,10 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    */
   constructor(tokens: TwitterApiTokens);
   /**
+   * Create a new TwitterApi object with only client ID needed for OAuth2 user-flow.
+   */
+  constructor(oauth2Init: TwitterApiOAuth2Init);
+  /**
    * Create a new TwitterApi object with Basic HTTP authentification.
    */
   constructor(credentials: TwitterApiBasicAuth);
@@ -57,7 +61,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    */
   constructor(instance: TwitterApiBase);
 
-  public constructor(token?: TwitterApiTokens | TwitterApiBasicAuth | string | TwitterApiBase) {
+  public constructor(token?: TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string | TwitterApiBase) {
     super();
 
     if (typeof token === 'string') {
@@ -72,6 +76,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._prefix = token._prefix;
       this._bearerToken = token._bearerToken;
       this._basicToken = token._basicToken;
+      this._clientId = token._clientId;
     }
     else if (typeof token === 'object' && 'appKey' in token) {
       this._consumerToken = token.appKey;
@@ -87,6 +92,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     else if (typeof token === 'object' && 'username' in token) {
       const key = encodeURIComponent(token.username) + ':' + encodeURIComponent(token.password);
       this._basicToken = Buffer.from(key).toString('base64');
+    }
+    else if (typeof token === 'object' && 'clientId' in token) {
+      this._clientId = token.clientId;
     }
   }
 

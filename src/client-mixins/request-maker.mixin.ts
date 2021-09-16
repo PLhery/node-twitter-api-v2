@@ -51,6 +51,7 @@ export abstract class ClientRequestMaker {
   protected _accessToken?: string;
   protected _accessSecret?: string;
   protected _basicToken?: string;
+  protected _clientId?: string;
   protected _oauth?: OAuth1Helper;
   protected _rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
 

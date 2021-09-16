@@ -20,5 +20,7 @@ export default abstract class TwitterApiSubClient extends TwitterApiBase {
     this._accessSecret = inst._accessSecret;
     this._basicToken = inst._basicToken;
     this._oauth = inst._oauth;
+    this._clientId = inst._clientId;
+    this._rateLimits = inst._rateLimits;
   }
 }

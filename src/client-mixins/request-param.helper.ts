@@ -32,7 +32,11 @@ export class RequestParamHelpers {
     const requestUrl = new URL(url);
 
     if (requestUrl.pathname.startsWith('/2/') || requestUrl.pathname.startsWith('/labs/2/')) {
-      // Twitter API v2 always has JSON-encoded requests, right?
+      // oauth2 takes url encoded
+      if (requestUrl.password.startsWith('/2/oauth2')) {
+        return 'url';
+      }
+      // Twitter API v2 has JSON-encoded requests for everything else
       return 'json';
     }
 
