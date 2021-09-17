@@ -112,6 +112,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Returns a variety of information about a single Tweet specified by the requested ID.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
+   *
+   * OAuth2 scope: `users.read`, `tweet.read`
    */
   public singleTweet(tweetId: string, options: Partial<Tweetv2FieldsParams> = {}) {
     return this.get<TweetV2SingleResult>(`tweets/${tweetId}`, options);
@@ -120,6 +122,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Returns a variety of information about tweets specified by list of IDs.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+   *
+   * OAuth2 scope: `users.read`, `tweet.read`
    */
   public tweets(tweetIds: string | string[], options: Partial<Tweetv2FieldsParams> = {}) {
     return this.get<TweetV2LookupResult>('tweets', { ids: tweetIds, ...options });
@@ -228,6 +232,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Returns a variety of information about one or more users specified by their usernames.
    * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by
+   *
+   * OAuth2 scope: `users.read`, `tweet.read`
    */
   public usersByUsernames(usernames: string | string[], options: Partial<UsersV2Params> = {}) {
     usernames = Array.isArray(usernames) ? usernames.join(',') : usernames;
@@ -261,6 +267,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Returns a list of users the specified user ID is following.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-following
+   *
+   * OAuth2 scope: `account.follows.read`
    */
   public following(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
   public following(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowingV2Paginator>;
@@ -319,6 +327,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Get a single space by ID.
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
+   *
+   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
    */
   public space(spaceId: string, options: Partial<SpaceV2FieldsParams> = {}) {
     return this.get<SpaceV2SingleResult>(`spaces/${spaceId}`, options);
@@ -327,6 +337,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Get spaces using their IDs.
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
+   *
+   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
    */
   public spaces(spaceIds: string | string[], options: Partial<SpaceV2FieldsParams> = {}) {
     return this.get<SpaceV2LookupResult>('spaces', { ids: spaceIds, ...options });
@@ -335,6 +347,8 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Get spaces using their creator user ID(s). (no pagination available)
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
+   *
+   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
    */
   public spacesByCreators(creatorIds: string | string[], options: Partial<SpaceV2CreatorLookupParams> = {}) {
     return this.get<SpaceV2LookupResult>('spaces/by/creator_ids', { user_ids: creatorIds, ...options });

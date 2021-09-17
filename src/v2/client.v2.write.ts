@@ -95,6 +95,8 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * If the target user does not have public Tweets, this endpoint will send a follow request.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/post-users-source_user_id-following
    *
+   * OAuth2 scope: `account.follows.write`
+   *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public follow(loggedUserId: string, targetUserId: string) {
@@ -104,6 +106,8 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Allows a user ID to unfollow another user.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/delete-users-source_id-following
+   *
+   * OAuth2 scope: `account.follows.write`
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
