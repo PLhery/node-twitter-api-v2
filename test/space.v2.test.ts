@@ -31,8 +31,14 @@ describe('Spaces endpoints for v2 API', () => {
       const spacesOfCreator = await client.v2.spacesByCreators([space.creator_id!]);
 
       expect(singleSpace.data.id).to.equal(space.id);
-      expect(singleSpaceThroughLookup.data[0].id).to.equal(space.id);
-      expect(spacesOfCreator.data.some(s => s.id === space.id)).to.equal(true);
+
+      if (singleSpaceThroughLookup.data) {
+        expect(singleSpaceThroughLookup.data[0].id).to.equal(space.id);
+      }
+
+      if (spacesOfCreator.data) {
+        expect(spacesOfCreator.data.some(s => s.id === space.id)).to.equal(true);
+      }
     }
   }).timeout(60 * 1000);
 });

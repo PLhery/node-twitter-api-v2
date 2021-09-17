@@ -76,7 +76,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-destroy-id
    */
   public deleteTweet(tweetId: string) {
-    return this.post<TweetV1>(`statuses/destroy/${tweetId}.json`, { tweet_mode: 'extended' });
+    return this.post<TweetV1>('statuses/destroy/:id.json', { tweet_mode: 'extended' }, { params: { id: tweetId } });
   }
 
   /* User API */
