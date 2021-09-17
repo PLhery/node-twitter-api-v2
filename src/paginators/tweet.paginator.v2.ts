@@ -133,26 +133,18 @@ export class TweetSearchAllV2Paginator extends TweetTimelineV2Paginator<Tweetv2S
 // - User timeline -
 // -----------------
 
-type TUserTimelinePaginatorShared = { userId: string };
+type TUserTimelinePaginatorShared = { id: string };
 
 export class TweetUserTimelineV2Paginator
   extends TweetTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/tweets';
-
-  protected getEndpoint() {
-    return this._endpoint.replace(':id', this._sharedParams.userId);
-  }
 }
 
 export class TweetUserMentionTimelineV2Paginator
   extends TweetTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/mentions';
-
-  protected getEndpoint() {
-    return this._endpoint.replace(':id', this._sharedParams.userId);
-  }
 }
 
 // ---------------------------------------------------------------------------------
@@ -209,8 +201,4 @@ export class TweetV2UserLikedTweetsPaginator
   extends TweetListV2Paginator<Tweetv2ListResult, TweetV2PaginableListParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/liked_tweets';
-
-  protected getEndpoint() {
-    return this._endpoint.replace(':id', this._sharedParams.userId);
-  }
 }

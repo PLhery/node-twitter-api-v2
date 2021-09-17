@@ -96,26 +96,14 @@ abstract class UserTimelineV2Paginator<
   }
 }
 
-export class UserBlockingUsersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { userId: string }> {
+export class UserBlockingUsersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
   protected _endpoint = 'users/:id/blocking';
-
-  protected getEndpoint() {
-    return this._endpoint.replace(':id', this._sharedParams.userId);
-  }
 }
 
-export class UserFollowersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { userId: string }> {
+export class UserFollowersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
   protected _endpoint = 'users/:id/followers';
-
-  protected getEndpoint() {
-    return this._endpoint.replace(':id', this._sharedParams.userId);
-  }
 }
 
-export class UserFollowingV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { userId: string }> {
+export class UserFollowingV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
   protected _endpoint = 'users/:id/following';
-
-  protected getEndpoint() {
-    return this._endpoint.replace(':id', this._sharedParams.userId);
-  }
 }

@@ -41,7 +41,11 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   }
 
   protected makeRequest(queryParams: Partial<TApiParams>) {
-    return this._instance.get<TApiResult>(this.getEndpoint(), queryParams as TRequestQuery, { fullResponse: true });
+    return this._instance.get<TApiResult>(
+      this.getEndpoint(),
+      queryParams as TRequestQuery,
+      { fullResponse: true, params: this._sharedParams as any as TRequestQuery },
+    );
   }
 
   protected makeNewInstanceFromResult(result: TwitterResponse<TApiResult>, queryParams: Partial<TApiParams>): this {

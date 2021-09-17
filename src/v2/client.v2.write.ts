@@ -43,7 +43,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/hide-replies/api-reference/put-tweets-id-hidden
    */
   public hideReply(tweetId: string, makeHidden: boolean) {
-    return this.put<TweetV2HideReplyResult>(`tweets/${tweetId}/hidden`, { hidden: makeHidden });
+    return this.put<TweetV2HideReplyResult>('tweets/:id/hidden', { hidden: makeHidden }, { params: { id: tweetId } });
   }
 
   /**
@@ -53,18 +53,20 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public like(loggedUserId: string, targetTweetId: string) {
-    return this.post<TweetV2LikeResult>(`users/${loggedUserId}/likes`, { tweet_id: targetTweetId });
+    return this.post<TweetV2LikeResult>('users/:id/likes', { tweet_id: targetTweetId }, { params: { id: loggedUserId } });
   }
 
   /**
    * Allows a user or authenticated user ID to unlike a Tweet.
    * The request succeeds with no action when the user sends a request to a user they're not liking the Tweet or have already unliked the Tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-user_id-likes
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-id-likes-tweet_id
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public unlike(loggedUserId: string, targetTweetId: string) {
-    return this.delete<TweetV2LikeResult>(`users/${loggedUserId}/likes/${targetTweetId}`);
+    return this.delete<TweetV2LikeResult>('users/:id/likes/:tweet_id', undefined, {
+      params: { id: loggedUserId, tweet_id: targetTweetId },
+    });
   }
 
   /**
@@ -74,7 +76,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public retweet(loggedUserId: string, targetTweetId: string) {
-    return this.post<TweetV2RetweetResult>(`users/${loggedUserId}/retweets`, { tweet_id: targetTweetId });
+    return this.post<TweetV2RetweetResult>(`users/:id/retweets`, { tweet_id: targetTweetId }, { params: { id: loggedUserId } });
   }
 
   /**
@@ -85,7 +87,9 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public unretweet(loggedUserId: string, targetTweetId: string) {
-    return this.delete<TweetV2RetweetResult>(`users/${loggedUserId}/retweets/${targetTweetId}`);
+    return this.delete<TweetV2RetweetResult>('users/:id/retweets/:tweet_id', undefined, {
+      params: { id: loggedUserId, tweet_id: targetTweetId },
+    });
   }
 
   /* Users */
@@ -98,7 +102,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public follow(loggedUserId: string, targetUserId: string) {
-    return this.post<UserV2FollowResult>(`users/${loggedUserId}/following`, { target_user_id: targetUserId });
+    return this.post<UserV2FollowResult>('users/:id/following', { target_user_id: targetUserId }, { params: { id: loggedUserId } });
   }
 
   /**
@@ -108,7 +112,9 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public unfollow(loggedUserId: string, targetUserId: string) {
-    return this.delete<UserV2UnfollowResult>(`users/${loggedUserId}/following/${targetUserId}`);
+    return this.delete<UserV2UnfollowResult>('users/:source_user_id/following/:target_user_id', undefined, {
+      params: { source_user_id: loggedUserId, target_user_id: targetUserId },
+    });
   }
 
   /**
@@ -119,7 +125,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public block(loggedUserId: string, targetUserId: string) {
-    return this.post<UserV2BlockResult>(`users/${loggedUserId}/blocking`, { target_user_id: targetUserId });
+    return this.post<UserV2BlockResult>('users/:id/blocking', { target_user_id: targetUserId }, { params: { id: loggedUserId } });
   }
 
   /**
@@ -129,7 +135,9 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public unblock(loggedUserId: string, targetUserId: string) {
-    return this.delete<UserV2BlockResult>(`users/${loggedUserId}/blocking/${targetUserId}`);
+    return this.delete<UserV2BlockResult>('users/:source_user_id/blocking/:target_user_id', undefined, {
+      params: { source_user_id: loggedUserId, target_user_id: targetUserId },
+    });
   }
 
   /**
@@ -139,7 +147,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public mute(loggedUserId: string, targetUserId: string) {
-    return this.post<UserV2MuteResult>(`users/${loggedUserId}/muting`, { target_user_id: targetUserId });
+    return this.post<UserV2MuteResult>('users/:id/muting', { target_user_id: targetUserId }, { params: { id: loggedUserId } });
   }
 
   /**
@@ -150,6 +158,8 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public unmute(loggedUserId: string, targetUserId: string) {
-    return this.delete<UserV2MuteResult>(`users/${loggedUserId}/muting/${targetUserId}`);
+    return this.delete<UserV2MuteResult>('users/:source_user_id/muting/:target_user_id', undefined, {
+      params: { source_user_id: loggedUserId, target_user_id: targetUserId },
+    });
   }
 }

@@ -150,6 +150,37 @@ export class RequestParamHelpers {
     // Remove the query string
     return urlObject.href.slice(0, urlObject.href.length - urlObject.search.length);
   }
+
+  static applyRequestParametersToUrl(url: string, parameters: TRequestQuery) {
+    // Protocol ends at index + 3 (:// length)
+    const protocolIndex = url.indexOf('://') + 3;
+    const queryStringIndex = url.indexOf('?', protocolIndex);
+    const replaceRegex = /:([A-Z_-]+)/ig;
+    const replacer = (fullMatch: string, paramName: string) => {
+      if (parameters[paramName] !== undefined) {
+        return String(parameters[paramName]);
+      }
+      return fullMatch;
+    };
+
+    const protocolPart = url.slice(0, protocolIndex);
+
+    if (queryStringIndex !== -1) {
+      // Has a query string
+      const qsPart = url.slice(queryStringIndex);
+
+      return protocolPart
+        + url
+          .slice(protocolIndex, queryStringIndex)
+          .replace(replaceRegex, replacer)
+        + qsPart;
+    } else {
+      return protocolPart
+        + url
+          .slice(protocolIndex)
+          .replace(replaceRegex, replacer);
+    }
+  }
 }
 
 export default RequestParamHelpers;

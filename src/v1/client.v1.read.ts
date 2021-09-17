@@ -613,7 +613,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/v1/geo/place-information/api-reference/get-geo-id-place_id
    */
   public geoPlace(placeId: string) {
-    return this.get<PlaceV1>(`geo/id/${placeId}.json`);
+    return this.get<PlaceV1>('geo/id/:place_id.json', undefined, { params: { place_id: placeId } });
   }
 
   /**

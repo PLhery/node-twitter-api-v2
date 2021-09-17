@@ -114,7 +114,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
    */
   public singleTweet(tweetId: string, options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.get<TweetV2SingleResult>(`tweets/${tweetId}`, options);
+    return this.get<TweetV2SingleResult>('tweets/:id', options, { params: { id: tweetId } });
   }
 
   /**
@@ -151,7 +151,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/get-tweets-id-retweeted_by
    */
   public tweetRetweetedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
-    return this.get<TweetV2RetweetedByResult>(`tweets/${tweetId}/retweeted_by`, options);
+    return this.get<TweetV2RetweetedByResult>('tweets/:id/retweeted_by', options, { params: { id: tweetId } });
   }
 
   /**
@@ -159,7 +159,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-tweets-id-liking_users
    */
   public tweetLikedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
-    return this.get<TweetV2LikedByResult>(`tweets/${tweetId}/liking_users`, options);
+    return this.get<TweetV2LikedByResult>('tweets/:id/liking_users', options, { params: { id: tweetId } });
   }
 
   /**
@@ -169,14 +169,17 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
    */
   public async userTimeline(userId: string, options: Partial<TweetV2UserTimelineParams> = {}) {
-    const initialRq = await this.get<TweetV2UserTimelineResult>(`users/${userId}/tweets`, options, { fullResponse: true });
+    const initialRq = await this.get<TweetV2UserTimelineResult>('users/:id/tweets', options, {
+      fullResponse: true,
+      params: { id: userId },
+    });
 
     return new TweetUserTimelineV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
       queryParams: options,
-      sharedParams: { userId },
+      sharedParams: { id: userId },
     });
   }
 
@@ -187,14 +190,17 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions
    */
   public async userMentionTimeline(userId: string, options: Partial<TweetV2PaginableTimelineParams> = {}) {
-    const initialRq = await this.get<TweetV2UserTimelineResult>(`users/${userId}/mentions`, options, { fullResponse: true });
+    const initialRq = await this.get<TweetV2UserTimelineResult>('users/:id/mentions', options, {
+      fullResponse: true,
+      params: { id: userId },
+    });
 
     return new TweetUserMentionTimelineV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
       queryParams: options,
-      sharedParams: { userId },
+      sharedParams: { id: userId },
     });
   }
 
@@ -205,7 +211,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-id
    */
   public user(userId: string, options: Partial<UsersV2Params> = {}) {
-    return this.get<UserV2Result>(`users/${userId}`, options);
+    return this.get<UserV2Result>('users/:id', options, { params: { id: userId } });
   }
 
   /**
@@ -222,7 +228,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by-username-username
    */
   public userByUsername(username: string, options: Partial<UsersV2Params> = {}) {
-    return this.get<UserV2Result>(`users/by/username/${username}`, options);
+    return this.get<UserV2Result>('users/by/username/:username', options, { params: { username } });
   }
 
   /**
@@ -242,19 +248,20 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   public followers(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowersV2Paginator>;
   public async followers(userId: string, options: FollowersV2Params = {}) {
     const { asPaginator, ...parameters } = options;
+    const params = { id: userId };
 
     if (!asPaginator) {
-      return this.get<UserV2TimelineResult>(`users/${userId}/followers`, parameters as Partial<UserV2TimelineParams>);
+      return this.get<UserV2TimelineResult>('users/:id/followers', parameters as Partial<UserV2TimelineParams>, { params });
     }
 
-    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/followers`, parameters as Partial<UserV2TimelineParams>, { fullResponse: true });
+    const initialRq = await this.get<UserV2TimelineResult>('users/:id/followers', parameters as Partial<UserV2TimelineParams>, { fullResponse: true, params });
 
     return new UserFollowersV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
       queryParams: parameters as Partial<UserV2TimelineParams>,
-      sharedParams: { userId },
+      sharedParams: params,
     });
   }
 
@@ -266,19 +273,20 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   public following(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowingV2Paginator>;
   public async following(userId: string, options: FollowersV2Params = {}) {
     const { asPaginator, ...parameters } = options;
+    const params = { id: userId };
 
     if (!asPaginator) {
-      return this.get<UserV2TimelineResult>(`users/${userId}/following`, parameters as Partial<UserV2TimelineParams>);
+      return this.get<UserV2TimelineResult>('users/:id/following', parameters as Partial<UserV2TimelineParams>, { params });
     }
 
-    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/following`, parameters as Partial<UserV2TimelineParams>, { fullResponse: true });
+    const initialRq = await this.get<UserV2TimelineResult>('users/:id/following', parameters as Partial<UserV2TimelineParams>, { fullResponse: true, params });
 
     return new UserFollowingV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
       queryParams: parameters as Partial<UserV2TimelineParams>,
-      sharedParams: { userId },
+      sharedParams: params,
     });
   }
 
@@ -287,14 +295,15 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
    */
   public async userLikedTweets(userId: string, options: Partial<TweetV2PaginableListParams> = {}) {
-    const initialRq = await this.get<Tweetv2ListResult>(`users/${userId}/liked_tweets`, options, { fullResponse: true });
+    const params = { id: userId };
+    const initialRq = await this.get<Tweetv2ListResult>('users/:id/liked_tweets', options, { fullResponse: true, params });
 
     return new TweetV2UserLikedTweetsPaginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
       queryParams: { ...options },
-      sharedParams: { userId },
+      sharedParams: params,
     });
   }
 
@@ -303,14 +312,15 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
    public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
-    const initialRq = await this.get<UserV2TimelineResult>(`users/${userId}/blocking`, options, { fullResponse: true });
+    const params = { id: userId };
+    const initialRq = await this.get<UserV2TimelineResult>('users/:id/blocking', options, { fullResponse: true, params });
 
     return new UserBlockingUsersV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
       queryParams: { ...options },
-      sharedParams: { userId },
+      sharedParams: params,
     });
   }
 
@@ -321,7 +331,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
    */
   public space(spaceId: string, options: Partial<SpaceV2FieldsParams> = {}) {
-    return this.get<SpaceV2SingleResult>(`spaces/${spaceId}`, options);
+    return this.get<SpaceV2SingleResult>('spaces/:id', options, { params: { id: spaceId } });
   }
 
   /**
@@ -405,7 +415,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs-id
    */
   public complianceJob(jobId: string) {
-    return this.get<BatchComplianceV2Result>(`compliance/jobs/${jobId}`);
+    return this.get<BatchComplianceV2Result>('compliance/jobs/:id', undefined, { params: { id: jobId } });
   }
 
   /**

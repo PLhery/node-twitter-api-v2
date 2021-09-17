@@ -31,6 +31,8 @@ export interface IGetHttpRequestArgs {
   url: string;
   method: string;
   query?: TRequestQuery;
+  /** The URL parameters, if you specify an endpoint with `:id`, for example. */
+  params?: TRequestQuery;
   body?: TRequestBody;
   headers?: Record<string, string>;
   forceBodyMode?: TBodyMode;
@@ -42,7 +44,7 @@ export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
 
 export abstract class ClientRequestMaker {
   protected _bearerToken?: string;
@@ -160,7 +162,11 @@ export abstract class ClientRequestMaker {
     return headers;
   }
 
-  protected getHttpRequestArgs({ url, method, query: rawQuery = {}, body: rawBody = {}, headers, forceBodyMode, enableAuth }: IGetHttpRequestArgs) {
+  protected getHttpRequestArgs({
+    url, method, query: rawQuery = {},
+    body: rawBody = {}, headers,
+    forceBodyMode, enableAuth, params,
+  }: IGetHttpRequestArgs) {
     let body: string | Buffer | undefined = undefined;
     method = method.toUpperCase();
     headers = headers ?? {};
@@ -175,9 +181,17 @@ export abstract class ClientRequestMaker {
       url = 'https://' + url;
     }
 
+    // URL without query string to save as endpoint name
+    const rawUrl = url.split('?')[0];
+
+    // Apply URL parameters
+    if (params) {
+      url = RequestParamHelpers.applyRequestParametersToUrl(url, params);
+    }
+
+    // Build an URL without anything in QS, and QSP in query
     const query = RequestParamHelpers.formatQueryToString(rawQuery);
     url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
-    const rawUrl = url;
 
     // Delete undefined parameters
     if (!(rawBody instanceof Buffer)) {
