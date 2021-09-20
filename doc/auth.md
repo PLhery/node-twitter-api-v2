@@ -19,9 +19,9 @@ For example, if you have a Twitter developer app, you can make API requests on b
 This method is **fairly the most complex** of authentification flow options, but it is, at least for now, the **most used method across Twitter API**.
 
 It is named "3-legged" because it is splitted in 3 parts:
-- You (the app/server) generate a auth link that is clickable by a external user, and gives you *temporary* access tokens
-- The user clicks on the link, approves the application, it gives you a verifier token
-- You use the *temporary* access tokens and verifier token to obtain **user-specific** *persistent* access tokens
+1. You (the app/server) generate a auth link that is clickable by a external user, and gives you *temporary* access tokens
+2. The user clicks on the link, approves the application, it gives you a verifier token
+3. You use the *temporary* access tokens and verifier token to obtain **user-specific** *persistent* access tokens
 
 **NOTE**
 > - If you're building a server that serves content for users,
