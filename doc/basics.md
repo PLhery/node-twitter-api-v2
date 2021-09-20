@@ -8,7 +8,7 @@
 
 ### Create a client
 
-Import the default export/`TwitterApi` variable from `twitter-api-v2` module.
+Import the default export `TwitterApi` variable from `twitter-api-v2` module.
 
 **Developer note:** Default export is a TypeScript-CommonJS-wrapped default export —
 it isn't a regular ECMA module default export. See example below.
