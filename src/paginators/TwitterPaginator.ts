@@ -108,7 +108,7 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
    * Fetch up to {count} items after current page,
    * as long as rate limit is not hit and Twitter has some results
    */
-  async fetchLast(count: number) {
+  async fetchLast(count = Infinity) {
     let queryParams = this.getNextQueryParams(this._maxResultsWhenFetchLast);
 
     let resultCount = 0;
