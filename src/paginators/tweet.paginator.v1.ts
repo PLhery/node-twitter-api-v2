@@ -27,9 +27,8 @@ abstract class TweetTimelineV1Paginator<
     const lastestId = BigInt(this._realData[this._realData.length - 1].id_str);
 
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       max_id: (lastestId - BigInt(1)).toString(),
-      ...maxResults ? { max_results: maxResults } : {},
     };
   }
 

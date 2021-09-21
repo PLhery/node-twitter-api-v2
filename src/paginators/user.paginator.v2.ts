@@ -54,17 +54,15 @@ abstract class UserTimelineV2Paginator<
 
   protected getNextQueryParams(maxResults?: number) {
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       pagination_token: this._realData.meta.next_token,
-      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       pagination_token: this._realData.meta.previous_token,
-      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 

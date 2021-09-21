@@ -59,6 +59,13 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
     return this._endpoint;
   }
 
+  protected injectQueryParams(maxResults?: number) {
+    return {
+      ...(maxResults ? { max_results: maxResults } : {}),
+      ...this._queryParams,
+    };
+  }
+
   protected abstract refreshInstanceFromResult(result: TwitterResponse<TApiResult>, isNextPage: boolean): any;
 
   protected abstract getNextQueryParams(maxResults?: number): Partial<TApiParams>;
