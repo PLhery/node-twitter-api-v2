@@ -60,6 +60,32 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   /**
+   * Post a series of tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
+   */
+  public async tweetThread(tweets: (SendTweetV1Params | string)[]) {
+    const postedTweets: TweetV1[] = [];
+
+    for (const tweet of tweets) {
+      // Retrieve the last sent tweet
+      const lastTweet = postedTweets.length ? postedTweets[postedTweets.length - 1] : null;
+      // Build the tweet query params
+      const queryParams: SendTweetV1Params = { ...(typeof tweet === 'string' ? ({ status: tweet }) : tweet) };
+      // Reply to an existing tweet if needed
+      const inReplyToId = lastTweet ? lastTweet.id_str : queryParams.in_reply_to_status_id;
+      const status = queryParams.status;
+
+      if (inReplyToId) {
+        postedTweets.push(await this.reply(status, inReplyToId, queryParams));
+      } else {
+        postedTweets.push(await this.tweet(status, queryParams));
+      }
+    }
+
+    return postedTweets;
+  }
+
+  /**
    * Reply to an existing tweet. Shortcut to `.tweet` with tweaked parameters.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
