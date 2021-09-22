@@ -1,3 +1,9 @@
+1.5.2
+-----
+- Feat: Tweet thread helper #76 #79
+- Fix: Explicit max_results parameters should now work properly in paginators #74 #84
+- Fix: Endpoints with parameterized URLs now registers properly rate-limit data in cache store
+
 1.5.1
 -----
 - Fix: Fix return type for v1.1 'tweets' wrapper #72
