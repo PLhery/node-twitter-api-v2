@@ -28,27 +28,25 @@ export class RequestParamHelpers {
     return formattedQuery;
   }
 
-  static autoDetectBodyType(url: string) : TBodyMode {
-    const requestUrl = new URL(url);
-
-    if (requestUrl.pathname.startsWith('/2/') || requestUrl.pathname.startsWith('/labs/2/')) {
+  static autoDetectBodyType(url: URL) : TBodyMode {
+    if (url.pathname.startsWith('/2/') || url.pathname.startsWith('/labs/2/')) {
       // oauth2 takes url encoded
-      if (requestUrl.password.startsWith('/2/oauth2')) {
+      if (url.password.startsWith('/2/oauth2')) {
         return 'url';
       }
       // Twitter API v2 has JSON-encoded requests for everything else
       return 'json';
     }
 
-    if (requestUrl.hostname === 'upload.twitter.com') {
-      if (requestUrl.pathname === '/1.1/media/upload.json') {
+    if (url.hostname === 'upload.twitter.com') {
+      if (url.pathname === '/1.1/media/upload.json') {
         return 'form-data';
       }
       // json except for media/upload command, that is form-data.
       return 'json';
     }
 
-    const endpoint = requestUrl.pathname.split('/1.1/', 2)[1];
+    const endpoint = url.pathname.split('/1.1/', 2)[1];
 
     if (this.JSON_1_1_ENDPOINTS.has(endpoint)) {
       return 'json';
@@ -56,14 +54,15 @@ export class RequestParamHelpers {
     return 'url';
   }
 
-  static constructGetParams(query: TRequestQuery) {
-    if (Object.keys(query).length) {
-      return '?' + (new URLSearchParams(query as Record<string, string>)
-        .toString()
-        .replace(/\*/g, '%2A')); // URLSearchParams doesnt encode '*', but Twitter wants it encoded.
+  static addQueryParamsToUrl(url: URL, query: TRequestQuery) {
+    for (const [key, value] of Object.entries(query) as [string, string][]) {
+      url.searchParams.append(key, value);
     }
 
-    return '';
+    if (url.search) {
+      // URLSearchParams doesnt encode '*', but Twitter wants it encoded.
+      url.search = url.search.replace(/\*/g, '%2A');
+    }
   }
 
   static constructBodyParams(
@@ -144,46 +143,29 @@ export class RequestParamHelpers {
     return parameters;
   }
 
-  static mergeUrlQueryIntoObject(url: string, query: TRequestQuery) {
-    const urlObject = new URL(url);
-
-    for (const [param, value] of urlObject.searchParams) {
+  static moveUrlQueryParamsIntoObject(url: URL, query: TRequestQuery) {
+    for (const [param, value] of url.searchParams) {
       query[param] = value;
     }
 
     // Remove the query string
-    return urlObject.href.slice(0, urlObject.href.length - urlObject.search.length);
+    url.search = '';
+    return url;
   }
 
-  static applyRequestParametersToUrl(url: string, parameters: TRequestQuery) {
-    // Protocol ends at index + 3 (:// length)
-    const protocolIndex = url.indexOf('://') + 3;
-    const queryStringIndex = url.indexOf('?', protocolIndex);
-    const replaceRegex = /:([A-Z_-]+)/ig;
-    const replacer = (fullMatch: string, paramName: string) => {
+  /**
+   * Replace URL parameters available in pathname, like `:id`, with data given in `parameters`:
+   * `https://twitter.com/:id.json` + `{ id: '20' }` => `https://twitter.com/20.json`
+   */
+  static applyRequestParametersToUrl(url: URL, parameters: TRequestQuery) {
+    url.pathname = url.pathname.replace(/:([A-Z_-]+)/ig, (fullMatch, paramName: string) => {
       if (parameters[paramName] !== undefined) {
         return String(parameters[paramName]);
       }
       return fullMatch;
-    };
+    });
 
-    const protocolPart = url.slice(0, protocolIndex);
-
-    if (queryStringIndex !== -1) {
-      // Has a query string
-      const qsPart = url.slice(queryStringIndex);
-
-      return protocolPart
-        + url
-          .slice(protocolIndex, queryStringIndex)
-          .replace(replaceRegex, replacer)
-        + qsPart;
-    } else {
-      return protocolPart
-        + url
-          .slice(protocolIndex)
-          .replace(replaceRegex, replacer);
-    }
+    return url;
   }
 }
 
