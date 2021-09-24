@@ -21,7 +21,7 @@ export type TBodyMode = 'json' | 'url' | 'form-data' | 'raw';
 interface IWriteAuthHeadersArgs {
   headers: Record<string, string>;
   bodyInSignature: boolean;
-  url: string;
+  url: URL;
   method: string;
   query: TRequestQuery;
   body: TRequestBody;
@@ -53,6 +53,7 @@ export abstract class ClientRequestMaker {
   protected _accessToken?: string;
   protected _accessSecret?: string;
   protected _basicToken?: string;
+  protected _clientId?: string;
   protected _oauth?: OAuth1Helper;
   protected _rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
 
@@ -151,7 +152,7 @@ export abstract class ClientRequestMaker {
       const data = bodyInSignature ? RequestParamHelpers.mergeQueryAndBodyForOAuth(query, body) : query;
 
       const auth = this._oauth.authorize({
-        url,
+        url: url.toString(),
         method,
         data,
       }, this.getOAuthAccessTokens());
@@ -181,17 +182,19 @@ export abstract class ClientRequestMaker {
       url = 'https://' + url;
     }
 
+    // Convert URL to object that will receive all URL modifications
+    const urlObject = new URL(url);
     // URL without query string to save as endpoint name
-    const rawUrl = url.split('?')[0];
+    const rawUrl = urlObject.origin + urlObject.pathname;
 
     // Apply URL parameters
     if (params) {
-      url = RequestParamHelpers.applyRequestParametersToUrl(url, params);
+      RequestParamHelpers.applyRequestParametersToUrl(urlObject, params);
     }
 
     // Build an URL without anything in QS, and QSP in query
     const query = RequestParamHelpers.formatQueryToString(rawQuery);
-    url = RequestParamHelpers.mergeUrlQueryIntoObject(url, query);
+    RequestParamHelpers.moveUrlQueryParamsIntoObject(urlObject, query);
 
     // Delete undefined parameters
     if (!(rawBody instanceof Buffer)) {
@@ -199,25 +202,25 @@ export abstract class ClientRequestMaker {
     }
 
     // OAuth signature should not include parameters when using multipart.
-    const bodyType = forceBodyMode ?? RequestParamHelpers.autoDetectBodyType(url);
+    const bodyType = forceBodyMode ?? RequestParamHelpers.autoDetectBodyType(urlObject);
 
     // If undefined or true, enable auth by headers
     if (enableAuth !== false) {
       // OAuth needs body signature only if body is URL encoded.
       const bodyInSignature = ClientRequestMaker.BODY_METHODS.has(method) && bodyType === 'url';
 
-      headers = this.writeAuthHeaders({ headers, bodyInSignature, url, method, query, body: rawBody });
+      headers = this.writeAuthHeaders({ headers, bodyInSignature, method, query, url: urlObject, body: rawBody });
     }
 
     if (ClientRequestMaker.BODY_METHODS.has(method)) {
       body = RequestParamHelpers.constructBodyParams(rawBody, headers, bodyType) || undefined;
     }
 
-    url += RequestParamHelpers.constructGetParams(query);
+    RequestParamHelpers.addQueryParamsToUrl(urlObject, query);
 
     return {
       rawUrl,
-      url,
+      url: urlObject.toString(),
       method,
       headers,
       body,

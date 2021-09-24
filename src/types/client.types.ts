@@ -20,6 +20,10 @@ export interface TwitterApiTokens {
   accessSecret?: string;
 }
 
+export interface TwitterApiOAuth2Init {
+  clientId: string;
+}
+
 export interface TwitterApiBasicAuth {
   username: string;
   password: string;

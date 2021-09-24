@@ -23,7 +23,7 @@ describe('Tweets endpoints for v2 API', () => {
     });
 
     for (const response of [response1, response2]) {
-      expect(response.data.length).to.equal(2);
+      expect(response.data).to.have.length.lessThanOrEqual(2);
       const firstTweet = response.data[0];
 
       expect(firstTweet).to.haveOwnProperty('author_id');
@@ -31,7 +31,7 @@ describe('Tweets endpoints for v2 API', () => {
 
       const includes = response.includes?.users;
       const firstInclude = includes[0];
-      expect(includes).to.have.length(2);
+      expect(includes).to.have.length.lessThanOrEqual(2);
       expect(firstInclude).to.haveOwnProperty('name');
     }
 

@@ -20,7 +20,7 @@ describe('Tweets endpoints for v1.1 API', () => {
     });
 
     for (const response of [response1, response2]) {
-      expect(response.statuses).to.have.length(2);
+      expect(response.statuses).to.have.length.lessThanOrEqual(2);
       const firstTweet = response.statuses[0];
 
       expect(firstTweet).to.haveOwnProperty('user');
@@ -41,7 +41,7 @@ describe('Tweets endpoints for v1.1 API', () => {
     });
 
     for (const response of [response1, response2]) {
-      expect(response).to.have.length(2);
+      expect(response).to.have.length.lessThanOrEqual(2);
       const firstTweet = response[0];
 
       expect(firstTweet).to.haveOwnProperty('user');
