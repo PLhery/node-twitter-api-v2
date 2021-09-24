@@ -102,17 +102,15 @@ abstract class TweetTimelineV2Paginator<
 
   protected getNextQueryParams(maxResults?: number) {
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       until_id: this._realData.meta.oldest_id,
-      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       since_id: this._realData.meta.newest_id,
-      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 }
@@ -182,17 +180,15 @@ abstract class TweetListV2Paginator<
 
   protected getNextQueryParams(maxResults?: number) {
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       pagination_token: this._realData.meta.next_token,
-      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
     return {
-      ...this._queryParams,
+      ...this.injectQueryParams(maxResults),
       pagination_token: this._realData.meta.previous_token,
-      ...(maxResults ? { max_results: maxResults } : {}),
     };
   }
 }
