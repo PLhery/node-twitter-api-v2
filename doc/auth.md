@@ -19,9 +19,9 @@ For example, if you have a Twitter developer app, you can make API requests on b
 This method is **fairly the most complex** of authentification flow options, but it is, at least for now, the **most used method across Twitter API**.
 
 It is named "3-legged" because it is splitted in 3 parts:
-- You (the app/server) generate a auth link that is clickable by a external user, and gives you *temporary* access tokens
-- The user clicks on the link, approves the application, it gives you a verifier token
-- You use the *temporary* access tokens and verifier token to obtain **user-specific** *persistent* access tokens
+1. You (the app/server) generate a auth link that is clickable by a external user, and gives you *temporary* access tokens
+2. The user clicks on the link, approves the application, it gives you a verifier token
+3. You use the *temporary* access tokens and verifier token to obtain **user-specific** *persistent* access tokens
 
 **NOTE**
 > - If you're building a server that serves content for users,
@@ -33,7 +33,7 @@ It is named "3-legged" because it is splitted in 3 parts:
 
 ### Create the auth link
 
-You need to have a client instanciated with your **consumer keys** from Twitter.
+You need to have a client instantiated with your **consumer keys** from Twitter.
 ```ts
 const client = new TwitterApi({ appKey: CONSUMER_KEY, appSecret: CONSUMER_SECRET });
 ```
@@ -149,7 +149,7 @@ const client = await consumerClient.appLogin();
 
 Mainly for **Twitter enterprise APIs**, that require the use of HTTP Basic Authentication.
 You must pass a valid email address and password combination for each request.
-The email and password combination are the same ones that you will use to access the enterprise API console, and can be editted from within this console.
+The email and password combination are the same ones that you will use to access the enterprise API console, and can be edited from within this console.
 
 Use this combination to create your Twitter API client:
 ```ts
