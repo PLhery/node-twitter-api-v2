@@ -55,7 +55,7 @@ export enum ETwitterApiError {
 export interface TwitterApiRequestError {
   type: ETwitterApiError.Request;
   error: true;
-  requestError: Error;
+  readonly requestError: Error;
 }
 
 export interface TwitterApiError extends TwitterResponse<TwitterApiErrorData> {
@@ -74,22 +74,30 @@ abstract class ApiError extends Error {
 }
 
 interface IBuildApiRequestError {
-  request: ClientRequest;
+  readonly request: ClientRequest;
   error: Error;
 }
 
 export class ApiRequestError extends ApiError implements TwitterApiRequestError {
+  protected _options: any;
+
   type = ETwitterApiError.Request as const;
-  request: ClientRequest;
-  requestError: Error;
 
   constructor(message: string, options: IBuildApiRequestError) {
     super(message);
 
     Error.captureStackTrace(this, this.constructor);
 
-    this.request = options.request;
-    this.requestError = options.error;
+    // Do not show on Node stack trace
+    Object.defineProperty(this, '_options', { value: options });
+  }
+
+  get request(): ClientRequest {
+    return this._options.request;
+  }
+
+  get requestError(): Error {
+    return this._options.requestError;
   }
 }
 
@@ -103,11 +111,11 @@ interface IBuildApiResponseError {
 }
 
 export class ApiResponseError extends ApiError implements TwitterApiError, IBuildApiResponseError {
+  protected _options: any;
+
   type = ETwitterApiError.Response as const;
   /** HTTP error code */
   code: number;
-  request: ClientRequest;
-  response: IncomingMessage;
   headers: IncomingHttpHeaders;
   data: TwitterApiErrorData;
   rateLimit?: TwitterRateLimit;
@@ -117,12 +125,21 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
 
     Error.captureStackTrace(this, this.constructor);
 
+    // Do not show on Node stack trace
+    Object.defineProperty(this, '_options', { value: options });
+
     this.code = options.code;
-    this.request = options.request;
-    this.response = options.response;
     this.headers = options.headers;
     this.rateLimit = options.rateLimit;
     this.data = options.data;
+  }
+
+  get request(): ClientRequest {
+    return this._options.request;
+  }
+
+  get response(): IncomingMessage {
+    return this._options.response;
   }
 
   /** Check for presence of one of given v1/v2 error codes. */

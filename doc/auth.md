@@ -11,6 +11,8 @@ Please first see the [Basics](./basics.md) to know how to create a client with y
 - App-only authentification (Bearer token, see [Application-only authentification flow](#application-only-authentification-flow))
 - Basic authentification (couple of username+password, see [Basic authentification flow](#basic-authentification-flow))
 
+**Note**: You can find a [project real-life example of a 3-legged auth flow here](https://github.com/alkihis/twitter-api-v2-user-oauth-flow-example).
+
 ## User-wide authentification flow
 
 Many endpoints on the Twitter developer platform use the OAuth 1.0a method to act on behalf of a Twitter account.
