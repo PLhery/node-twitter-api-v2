@@ -1,4 +1,4 @@
-import { TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse } from './types';
+import { TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1 } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -35,6 +35,7 @@ export type TStreamClientRequestArgs = TCustomizableRequestArgs & {
  */
 export default abstract class TwitterApiBase extends ClientRequestMaker {
   protected _prefix: string | undefined;
+  protected _currentUser: UserV1 | null = null;
 
   /**
    * Create a new TwitterApi object without authentification.
@@ -98,6 +99,8 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     }
   }
 
+  /* Prefix/Token handling */
+
   protected setPrefix(prefix: string | undefined) {
     this._prefix = prefix;
   }
@@ -134,6 +137,8 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     return { type: 'none' };
   }
 
+  /* Rate limit cache */
+
   /**
    * Tells if you hit the Twitter rate limit for {endpoint}.
    * (local data only, this should not ask anything to Twitter)
@@ -168,6 +173,23 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     return this._rateLimits[endpointWithPrefix];
   }
 
+  /* Current user cache */
+
+  /** Get cached current user. */
+  protected async getCurrentUserObject(forceFetch = false) {
+    if (!forceFetch && this._currentUser) {
+      return this._currentUser;
+    }
+
+    const currentUser = await this.get<UserV1>(
+      'account/verify_credentials.json',
+      { tweet_mode: 'extended' },
+      { prefix: 'https://api.twitter.com/1.1/' },
+    );
+    this._currentUser = currentUser;
+
+    return currentUser;
+  }
 
   /* Direct HTTP methods */
 

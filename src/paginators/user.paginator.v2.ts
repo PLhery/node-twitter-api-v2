@@ -98,6 +98,10 @@ export class UserBlockingUsersV2Paginator extends UserTimelineV2Paginator<UserV2
   protected _endpoint = 'users/:id/blocking';
 }
 
+export class UserMutingUsersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
+  protected _endpoint = 'users/:id/muting';
+}
+
 export class UserFollowersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
   protected _endpoint = 'users/:id/followers';
 }

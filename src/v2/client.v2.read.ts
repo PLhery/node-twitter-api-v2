@@ -51,8 +51,8 @@ import {
   TweetV2UserLikedTweetsPaginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
-import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator } from '../paginators/user.paginator.v2';
-import { isTweetStreamV2ErrorPayload } from '../helpers';
+import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
+import { isTweetStreamV2ErrorPayload, safeDeprecationWarning } from '../helpers';
 
 /**
  * Base Twitter v2 client with only read right.
@@ -316,14 +316,46 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * Returns a list of users who are blocked by the specified user ID. User ID must be the authenticating user.
+   * Returns a list of users who are blocked by the authenticating user.
    * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
-   public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
+  public async userBlockingUsers(options?: Partial<UserV2TimelineParams>): Promise<UserBlockingUsersV2Paginator>;
+  /** @deprecated Remove `userId` param. */
+  public async userBlockingUsers(userId: string, options?: Partial<UserV2TimelineParams>): Promise<UserBlockingUsersV2Paginator>;
+  public async userBlockingUsers(userIdOrOptions: string | Partial<UserV2TimelineParams> = {}, oldOptions: Partial<UserV2TimelineParams> = {}) {
+    const { id_str: userId } = await this.getCurrentUserObject();
+
+    if (typeof userIdOrOptions === 'string') {
+      safeDeprecationWarning({
+        instance: 'TwitterApiv2ReadOnly', method: 'userBlockingUsers',
+        problem: 'Specifing userId param is deprecated, as it always mentions the current user',
+        resolution: 'Please consider removing this parameter instead',
+      });
+    }
+
+    const options = typeof userIdOrOptions === 'string' ? oldOptions : userIdOrOptions;
     const params = { id: userId };
     const initialRq = await this.get<UserV2TimelineResult>('users/:id/blocking', options, { fullResponse: true, params });
 
     return new UserBlockingUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /**
+   * Returns a list of users who are muted by the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/get-users-muting
+   */
+  public async userMutingUsers(options: Partial<UserV2TimelineParams> = {}) {
+    const { id_str: userId } = await this.getCurrentUserObject();
+    const params = { id: userId };
+    const initialRq = await this.get<UserV2TimelineResult>('users/:id/muting', options, { fullResponse: true, params });
+
+    return new UserMutingUsersV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
