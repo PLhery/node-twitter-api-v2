@@ -370,7 +370,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Get a single space by ID.
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
    *
-   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
   public space(spaceId: string, options: Partial<SpaceV2FieldsParams> = {}) {
     return this.get<SpaceV2SingleResult>('spaces/:id', options, { params: { id: spaceId } });
@@ -380,7 +380,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Get spaces using their IDs.
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
    *
-   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
   public spaces(spaceIds: string | string[], options: Partial<SpaceV2FieldsParams> = {}) {
     return this.get<SpaceV2LookupResult>('spaces', { ids: spaceIds, ...options });
@@ -390,7 +390,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Get spaces using their creator user ID(s). (no pagination available)
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
    *
-   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
   public spacesByCreators(creatorIds: string | string[], options: Partial<SpaceV2CreatorLookupParams> = {}) {
     return this.get<SpaceV2LookupResult>('spaces/by/creator_ids', { user_ids: creatorIds, ...options });

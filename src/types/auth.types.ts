@@ -2,7 +2,7 @@ import type TwitterApi from '../client';
 import { TypeOrArrayOf } from './shared.types';
 
 export type TOAuth2Scope = 'tweet.read' | 'users.read' | 'account.follows.read' | 'account.follows.write'
- | 'offline.access' | 'spaces.read';
+ | 'offline.access' | 'space.read';
 
 export interface BuildOAuth2RequestLinkArgs {
   scope?: TypeOrArrayOf<TOAuth2Scope> | TypeOrArrayOf<string>;
