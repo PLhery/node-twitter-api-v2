@@ -112,7 +112,7 @@ export interface UploadMediaV1Params {
 }
 
 export interface MediaMetadataV1Params {
-  alt_text?: string;
+  alt_text?: { text: string };
 }
 
 export interface MediaSubtitleV1Param {
