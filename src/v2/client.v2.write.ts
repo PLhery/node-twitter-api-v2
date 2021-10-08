@@ -1,6 +1,14 @@
 import { API_V2_PREFIX } from '../globals';
 import TwitterApiv2ReadOnly from './client.v2.read';
 import type {
+  ListCreateV2Params,
+  ListCreateV2Result,
+  ListDeleteV2Result,
+  ListFollowV2Result,
+  ListMemberV2Result,
+  ListPinV2Result,
+  ListUpdateV2Params,
+  ListUpdateV2Result,
   TweetV2HideReplyResult,
   TweetV2LikeResult,
   TweetV2RetweetResult,
@@ -165,5 +173,79 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
     return this.delete<UserV2MuteResult>('users/:source_user_id/muting/:target_user_id', undefined, {
       params: { source_user_id: loggedUserId, target_user_id: targetUserId },
     });
+  }
+
+  /* Lists */
+
+  /**
+   * Creates a new list for the authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-lists
+   */
+  public createList(options: ListCreateV2Params) {
+    return this.post<ListCreateV2Result>('lists', options);
+  }
+
+  /**
+   * Updates the specified list. The authenticated user must own the list to be able to update it.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/put-lists-id
+   */
+  public updateList(listId: string, options: ListUpdateV2Params = {}) {
+    return this.put<ListUpdateV2Result>('lists/:id', options, { params: { id: listId } });
+  }
+
+  /**
+   * Deletes the specified list. The authenticated user must own the list to be able to destroy it.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-lists-id
+   */
+  public removeList(listId: string) {
+    return this.delete<ListDeleteV2Result>('lists/:id', undefined, { params: { id: listId } });
+  }
+
+  /**
+   * Adds a member to a list.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-lists-id-members
+   */
+  public addListMember(listId: string, userId: string) {
+    return this.post<ListMemberV2Result>('lists/:id/members', { user_id: userId }, { params: { id: listId } });
+  }
+
+  /**
+   * Remember a member to a list.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-lists-id-members-user_id
+   */
+  public removeListMember(listId: string, userId: string) {
+    return this.delete<ListMemberV2Result>('lists/:id/members/:user_id', undefined, { params: { id: listId, user_id: userId } });
+  }
+
+  /**
+   * Subscribes the authenticated user to the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-users-id-followed-lists
+   */
+  public subscribeToList(loggedUserId: string, listId: string) {
+    return this.post<ListFollowV2Result>('users/:id/followed_lists', { list_id: listId }, { params: { id: loggedUserId } });
+  }
+
+  /**
+   * Unsubscribes the authenticated user to the specified list.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-users-id-followed-lists-list_id
+   */
+  public unsubscribeOfList(loggedUserId: string, listId: string) {
+    return this.delete<ListFollowV2Result>('users/:id/followed_lists/:list_id', undefined, { params: { id: loggedUserId, list_id: listId } });
+  }
+
+  /**
+   * Enables the authenticated user to pin a List.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-users-id-pinned-lists
+   */
+  public pinList(loggedUserId: string, listId: string) {
+    return this.post<ListPinV2Result>('users/:id/pinned_lists', { list_id: listId }, { params: { id: loggedUserId } });
+  }
+
+  /**
+   * Enables the authenticated user to unpin a List.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-users-id-pinned-lists-list_id
+   */
+  public unpinList(loggedUserId: string, listId: string) {
+    return this.delete<ListPinV2Result>('users/:id/pinned_lists/:list_id', undefined, { params: { id: loggedUserId, list_id: listId } });
   }
 }

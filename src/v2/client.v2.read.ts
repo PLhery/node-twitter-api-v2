@@ -79,7 +79,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
    */
   public async search(query: string, options: Partial<Tweetv2SearchParams> = {}) {
-    const queryParams = {...options, query};
+    const queryParams = { ...options, query };
     const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
 
     return new TweetSearchRecentV2Paginator({
@@ -98,7 +98,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
    */
   public async searchAll(query: string, options: Partial<Tweetv2SearchParams> = {}) {
-    const queryParams = {...options, query};
+    const queryParams = { ...options, query };
     const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/all', queryParams, { fullResponse: true });
 
     return new TweetSearchAllV2Paginator({
@@ -319,7 +319,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns a list of users who are blocked by the specified user ID. User ID must be the authenticating user.
    * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
-   public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
+  public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
     const params = { id: userId };
     const initialRq = await this.get<UserV2TimelineResult>('users/:id/blocking', options, { fullResponse: true, params });
 
