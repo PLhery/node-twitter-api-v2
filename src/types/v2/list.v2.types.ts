@@ -1,4 +1,4 @@
-import { DataV2 } from "./shared.v2.types";
+import { DataV2 } from './shared.v2.types';
 
 export interface ListCreateV2Params {
   name: string;
