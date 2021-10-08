@@ -84,7 +84,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
   public retweet(loggedUserId: string, targetTweetId: string) {
-    return this.post<TweetV2RetweetResult>(`users/:id/retweets`, { tweet_id: targetTweetId }, { params: { id: loggedUserId } });
+    return this.post<TweetV2RetweetResult>('users/:id/retweets', { tweet_id: targetTweetId }, { params: { id: loggedUserId } });
   }
 
   /**

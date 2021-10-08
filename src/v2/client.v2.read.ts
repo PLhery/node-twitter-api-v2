@@ -51,7 +51,7 @@ import {
   TweetV2UserLikedTweetsPaginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
-import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator } from '../paginators/user.paginator.v2';
+import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
 import { isTweetStreamV2ErrorPayload } from '../helpers';
 
 /**
@@ -316,7 +316,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   }
 
   /**
-   * Returns a list of users who are blocked by the specified user ID. User ID must be the authenticating user.
+   * Returns a list of users who are blocked by the authenticating user.
    * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
   public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
@@ -332,13 +332,31 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
     });
   }
 
+  /**
+   * Returns a list of users who are muted by the authenticating user.
+   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/get-users-muting
+   */
+  public async userMutingUsers(options: Partial<UserV2TimelineParams> = {}) {
+    const { id_str: userId } = await this.getCurrentUserObject();
+    const params = { id: userId };
+    const initialRq = await this.get<UserV2TimelineResult>('users/:id/muting', options, { fullResponse: true, params });
+
+    return new UserMutingUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
   /* Spaces */
 
   /**
    * Get a single space by ID.
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
    *
-   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
   public space(spaceId: string, options: Partial<SpaceV2FieldsParams> = {}) {
     return this.get<SpaceV2SingleResult>('spaces/:id', options, { params: { id: spaceId } });
@@ -348,7 +366,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Get spaces using their IDs.
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
    *
-   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
   public spaces(spaceIds: string | string[], options: Partial<SpaceV2FieldsParams> = {}) {
     return this.get<SpaceV2LookupResult>('spaces', { ids: spaceIds, ...options });
@@ -358,7 +376,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Get spaces using their creator user ID(s). (no pagination available)
    * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
    *
-   * OAuth2 scopes: `tweet.read`, `users.read`, `spaces.read`.
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
   public spacesByCreators(creatorIds: string | string[], options: Partial<SpaceV2CreatorLookupParams> = {}) {
     return this.get<SpaceV2LookupResult>('spaces/by/creator_ids', { user_ids: creatorIds, ...options });

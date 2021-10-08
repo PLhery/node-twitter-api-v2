@@ -1,3 +1,5 @@
+import { TwitterApiV2Settings } from './settings';
+
 export function arrayWrap<T>(value: T | T[]) : T[] {
   if (Array.isArray(value)) {
     return value;
@@ -25,4 +27,33 @@ export function hasMultipleItems(item: string | string[]) {
     return true;
   }
   return item.toString().includes(',');
+}
+
+/* Deprecation warnings */
+
+export interface IDeprecationWarning {
+  instance: string;
+  method: string;
+  problem: string;
+  resolution: string;
+}
+
+const deprecationWarningsCache = new Set<string>();
+
+export function safeDeprecationWarning(message: IDeprecationWarning) {
+  if (typeof console === 'undefined' || !console.warn || !TwitterApiV2Settings.deprecationWarnings) {
+    return;
+  }
+
+  const hash = `${message.instance}-${message.method}-${message.problem}`;
+  if (deprecationWarningsCache.has(hash)) {
+    return;
+  }
+
+  const formattedMsg = `[twitter-api-v2] Deprecation warning: In ${message.instance}.${message.method}() call` +
+    `, ${message.problem}.\n${message.resolution}.`;
+
+  console.warn(formattedMsg);
+  console.warn('To disable this message, import TwitterApiV2Settings from twitter-api-v2 and set TwitterApiV2Settings.deprecationWarnings to false.');
+  deprecationWarningsCache.add(hash);
 }

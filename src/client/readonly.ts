@@ -12,7 +12,6 @@ import {
 } from '../types';
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
-import { UserV1 } from '../types';
 import { OAuth2Helper } from '../client-mixins/oauth2.helper';
 
 /**
@@ -21,7 +20,6 @@ import { OAuth2Helper } from '../client-mixins/oauth2.helper';
 export default class TwitterApiReadOnly extends TwitterApiBase {
   protected _v1?: TwitterApiv1ReadOnly;
   protected _v2?: TwitterApiv2ReadOnly;
-  protected _currentUser?: UserV1;
 
   /* Direct access to subclients */
 
@@ -45,11 +43,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * Next calls to this methods will use the cached user, unless `forceFetch: true` is given.
    */
   public async currentUser(forceFetch = false) {
-    if (!forceFetch && this._currentUser) {
-      return this._currentUser;
-    }
-
-    return (this._currentUser = await this.v1.verifyCredentials());
+    return await this.getCurrentUserObject(forceFetch);
   }
 
   /* Shortcuts to endpoints */
