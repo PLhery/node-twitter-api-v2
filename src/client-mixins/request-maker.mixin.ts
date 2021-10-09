@@ -42,6 +42,17 @@ export interface IGetHttpRequestArgs {
 
 export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
+  autoConnect?: boolean;
+}
+
+interface IGetStreamRequestArgsAsync {
+  payloadIsError?: (data: any) => boolean;
+  autoConnect?: true;
+}
+
+interface IGetStreamRequestArgsSync {
+  payloadIsError?: (data: any) => boolean;
+  autoConnect: false;
 }
 
 export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
@@ -63,12 +74,7 @@ export abstract class ClientRequestMaker {
     this._rateLimits[originalUrl] = rateLimit;
   }
 
-  /**
-   * Send a new request and returns a wrapped `Promise<TwitterResponse<T>`.
-   *
-   * The request URL should not contains a query string, prefers using `parameters` for GET request.
-   * If you need to pass a body AND query string parameter, duplicate parameters in the body.
-   */
+  /** Send a new request and returns a wrapped `Promise<TwitterResponse<T>`. */
   send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     const args = this.getHttpRequestArgs(requestParams);
     const options = { method: args.method, headers: args.headers };
@@ -88,28 +94,39 @@ export abstract class ClientRequestMaker {
   }
 
   /**
-   * Send a new request, then creates a stream from its as a `Promise<TwitterStream>`.
+   * Create a new request, then creates a stream from it as a `TweetStream`.
    *
-   * The request URL should not contains a query string, prefers using `parameters` for GET request.
-   * If you need to pass a body AND query string parameter, duplicate parameters in the body.
+   * Request will be sent only if `autoConnect` is not set or `true`: return type will be `Promise<TweetStream>`.
+   * If `autoConnect` is `false`, a `TweetStream` is directly returned and you should call `stream.connect()` by yourself.
    */
-  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> {
+  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgsSync) : TweetStream<T>;
+  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgsAsync) : Promise<TweetStream<T>>;
+  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T>;
+
+  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T> {
     const args = this.getHttpRequestArgs(requestParams);
     const options = { method: args.method, headers: args.headers };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
+    const enableAutoConnect = requestParams.autoConnect !== false;
 
     if (args.body) {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
-    return new RequestHandlerHelper<T>({
+    const requestData: TRequestFullStreamData = {
       url: args.url,
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       payloadIsError: requestParams.payloadIsError,
-    })
-      .makeRequestAsStream();
+    };
+
+    const stream = new TweetStream<T>(requestData);
+
+    if (!enableAutoConnect) {
+      return stream;
+    }
+    return stream.connect();
   }
 
 

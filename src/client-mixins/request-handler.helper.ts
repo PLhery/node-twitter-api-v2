@@ -222,7 +222,7 @@ export class RequestHandlerHelper<T> {
 
   async makeRequestAsStream() {
     const { req, res, requestData } = await this.makeRequestAndResolveWhenReady();
-    return new TweetStream<T>(req, res, requestData as TRequestFullStreamData);
+    return new TweetStream<T>(requestData as TRequestFullStreamData, req, res);
   }
 
   makeRequestAndResolveWhenReady() {
