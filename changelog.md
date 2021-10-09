@@ -1,3 +1,10 @@
+1.6.0
+-----
+- Feat: List v2 muted users endpoint #89
+- Feat: Manage v2 lists endpoints
+- Feat: Support user-flow with OAuth2 (beta - not documented yet)
+- Fix: Incorrect typing for createMediaMetadata #93
+
 1.5.2
 -----
 - Feat: Tweet thread helper #76 #79
