@@ -53,6 +53,8 @@ import {
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
 import { isTweetStreamV2ErrorPayload } from '../helpers';
+import TweetStream from '../stream/TweetStream';
+import { PromiseOrType } from '../types/shared.types';
 
 /**
  * Base Twitter v2 client with only read right.
@@ -396,8 +398,12 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Streams Tweets in real-time based on a specific set of filter rules.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
    */
-  public searchStream(options: Partial<TweetSearchV2StreamParams> = {}) {
-    return this.getStream<TweetV2SingleStreamResult>('tweets/search/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
+  public searchStream(options?: Partial<TweetSearchV2StreamParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleStreamResult>>;
+  public searchStream(options: Partial<TweetSearchV2StreamParams> & { autoConnect: false }): TweetStream<TweetV2SingleStreamResult>;
+  public searchStream(options?: Partial<TweetSearchV2StreamParams> & { autoConnect?: boolean }): PromiseOrType<TweetStream<TweetV2SingleStreamResult>>;
+
+  public searchStream({ autoConnect, ...options }: Partial<TweetSearchV2StreamParams> & { autoConnect?: boolean } = {}) {
+    return this.getStream<TweetV2SingleStreamResult>('tweets/search/stream', options as any, { payloadIsError: isTweetStreamV2ErrorPayload, autoConnect });
   }
 
   /**
@@ -428,8 +434,12 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Streams about 1% of all Tweets in real-time.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
    */
-  public sampleStream(options: Partial<Tweetv2FieldsParams> = {}) {
-    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options, { payloadIsError: isTweetStreamV2ErrorPayload });
+  public sampleStream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleResult>>;
+  public sampleStream(options: Partial<Tweetv2FieldsParams> & { autoConnect: false }): TweetStream<TweetV2SingleResult>;
+  public sampleStream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: boolean }): PromiseOrType<TweetStream<TweetV2SingleResult>>;
+
+  public sampleStream({ autoConnect, ...options }: Partial<Tweetv2FieldsParams> & { autoConnect?: boolean } = {}) {
+    return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options as any, { payloadIsError: isTweetStreamV2ErrorPayload, autoConnect });
   }
 
   /* Batch compliance */

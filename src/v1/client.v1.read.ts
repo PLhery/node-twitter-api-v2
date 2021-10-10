@@ -62,6 +62,8 @@ import { HomeTimelineV1Paginator, ListTimelineV1Paginator, MentionTimelineV1Pagi
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
 import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 import { ListMembershipsV1Paginator, ListMembersV1Paginator, ListOwnershipsV1Paginator, ListSubscribersV1Paginator, ListSubscriptionsV1Paginator } from '../paginators/list.paginator.v1';
+import TweetStream from '../stream/TweetStream';
+import { PromiseOrType } from '../types/shared.types';
 
 /**
  * Base Twitter v1 client with only read right.
@@ -537,7 +539,11 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * Multiple parameters may be specified which allows most clients to use a single connection to the Streaming API.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
    */
-  public filterStream(params: Partial<FilterStreamV1Params> = {}) {
+  public filterStream(params?: Partial<FilterStreamV1Params> & { autoConnect?: true }): Promise<TweetStream<TweetV1>>;
+  public filterStream(params: Partial<FilterStreamV1Params> & { autoConnect: false }): TweetStream<TweetV1>;
+  public filterStream(params?: Partial<FilterStreamV1Params> & { autoConnect?: boolean }): PromiseOrType<TweetStream<TweetV1>>;
+
+  public filterStream({ autoConnect, ...params }: Partial<FilterStreamV1Params> & { autoConnect?: boolean } = {}) {
     const parameters: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(params)) {
@@ -554,7 +560,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     }
 
     const streamClient = this.stream;
-    return streamClient.postStream<TweetV1>('statuses/filter.json', parameters);
+    return streamClient.postStream<TweetV1>('statuses/filter.json', parameters, { autoConnect });
   }
 
   /**
@@ -562,9 +568,13 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * The Tweets returned by the default access level are the same, so if two different clients connect to this endpoint, they will see the same Tweets.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
    */
-  public sampleStream(params: Partial<SampleStreamV1Params> = {}) {
+  public sampleStream(params?: Partial<SampleStreamV1Params> & { autoConnect?: true }): Promise<TweetStream<TweetV1>>;
+  public sampleStream(params: Partial<SampleStreamV1Params> & { autoConnect: false }): TweetStream<TweetV1>;
+  public sampleStream(params?: Partial<SampleStreamV1Params> & { autoConnect?: boolean }): PromiseOrType<TweetStream<TweetV1>>;
+
+  public sampleStream({ autoConnect, ...params }: Partial<SampleStreamV1Params> & { autoConnect?: boolean } = {}) {
     const streamClient = this.stream;
-    return streamClient.getStream<TweetV1>('statuses/sample.json', params);
+    return streamClient.getStream<TweetV1>('statuses/sample.json', params, { autoConnect });
   }
 
   /**
