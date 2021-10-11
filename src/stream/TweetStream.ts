@@ -17,13 +17,20 @@ export interface IConnectTweetStreamParams {
   autoReconnectRetries: number | 'unlimited';
   /** Check for 'lost connection' status every `keepAliveTimeout` milliseconds. Defaults to 2 minutes (`120000`). */
   keepAliveTimeout: number | 'disable';
+  nextRetryTimeout?: TStreamConnectRetryFn;
 }
 
+/** Returns a number of milliseconds to wait for {tryOccurence} (starting from 1) */
+export type TStreamConnectRetryFn = (tryOccurence: number) => number;
+
+const basicReconnectRetry: TStreamConnectRetryFn = tryOccurence => Math.min((tryOccurence ** 2) * 1000, 25000);
+
 export class TweetStream<T = any> extends EventEmitter {
-  public autoReconnect = false;
+  public autoReconnect = true;
   public autoReconnectRetries = 5;
   // 2 minutes without any Twitter signal
   public keepAliveTimeoutMs = 1000 * 120;
+  public nextRetryTimeout = basicReconnectRetry;
 
   protected retryTimeout?: NodeJS.Timeout;
   protected keepAliveTimeout?: NodeJS.Timeout;
@@ -53,6 +60,7 @@ export class TweetStream<T = any> extends EventEmitter {
   on(event: ETwitterStreamEvent.Data, handler: (data: T) => any): this;
   on(event: ETwitterStreamEvent.DataError, handler: (error: any) => any): this;
   on(event: ETwitterStreamEvent.Error, handler: (errorPayload: ITweetStreamError) => any): this;
+  on(event: ETwitterStreamEvent.Connected, handler: () => any): this;
   on(event: ETwitterStreamEvent.ConnectionLost, handler: () => any): this;
   on(event: ETwitterStreamEvent.ConnectionError, handler: (error: Error) => any): this;
   on(event: ETwitterStreamEvent.TweetParseError, handler: (error: Error) => any): this;
@@ -217,6 +225,9 @@ export class TweetStream<T = any> extends EventEmitter {
         ? Infinity
         : options.keepAliveTimeout;
     }
+    if (typeof options.nextRetryTimeout !== 'undefined') {
+      this.nextRetryTimeout = options.nextRetryTimeout;
+    }
 
     await this.reconnect();
     return this;
@@ -280,7 +291,7 @@ export class TweetStream<T = any> extends EventEmitter {
 
   protected makeAutoReconnectRetry(retries: number) {
     const tryOccurence = (this.safeReconnectRetries - retries) + 1;
-    const nextRetry = Math.min((tryOccurence ** 2) * 1000, 25000);
+    const nextRetry = this.nextRetryTimeout(tryOccurence);
 
     this.retryTimeout = setTimeout(() => {
       this.onConnectionError(retries - 1);

@@ -88,6 +88,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._bearerToken = token._bearerToken;
       this._basicToken = token._basicToken;
       this._clientId = token._clientId;
+      this._rateLimits = token._rateLimits;
     }
     else if (typeof token === 'object' && 'appKey' in token) {
       this._consumerToken = token.appKey;

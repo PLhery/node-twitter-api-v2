@@ -7,7 +7,7 @@ import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
 
 export type TRequestFullData = {
-  url: string,
+  url: URL,
   options: RequestOptions,
   body?: any,
   rateLimitSaver?: (rateLimit: TwitterRateLimit) => any
@@ -237,7 +237,7 @@ export abstract class ClientRequestMaker {
 
     return {
       rawUrl,
-      url: urlObject.toString(),
+      url: urlObject,
       method,
       headers,
       body,
