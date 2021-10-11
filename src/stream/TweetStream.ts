@@ -193,7 +193,7 @@ export class TweetStream<T = any> extends EventEmitter {
    * the same parameters, and bind current listeners to new stream.
    */
   async clone() {
-    const newRequest = new RequestHandlerHelper(this.requestData);
+    const newRequest = new RequestHandlerHelper<T>(this.requestData);
     const newStream = await newRequest.makeRequestAsStream();
 
     // Clone attached listeners

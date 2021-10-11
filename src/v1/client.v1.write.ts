@@ -483,7 +483,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
       if (currentUploads.size >= maxConcurrentUploads) {
         // Await for first promise to be finished
-        await Promise.race([...currentUploads]);
+        await Promise.race(currentUploads);
       }
 
       [readBuffer, nread] = await readNextPartOf(fileHandle, chunkLength, offset, buffer);
