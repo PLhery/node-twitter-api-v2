@@ -187,13 +187,18 @@ export class RequestHandlerHelper<T> {
     if (TwitterApiV2Settings.debug) {
       this.debugRequest();
     }
+
+    const url = this.requestData.url;
+    const auth = url.username ? `${url.username}:${url.password}` : undefined;
+
     this.req = request({
       ...this.requestData.options,
       // Define URL params manually, addresses dependencies error https://github.com/PLhery/node-twitter-api-v2/issues/94
-      host: this.requestData.url.host,
-      port: this.requestData.url.port || undefined,
-      path: this.requestData.url.pathname + this.requestData.url.search,
-      protocol: this.requestData.url.protocol,
+      host: url.hostname,
+      port: url.port || undefined,
+      path: url.pathname + url.search,
+      protocol: url.protocol,
+      auth,
     });
   }
 
