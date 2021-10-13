@@ -187,7 +187,14 @@ export class RequestHandlerHelper<T> {
     if (TwitterApiV2Settings.debug) {
       this.debugRequest();
     }
-    this.req = request(this.requestData.url, this.requestData.options);
+    this.req = request({
+      ...this.requestData.options,
+      // Define URL params manually, addresses dependencies error https://github.com/PLhery/node-twitter-api-v2/issues/94
+      host: this.requestData.url.host,
+      port: this.requestData.url.port || undefined,
+      path: this.requestData.url.pathname + this.requestData.url.search,
+      protocol: this.requestData.url.protocol,
+    });
   }
 
   makeRequest() {
