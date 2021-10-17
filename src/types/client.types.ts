@@ -1,4 +1,5 @@
 export enum ETwitterStreamEvent {
+  Connected = 'connected',
   ConnectionError = 'connection error',
   ConnectionClosed = 'connection closed',
   ConnectionLost = 'connection lost',

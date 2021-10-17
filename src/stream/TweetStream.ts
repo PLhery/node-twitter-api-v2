@@ -12,32 +12,55 @@ interface ITweetStreamError {
   error: any;
 }
 
+export interface IConnectTweetStreamParams {
+  autoReconnect: boolean;
+  autoReconnectRetries: number | 'unlimited';
+  /** Check for 'lost connection' status every `keepAliveTimeout` milliseconds. Defaults to 2 minutes (`120000`). */
+  keepAliveTimeout: number | 'disable';
+  nextRetryTimeout?: TStreamConnectRetryFn;
+}
+
+/** Returns a number of milliseconds to wait for {tryOccurence} (starting from 1) */
+export type TStreamConnectRetryFn = (tryOccurence: number) => number;
+
+const basicReconnectRetry: TStreamConnectRetryFn = tryOccurence => Math.min((tryOccurence ** 2) * 1000, 25000);
+
 export class TweetStream<T = any> extends EventEmitter {
   public autoReconnect = false;
   public autoReconnectRetries = 5;
   // 2 minutes without any Twitter signal
   public keepAliveTimeoutMs = 1000 * 120;
+  public nextRetryTimeout = basicReconnectRetry;
 
   protected retryTimeout?: NodeJS.Timeout;
   protected keepAliveTimeout?: NodeJS.Timeout;
   protected parser = new TweetStreamParser();
 
+  protected req?: ClientRequest;
+  protected res?: IncomingMessage;
+
   constructor(
-    protected req: ClientRequest,
-    protected res: IncomingMessage,
     protected requestData: TRequestFullStreamData,
+    req?: ClientRequest,
+    res?: IncomingMessage,
   ) {
     super();
 
     this.onKeepAliveTimeout = this.onKeepAliveTimeout.bind(this);
     this.initEventsFromParser();
-    this.initEventsFromRequest();
+
+    if (req && res) {
+      this.req = req;
+      this.res = res;
+      this.initEventsFromRequest();
+    }
   }
 
   // Event typings
   on(event: ETwitterStreamEvent.Data, handler: (data: T) => any): this;
   on(event: ETwitterStreamEvent.DataError, handler: (error: any) => any): this;
   on(event: ETwitterStreamEvent.Error, handler: (errorPayload: ITweetStreamError) => any): this;
+  on(event: ETwitterStreamEvent.Connected, handler: () => any): this;
   on(event: ETwitterStreamEvent.ConnectionLost, handler: () => any): this;
   on(event: ETwitterStreamEvent.ConnectionError, handler: (error: Error) => any): this;
   on(event: ETwitterStreamEvent.TweetParseError, handler: (error: Error) => any): this;
@@ -53,6 +76,10 @@ export class TweetStream<T = any> extends EventEmitter {
   }
 
   protected initEventsFromRequest() {
+    if (!this.req || !this.res) {
+      throw new Error('TweetStream error: You cannot init TweetStream without a request and response object.');
+    }
+
     const errorHandler = (err: any) => {
       this.emit(ETwitterStreamEvent.ConnectionError, err);
       this.emit(ETwitterStreamEvent.Error, {
@@ -138,11 +165,15 @@ export class TweetStream<T = any> extends EventEmitter {
 
   protected closeWithoutEmit() {
     this.unbindTimeouts();
-    this.req.removeAllListeners();
-    this.res.removeAllListeners();
 
-    // Close connection silentely
-    this.req.destroy();
+    if (this.res) {
+      this.res.removeAllListeners();
+    }
+    if (this.req) {
+      this.req.removeAllListeners();
+      // Close connection silentely
+      this.req.destroy();
+    }
   }
 
   /** Terminate connection to Twitter. */
@@ -162,7 +193,7 @@ export class TweetStream<T = any> extends EventEmitter {
    * the same parameters, and bind current listeners to new stream.
    */
   async clone() {
-    const newRequest = new RequestHandlerHelper(this.requestData);
+    const newRequest = new RequestHandlerHelper<T>(this.requestData);
     const newStream = await newRequest.makeRequestAsStream();
 
     // Clone attached listeners
@@ -179,10 +210,39 @@ export class TweetStream<T = any> extends EventEmitter {
     return newStream;
   }
 
-  /** Make a new request to reconnect to Twitter. */
+  /** Start initial stream connection, setup options on current instance and returns itself. */
+  async connect(options: Partial<IConnectTweetStreamParams> = {}) {
+    if (typeof options.autoReconnect !== 'undefined') {
+      this.autoReconnect = options.autoReconnect;
+    }
+    if (typeof options.autoReconnectRetries !== 'undefined') {
+      this.autoReconnectRetries = options.autoReconnectRetries === 'unlimited'
+        ? Infinity
+        : options.autoReconnectRetries;
+    }
+    if (typeof options.keepAliveTimeout !== 'undefined') {
+      this.keepAliveTimeoutMs = options.keepAliveTimeout === 'disable'
+        ? Infinity
+        : options.keepAliveTimeout;
+    }
+    if (typeof options.nextRetryTimeout !== 'undefined') {
+      this.nextRetryTimeout = options.nextRetryTimeout;
+    }
+
+    await this.reconnect();
+    return this;
+  }
+
+  /** Make a new request to (re)connect to Twitter. */
   async reconnect() {
-    if (!this.req.destroyed) {
-      this.closeWithoutEmit();
+    let initialConnection = true;
+
+    if (this.req) {
+      initialConnection = false;
+
+      if (!this.req.destroyed) {
+        this.closeWithoutEmit();
+      }
     }
 
     const { req, res } = await new RequestHandlerHelper(this.requestData).makeRequestAndResolveWhenReady();
@@ -190,16 +250,16 @@ export class TweetStream<T = any> extends EventEmitter {
     this.req = req;
     this.res = res;
 
-    this.emit(ETwitterStreamEvent.Reconnected);
+    this.emit(initialConnection ? ETwitterStreamEvent.Connected : ETwitterStreamEvent.Reconnected);
     this.parser.reset();
     this.initEventsFromRequest();
   }
 
-  protected async onConnectionError(retries = this.autoReconnectRetries) {
+  protected async onConnectionError(retryOccurence = 0) {
     this.unbindTimeouts();
 
     // Close the request if necessary
-    if (!this.req.destroyed) {
+    if (this.req && !this.req.destroyed) {
       this.closeWithoutEmit();
     }
 
@@ -208,7 +268,7 @@ export class TweetStream<T = any> extends EventEmitter {
       this.emit(ETwitterStreamEvent.ConnectionClosed);
       return;
     }
-    if (retries <= 0) {
+    if (retryOccurence >= this.autoReconnectRetries) {
       this.emit(ETwitterStreamEvent.ReconnectLimitExceeded);
       this.emit(ETwitterStreamEvent.ConnectionClosed);
       return;
@@ -216,25 +276,24 @@ export class TweetStream<T = any> extends EventEmitter {
 
     // If all other conditions fails, do a reconnect attempt
     try {
-      this.emit(ETwitterStreamEvent.ReconnectAttempt, this.autoReconnectRetries - retries);
+      this.emit(ETwitterStreamEvent.ReconnectAttempt, retryOccurence);
       await this.reconnect();
     } catch (e) {
-      this.emit(ETwitterStreamEvent.ReconnectError, this.autoReconnectRetries - retries);
+      this.emit(ETwitterStreamEvent.ReconnectError, retryOccurence);
       this.emit(ETwitterStreamEvent.Error, {
         type: ETwitterStreamEvent.ReconnectError,
-        error: new Error(`Reconnect error - ${this.autoReconnectRetries - retries} attempts made yet.`),
+        error: new Error(`Reconnect error - ${retryOccurence + 1} attempts made yet.`),
       });
 
-      this.makeAutoReconnectRetry(retries);
+      this.makeAutoReconnectRetry(retryOccurence);
     }
   }
 
-  protected makeAutoReconnectRetry(retries: number) {
-    const tryOccurence = (this.autoReconnectRetries - retries) + 1;
-    const nextRetry = Math.min((tryOccurence ** 2) * 1000, 25000);
+  protected makeAutoReconnectRetry(retryOccurence: number) {
+    const nextRetry = this.nextRetryTimeout(retryOccurence + 1);
 
     this.retryTimeout = setTimeout(() => {
-      this.onConnectionError(retries - 1);
+      this.onConnectionError(retryOccurence + 1);
     }, nextRetry);
   }
 
@@ -243,7 +302,7 @@ export class TweetStream<T = any> extends EventEmitter {
 
     try {
       while (true) {
-        if (this.req.aborted) {
+        if (!this.req || this.req.aborted) {
           throw new Error('Connection closed');
         }
 

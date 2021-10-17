@@ -20,23 +20,18 @@ interface IBuildErrorParams {
 }
 
 export class RequestHandlerHelper<T> {
-  protected static readonly FORM_ENCODED_ENDPOINTS = 'https://api.twitter.com/oauth/';
   protected req!: ClientRequest;
   protected responseData = '';
 
   constructor(protected requestData: TRequestFullData | TRequestFullStreamData) {}
 
-  get href() {
-    return this.requestData.url;
-  }
-
   get hrefPathname() {
-    const url = new URL(this.requestData.url);
+    const url = this.requestData.url;
     return url.hostname + url.pathname;
   }
 
   protected isFormEncodedEndpoint() {
-    return this.href.startsWith(RequestHandlerHelper.FORM_ENCODED_ENDPOINTS);
+    return this.requestData.url.href.startsWith('https://api.twitter.com/oauth/');
   }
 
   protected getRateLimitFromResponse(res: IncomingMessage) {
@@ -127,63 +122,57 @@ export class RequestHandlerHelper<T> {
     return data;
   }
 
-  protected registerRequestErrorHandler(reject: TRequestRejecter) {
-    return (requestError: Error) => {
-      reject(this.createRequestError(requestError));
-    };
+  protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
+    reject(this.createRequestError(requestError));
   }
 
-  protected registerResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
-    return (res: IncomingMessage) => {
-      const rateLimit = this.getRateLimitFromResponse(res);
-
-      // Register the response data
-      res.on('data', chunk => this.responseData += chunk);
-
-      res.on('end', () => {
-        const data = this.getParsedResponse(res);
-
-        // Handle bad error codes
-        const code = res.statusCode!;
-        if (code >= 400) {
-          reject(this.createResponseError({ data, res, rateLimit, code }));
-        }
-
-        if (TwitterApiV2Settings.debug) {
-          console.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode}`);
-          console.log('Response body:', data);
-        }
-
-        resolve({
-          data,
-          headers: res.headers,
-          rateLimit,
-        });
-      });
-    };
+  protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+    // Register the response data
+    res.on('data', chunk => this.responseData += chunk);
+    res.on('end', this.onResponseEndHandler.bind(this, resolve, reject, res));
   }
 
-  protected registerStreamResponseHandler(resolve: TReadyRequestResolver, reject: TResponseRejecter) {
-    return (res: IncomingMessage) => {
-      const code = res.statusCode!;
+  protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+    const rateLimit = this.getRateLimitFromResponse(res);
+    const data = this.getParsedResponse(res);
 
-      if (code < 400) {
-        if (TwitterApiV2Settings.debug) {
-          console.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode} (starting stream)`);
-        }
+    // Handle bad error codes
+    const code = res.statusCode!;
+    if (code >= 400) {
+      reject(this.createResponseError({ data, res, rateLimit, code }));
+    }
 
-        // HTTP code ok, consume stream
-        resolve({ req: this.req, res, requestData: this.requestData });
+    if (TwitterApiV2Settings.debug) {
+      console.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode}`);
+      console.log('Response body:', data);
+    }
+
+    resolve({
+      data,
+      headers: res.headers,
+      rateLimit,
+    });
+  }
+
+  protected streamResponseHandler(resolve: TReadyRequestResolver, reject: TResponseRejecter, res: IncomingMessage) {
+    const code = res.statusCode!;
+
+    if (code < 400) {
+      if (TwitterApiV2Settings.debug) {
+        console.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode} (starting stream)`);
       }
-      else {
-        // Handle response normally, can only rejects
-        this.registerResponseHandler(() => undefined, reject)(res);
-      }
-    };
+
+      // HTTP code ok, consume stream
+      resolve({ req: this.req, res, requestData: this.requestData });
+    }
+    else {
+      // Handle response normally, can only rejects
+      this.classicResponseHandler(() => undefined, reject, res);
+    }
   }
 
   protected debugRequest() {
-    const url = new URL(this.requestData.url);
+    const url = this.requestData.url;
 
     console.log(`[${this.requestData.options.method} ${this.hrefPathname}]`, this.requestData.options);
     if (url.search) {
@@ -198,7 +187,19 @@ export class RequestHandlerHelper<T> {
     if (TwitterApiV2Settings.debug) {
       this.debugRequest();
     }
-    this.req = request(this.requestData.url, this.requestData.options);
+
+    const url = this.requestData.url;
+    const auth = url.username ? `${url.username}:${url.password}` : undefined;
+
+    this.req = request({
+      ...this.requestData.options,
+      // Define URL params manually, addresses dependencies error https://github.com/PLhery/node-twitter-api-v2/issues/94
+      host: url.hostname,
+      port: url.port || undefined,
+      path: url.pathname + url.search,
+      protocol: url.protocol,
+      auth,
+    });
   }
 
   makeRequest() {
@@ -208,9 +209,9 @@ export class RequestHandlerHelper<T> {
       const req = this.req;
 
       // Handle request errors
-      req.on('error', this.registerRequestErrorHandler(reject));
+      req.on('error', this.requestErrorHandler.bind(this, reject));
 
-      req.on('response', this.registerResponseHandler(resolve, reject));
+      req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
 
       if (this.requestData.body) {
         req.write(this.requestData.body);
@@ -222,7 +223,7 @@ export class RequestHandlerHelper<T> {
 
   async makeRequestAsStream() {
     const { req, res, requestData } = await this.makeRequestAndResolveWhenReady();
-    return new TweetStream<T>(req, res, requestData as TRequestFullStreamData);
+    return new TweetStream<T>(requestData as TRequestFullStreamData, req, res);
   }
 
   makeRequestAndResolveWhenReady() {
@@ -232,9 +233,9 @@ export class RequestHandlerHelper<T> {
       const req = this.req;
 
       // Handle request errors
-      req.on('error', this.registerRequestErrorHandler(reject));
+      req.on('error', this.requestErrorHandler.bind(this, reject));
 
-      req.on('response', this.registerStreamResponseHandler(resolve, reject));
+      req.on('response', this.streamResponseHandler.bind(this, resolve, reject));
 
       if (this.requestData.body) {
         req.write(this.requestData.body);

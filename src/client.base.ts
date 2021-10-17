@@ -28,7 +28,17 @@ export type TStreamClientRequestArgs = TCustomizableRequestArgs & {
   prefix?: string;
   query?: TRequestQuery;
   payloadIsError?: (data: any) => boolean;
+  /**
+   * Choose to make or not initial connection.
+   * Method `.connect` must be called on returned `TweetStream` object
+   * to start stream if `autoConnect` is set to `false`.
+   * Defaults to `true`.
+   */
+  autoConnect?: boolean;
 };
+
+export type TStreamClientRequestArgsWithAutoConnect = TStreamClientRequestArgs & { autoConnect?: true };
+export type TStreamClientRequestArgsWithoutAutoConnect = TStreamClientRequestArgs & { autoConnect: false };
 
 /**
  * Base class for Twitter instances
@@ -78,6 +88,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._bearerToken = token._bearerToken;
       this._basicToken = token._basicToken;
       this._clientId = token._clientId;
+      this._rateLimits = token._rateLimits;
     }
     else if (typeof token === 'object' && 'appKey' in token) {
       this._consumerToken = token.appKey;
@@ -289,59 +300,27 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
 
   /** Stream request helpers */
 
-  public async getStream<T = any>(url: string, query?: TRequestQuery, { prefix = this._prefix }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
-    if (prefix)
-      url = prefix + url;
+  getStream<T = any>(url: string, query: TRequestQuery | undefined, options: TStreamClientRequestArgsWithoutAutoConnect) : TweetStream<T>;
+  getStream<T = any>(url: string, query?: TRequestQuery, options?: TStreamClientRequestArgsWithAutoConnect) : Promise<TweetStream<T>>;
+  getStream<T = any>(url: string, query?: TRequestQuery, options?: TStreamClientRequestArgs) : Promise<TweetStream<T>> | TweetStream<T>;
 
+  public getStream<T = any>(url: string, query?: TRequestQuery, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> | TweetStream<T> {
     return this.sendStream<T>({
-      url,
+      url: prefix ? prefix + url : url,
       method: 'GET',
       query,
+      ...rest,
     });
   }
 
-  public async deleteStream<T = any>(url: string, query?: TRequestQuery, { prefix = this._prefix }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
-    if (prefix)
-      url = prefix + url;
+  postStream<T = any>(url: string, body: TRequestBody | undefined, options: TStreamClientRequestArgsWithoutAutoConnect) : TweetStream<T>;
+  postStream<T = any>(url: string, body?: TRequestBody, options?: TStreamClientRequestArgsWithAutoConnect) : Promise<TweetStream<T>>;
+  postStream<T = any>(url: string, body?: TRequestBody, options?: TStreamClientRequestArgs) : Promise<TweetStream<T>> | TweetStream<T>;
 
+  public postStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> | TweetStream<T> {
     return this.sendStream<T>({
-      url,
-      method: 'DELETE',
-      query,
-    });
-  }
-
-  public async postStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
-    if (prefix)
-      url = prefix + url;
-
-    return this.sendStream<T>({
-      url,
+      url: prefix ? prefix + url : url,
       method: 'POST',
-      body,
-      ...rest,
-    });
-  }
-
-  public async putStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
-    if (prefix)
-      url = prefix + url;
-
-    return this.sendStream<T>({
-      url,
-      method: 'PUT',
-      body,
-      ...rest,
-    });
-  }
-
-  public async patchStream<T = any>(url: string, body?: TRequestBody, { prefix = this._prefix, ...rest }: TStreamClientRequestArgs = {}) : Promise<TweetStream<T>> {
-    if (prefix)
-      url = prefix + url;
-
-    return this.sendStream<T>({
-      url,
-      method: 'PATCH',
       body,
       ...rest,
     });

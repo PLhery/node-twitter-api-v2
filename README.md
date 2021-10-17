@@ -12,7 +12,7 @@ Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 an
 
 ✅ **Ready for v2 and good ol' v1.1 Twitter API**
 
-✅ **Light: No dependencies, 16kb minified+gzipped**
+✅ **Light: No dependencies, 17kb minified+gzipped**
 
 ✅ **Bundled types for request parameters and responses**
 
@@ -35,7 +35,7 @@ A small feature comparaison with other libs:
 
 | Package        | API version(s) | Response typings | Media helpers | Pagination | Subdeps |  Size (gzip)  | Install size  |
 | -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|  -------------:|
-| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~16 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
+| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~17 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
 | twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     | [![twit install size badge](https://badgen.net/packagephobia/install/twit)](https://packagephobia.com/result?p=twit) |
 | twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     | [![twitter install size badge](https://badgen.net/packagephobia/install/twitter)](https://packagephobia.com/result?p=twitter) |
 | twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       | [![twitter-lite install size badge](https://badgen.net/packagephobia/install/twitter-lite)](https://packagephobia.com/result?p=twitter-lite) |
