@@ -255,7 +255,7 @@ export class TweetStream<T = any> extends EventEmitter {
     this.initEventsFromRequest();
   }
 
-  protected async onConnectionError(retries = this.safeReconnectRetries) {
+  protected async onConnectionError(retryOccurence = 0) {
     this.unbindTimeouts();
 
     // Close the request if necessary
@@ -268,7 +268,7 @@ export class TweetStream<T = any> extends EventEmitter {
       this.emit(ETwitterStreamEvent.ConnectionClosed);
       return;
     }
-    if (retries <= 0) {
+    if (retryOccurence >= this.autoReconnectRetries) {
       this.emit(ETwitterStreamEvent.ReconnectLimitExceeded);
       this.emit(ETwitterStreamEvent.ConnectionClosed);
       return;
@@ -276,25 +276,24 @@ export class TweetStream<T = any> extends EventEmitter {
 
     // If all other conditions fails, do a reconnect attempt
     try {
-      this.emit(ETwitterStreamEvent.ReconnectAttempt, this.safeReconnectRetries - retries);
+      this.emit(ETwitterStreamEvent.ReconnectAttempt, retryOccurence);
       await this.reconnect();
     } catch (e) {
-      this.emit(ETwitterStreamEvent.ReconnectError, this.safeReconnectRetries - retries);
+      this.emit(ETwitterStreamEvent.ReconnectError, retryOccurence);
       this.emit(ETwitterStreamEvent.Error, {
         type: ETwitterStreamEvent.ReconnectError,
-        error: new Error(`Reconnect error - ${this.safeReconnectRetries - retries} attempts made yet.`),
+        error: new Error(`Reconnect error - ${retryOccurence + 1} attempts made yet.`),
       });
 
-      this.makeAutoReconnectRetry(retries);
+      this.makeAutoReconnectRetry(retryOccurence);
     }
   }
 
-  protected makeAutoReconnectRetry(retries: number) {
-    const tryOccurence = (this.safeReconnectRetries - retries) + 1;
-    const nextRetry = this.nextRetryTimeout(tryOccurence);
+  protected makeAutoReconnectRetry(retryOccurence: number) {
+    const nextRetry = this.nextRetryTimeout(retryOccurence);
 
     this.retryTimeout = setTimeout(() => {
-      this.onConnectionError(retries - 1);
+      this.onConnectionError(retryOccurence + 1);
     }, nextRetry);
   }
 
@@ -319,14 +318,6 @@ export class TweetStream<T = any> extends EventEmitter {
     } finally {
       eventCombiner.destroy();
     }
-  }
-
-  private get safeReconnectRetries() {
-    if (this.autoReconnectRetries === Infinity) {
-      // Hack to not produce NaNs
-      return 9999999999;
-    }
-    return this.autoReconnectRetries;
   }
 }
 
