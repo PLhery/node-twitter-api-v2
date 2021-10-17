@@ -290,7 +290,7 @@ export class TweetStream<T = any> extends EventEmitter {
   }
 
   protected makeAutoReconnectRetry(retryOccurence: number) {
-    const nextRetry = this.nextRetryTimeout(retryOccurence);
+    const nextRetry = this.nextRetryTimeout(retryOccurence + 1);
 
     this.retryTimeout = setTimeout(() => {
       this.onConnectionError(retryOccurence + 1);
