@@ -26,7 +26,7 @@ export type TStreamConnectRetryFn = (tryOccurence: number) => number;
 const basicReconnectRetry: TStreamConnectRetryFn = tryOccurence => Math.min((tryOccurence ** 2) * 1000, 25000);
 
 export class TweetStream<T = any> extends EventEmitter {
-  public autoReconnect = true;
+  public autoReconnect = false;
   public autoReconnectRetries = 5;
   // 2 minutes without any Twitter signal
   public keepAliveTimeoutMs = 1000 * 120;
