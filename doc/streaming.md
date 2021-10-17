@@ -75,6 +75,29 @@ for await (const { data } of stream) {
 }
 ```
 
+### Note: Use streaming without auto-connection feature
+
+You can create streams that doesn't connect immediately.
+This leads to the advantage of that endpoint wrappers will directly returns a `TweetStream` object, not wrapped in a `Promise`.
+
+Give `autoConnect`: `false` in object parameters to disable auto-connect.
+
+Call `.connect()` to start stream.
+
+```ts
+// Not needed to await this!
+const stream = client.v2.sampleStream({ autoConnect: false });
+
+// Assign yor event handlers
+// Emitted on Tweet
+stream.on(ETwitterStreamEvent.Data, console.log);
+// Emitted only on initial connection success
+stream.on(ETwitterStreamEvent.Connected, () => console.log('Stream is started.'));
+
+// Start stream!
+await stream.connect({ autoReconnect: true, autoReconnectRetries: Infinity });
+```
+
 ## <a name='SpecificAPIv1.1implementations'></a>Specific API v1.1 implementations
 
 API v1.1 streaming-related endpoints works only with classic OAuth 1.0a authentification.
@@ -218,9 +241,6 @@ If you know endpoint and parameters (or you don't want them to be parsed),
 you can make raw requests using shortcuts by HTTP methods:
 - `getStream()`
 - `postStream()`
-- `putStream()`
-- `deleteStream()`
-- `patchStream()`
 or using raw request handler:
 - `sendStream()`
 
@@ -245,6 +265,7 @@ const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 - `.destroy()`: Same as `close()`, but unbind all registred event listeners before.
 - `.clone(): Promise<TweetStream>`: Returns a new `TweetStream` with the same request parameters, with the same event listeners bound.
 - `.reconnect(): Promise<void>`: Tries to make a new request to Twitter with the same original parameters. If successful, continue streaming with new response.
+- `.connect(params?: IConnectTweetStreamParams): Promise<TweetStream>`: Connect the stream. Only if `autoConnect` has been set to `false` when stream is created.
 
 ### <a name='Events'></a>Events
 
@@ -254,6 +275,7 @@ All events are part of enum `ETwitterStreamEvent` exported by the package.
 - `.ConnectionClosed`: Emitted when `.close()` is called or when the connection is manually closed by distant server.
 - `.ConnectionLost`: When nothing is received from Twitter during `.keepAliveTimeoutMs` milliseconds, emit this event and start either close or reconnection process.
 - `.ReconnectAttempt`: Emitted **before** a reconnect attempt is made (payload: attempt `number`).
+- `.Connected`: Emitted when the initial connection attempt succeeds. (only using manual `.connect()` after creating a stream with `autoConnect: false`)
 - `.Reconnected`: Emitted when a reconnection attempt succeeds.
 - `.ReconnectError`: Emitted when a auto-reconnect try attempt has failed. Event data is a `number` representing the number of times the request has been **re-made** (starts from `0`).
 - `.ReconnectLimitExceeded`: Emitted when `.autoReconnectRetries` limit exceeds.
