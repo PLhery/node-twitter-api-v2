@@ -4,6 +4,7 @@ This lib supports streaming for v1 and v2 API.
 
 <!-- vscode-markdown-toc -->
 * [Using streaming](#Usingstreaming)
+	* [Note: Use streaming without auto-connection feature](#Note:Usestreamingwithoutauto-connectionfeature)
 * [Specific API v1.1 implementations](#SpecificAPIv1.1implementations)
 	* [Filter endpoint](#Filterendpoint)
 	* [Sample endpoint](#Sampleendpoint)
@@ -75,7 +76,7 @@ for await (const { data } of stream) {
 }
 ```
 
-### Note: Use streaming without auto-connection feature
+### <a name='Note:Usestreamingwithoutauto-connectionfeature'></a>Note: Use streaming without auto-connection feature
 
 You can create streams that doesn't connect immediately.
 This leads to the advantage of that endpoint wrappers will directly returns a `TweetStream` object, not wrapped in a `Promise`.
