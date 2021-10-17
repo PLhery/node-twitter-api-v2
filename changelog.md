@@ -1,3 +1,10 @@
+1.6.1
+-----
+- Feat: New option for creating streams, `autoConnect` that is `true` by default. Setting the value to `false` will cause the `TweetStream` object to be returned immediately (not in a `Promise`), because connection isn't awaited. #92
+- Fix: `autoReconnectRetries`: Setting this params to `Infinity` no longer causes the stream reconnection attempts to be delayed to next event loop turn. #92
+- Fix: Use `https.request(options)` instead of `https.request(url, options)`, because some people has outdated dependencies that overwrite native Node's exported function and break its signature. #94 #96
+- Feat: Next retry timeout computation can be customized by using `.nextRetryTimeout` property of `TweetStream` instance, that is function taking a `tryOccurence` and returning the number of milliseconds to wait before trying to reconnect.
+
 1.6.0
 -----
 - Feat: List v2 muted users endpoint #89
