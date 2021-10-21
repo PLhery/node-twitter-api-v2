@@ -249,7 +249,13 @@ export class TweetStream<T = any> extends EventEmitter {
         message: 'Connect error - Initial connection just failed.',
       });
 
-      this.makeAutoReconnectRetry(0);
+      // Only make a reconnection attempt if autoReconnect is true!
+      // Otherwise, let error be propagated
+      if (!this.autoReconnect) {
+        this.makeAutoReconnectRetry(0);
+      } else {
+        throw e;
+      }
     }
 
     return this;
