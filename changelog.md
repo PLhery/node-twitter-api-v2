@@ -1,3 +1,7 @@
+1.6.3
+-----
+- Fix: Streams will know correctly reject `.connect` `Promise` on connection error if `autoReconnect` is `false`
+
 1.6.2
 -----
 - Feat: Streams do now support auto-reconnection for the initial connection attempt
