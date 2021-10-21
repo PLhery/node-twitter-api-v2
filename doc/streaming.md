@@ -278,6 +278,7 @@ All events are part of enum `ETwitterStreamEvent` exported by the package.
 - `.ConnectionLost`: When nothing is received from Twitter during `.keepAliveTimeoutMs` milliseconds, emit this event and start either close or reconnection process.
 - `.ReconnectAttempt`: Emitted **before** a reconnect attempt is made (payload: attempt `number`).
 - `.Connected`: Emitted when the initial connection attempt succeeds. (only using manual `.connect()` after creating a stream with `autoConnect: false`)
+- `.ConnectError`: Emitted when the initial connection has failed. Event data is `0`, to match logic of `.ReconnectError`.
 - `.Reconnected`: Emitted when a reconnection attempt succeeds.
 - `.ReconnectError`: Emitted when a auto-reconnect try attempt has failed. Event data is a `number` representing the number of times the request has been **re-made** (starts from `0`).
 - `.ReconnectLimitExceeded`: Emitted when `.autoReconnectRetries` limit exceeds.
