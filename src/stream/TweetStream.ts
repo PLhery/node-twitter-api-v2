@@ -8,7 +8,7 @@ import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
 interface ITweetStreamError {
   type: ETwitterStreamEvent.ConnectionError | ETwitterStreamEvent.TweetParseError
-    | ETwitterStreamEvent.ReconnectError | ETwitterStreamEvent.DataError;
+    | ETwitterStreamEvent.ReconnectError | ETwitterStreamEvent.DataError | ETwitterStreamEvent.ConnectError;
   error: any;
 }
 
@@ -229,7 +229,21 @@ export class TweetStream<T = any> extends EventEmitter {
       this.nextRetryTimeout = options.nextRetryTimeout;
     }
 
-    await this.reconnect();
+    // Make the connection
+    this.unbindTimeouts();
+
+    try {
+      await this.reconnect();
+    } catch (e) {
+      this.emit(ETwitterStreamEvent.ConnectError, 0);
+      this.emit(ETwitterStreamEvent.Error, {
+        type: ETwitterStreamEvent.ConnectError,
+        error: new Error(`Connect error - Initial connection just failed.`),
+      });
+
+      this.makeAutoReconnectRetry(0);
+    }
+
     return this;
   }
 
