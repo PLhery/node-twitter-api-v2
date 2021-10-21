@@ -10,6 +10,7 @@ interface ITweetStreamError {
   type: ETwitterStreamEvent.ConnectionError | ETwitterStreamEvent.TweetParseError
     | ETwitterStreamEvent.ReconnectError | ETwitterStreamEvent.DataError | ETwitterStreamEvent.ConnectError;
   error: any;
+  message?: string;
 }
 
 export interface IConnectTweetStreamParams {
@@ -85,6 +86,7 @@ export class TweetStream<T = any> extends EventEmitter {
       this.emit(ETwitterStreamEvent.Error, {
         type: ETwitterStreamEvent.ConnectionError,
         error: err,
+        message: 'Connection lost or closed by Twitter.',
       });
 
       this.onConnectionError();
@@ -115,7 +117,11 @@ export class TweetStream<T = any> extends EventEmitter {
     this.parser.on(EStreamParserEvent.ParsedData, (eventData: any) => {
       if (payloadIsError && payloadIsError(eventData)) {
         this.emit(ETwitterStreamEvent.DataError, eventData);
-        this.emit(ETwitterStreamEvent.Error, { type: ETwitterStreamEvent.DataError, error: eventData });
+        this.emit(ETwitterStreamEvent.Error, {
+          type: ETwitterStreamEvent.DataError,
+          error: eventData,
+          message: 'Twitter sent a payload that is detected as an error payload.',
+        });
       }
       else {
         this.emit(ETwitterStreamEvent.Data, eventData);
@@ -127,6 +133,7 @@ export class TweetStream<T = any> extends EventEmitter {
       this.emit(ETwitterStreamEvent.Error, {
         type: ETwitterStreamEvent.TweetParseError,
         error,
+        message: 'Failed to parse stream data.',
       });
     });
   }
@@ -238,7 +245,8 @@ export class TweetStream<T = any> extends EventEmitter {
       this.emit(ETwitterStreamEvent.ConnectError, 0);
       this.emit(ETwitterStreamEvent.Error, {
         type: ETwitterStreamEvent.ConnectError,
-        error: new Error(`Connect error - Initial connection just failed.`),
+        error: e,
+        message: 'Connect error - Initial connection just failed.',
       });
 
       this.makeAutoReconnectRetry(0);
@@ -296,7 +304,8 @@ export class TweetStream<T = any> extends EventEmitter {
       this.emit(ETwitterStreamEvent.ReconnectError, retryOccurence);
       this.emit(ETwitterStreamEvent.Error, {
         type: ETwitterStreamEvent.ReconnectError,
-        error: new Error(`Reconnect error - ${retryOccurence + 1} attempts made yet.`),
+        error: e,
+        message: `Reconnect error - ${retryOccurence + 1} attempts made yet.`,
       });
 
       this.makeAutoReconnectRetry(retryOccurence);
