@@ -251,7 +251,7 @@ export class TweetStream<T = any> extends EventEmitter {
 
       // Only make a reconnection attempt if autoReconnect is true!
       // Otherwise, let error be propagated
-      if (!this.autoReconnect) {
+      if (this.autoReconnect) {
         this.makeAutoReconnectRetry(0);
       } else {
         throw e;
