@@ -38,6 +38,7 @@ export interface IGetHttpRequestArgs {
   forceBodyMode?: TBodyMode;
   enableAuth?: boolean;
   enableRateLimitSave?: boolean;
+  timeout?: number;
 }
 
 export interface IGetStreamRequestArgs {
@@ -77,7 +78,7 @@ export abstract class ClientRequestMaker {
   /** Send a new request and returns a wrapped `Promise<TwitterResponse<T>`. */
   send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     const args = this.getHttpRequestArgs(requestParams);
-    const options = { method: args.method, headers: args.headers };
+    const options = { method: args.method, headers: args.headers, timeout: requestParams.timeout };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
 
     if (args.body) {
