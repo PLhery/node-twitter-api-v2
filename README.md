@@ -8,6 +8,9 @@
 
 Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
+Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.buymeacoffee.com/alkihis" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" height="20px" marginTop="10px"></a> -
+
+
 ## Highlights
 
 ✅ **Ready for v2 and good ol' v1.1 Twitter API**
