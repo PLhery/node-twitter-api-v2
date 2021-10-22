@@ -8,7 +8,7 @@
 
 Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
-Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.buymeacoffee.com/alkihis" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" height="20px" marginTop="10px"></a> -
+Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.buymeacoffee.com/alkihis" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" height="20px" marginTop="10px"></a>
 
 
 ## Highlights
@@ -24,6 +24,33 @@ Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.b
 ✅ **Pagination utils**
 
 ✅ **Media upload helpers**
+
+## How to use
+
+Install it through your favorite package manager:
+```bash
+yarn add twitter-api-v2
+# or
+npm i twitter-api-v2
+```
+
+Here's is a quick example of usage:
+
+```ts
+import TwitterApi from 'twitter-api-v2';
+
+// Instanciate with desired auth type (here's Bearer v2 auth)
+const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
+
+// Tell typescript it's a readonly app
+const roClient = twitterClient.readOnly;
+
+// Play with the built in methods
+const user = await roClient.v2.userByUsername('plhery');
+await twitterClient.v1.tweet('Hello, this is a test.');
+// You can upload media easily!
+await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
+```
 
 ## Why?
 
@@ -73,33 +100,6 @@ Here's the detailed feature list of `twitter-api-v2`:
   you can declare a read-only client - you will only see the methods associated with read-only endpoints
 
 And last but not least, fully powered by native `Promise`s.
-
-## How to use
-
-Install it through your favorite package manager:
-```bash
-yarn add twitter-api-v2
-# or
-npm i twitter-api-v2
-```
-
-Here's is a quick example of usage:
-
-```ts
-import TwitterApi from 'twitter-api-v2';
-
-// Instanciate with desired auth type (here's Bearer v2 auth)
-const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
-
-// Tell typescript it's a readonly app
-const roClient = twitterClient.readOnly;
-
-// Play with the built in methods
-const user = await roClient.v2.userByUsername('plhery');
-await twitterClient.v1.tweet('Hello, this is a test.');
-// You can upload media easily!
-await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
-```
 
 ## Documentation
 
