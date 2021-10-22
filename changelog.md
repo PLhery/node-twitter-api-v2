@@ -1,6 +1,6 @@
 1.6.4
 -----
-- Fix: Reject stream reconnection if a reconect process is already started
+- Fix: Reject stream reconnection if a reconnect process is already started
 
 1.6.3
 -----
