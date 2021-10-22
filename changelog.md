@@ -1,3 +1,7 @@
+1.6.4
+-----
+- Fix: Reject stream reconnection if a reconect process is already started
+
 1.6.3
 -----
 - Fix: Streams will know correctly reject `.connect` `Promise` on connection error if `autoReconnect` is `false`
