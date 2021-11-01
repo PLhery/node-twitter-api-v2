@@ -22,7 +22,7 @@ export interface IConnectTweetStreamParams {
 }
 
 /** Returns a number of milliseconds to wait for {tryOccurence} (starting from 1) */
-export type TStreamConnectRetryFn = (tryOccurence: number) => number;
+export type TStreamConnectRetryFn = (tryOccurence: number, error?: any) => number;
 
 // In seconds
 const basicRetriesAttempt = [5, 15, 30, 60, 90, 120, 180, 300, 600, 900];
@@ -261,7 +261,7 @@ export class TweetStream<T = any> extends EventEmitter {
       // Only make a reconnection attempt if autoReconnect is true!
       // Otherwise, let error be propagated
       if (this.autoReconnect) {
-        this.makeAutoReconnectRetry(0);
+        this.makeAutoReconnectRetry(0, e);
       } else {
         throw e;
       }
@@ -327,12 +327,12 @@ export class TweetStream<T = any> extends EventEmitter {
         message: `Reconnect error - ${retryOccurence + 1} attempts made yet.`,
       });
 
-      this.makeAutoReconnectRetry(retryOccurence);
+      this.makeAutoReconnectRetry(retryOccurence, e);
     }
   }
 
-  protected makeAutoReconnectRetry(retryOccurence: number) {
-    const nextRetry = this.nextRetryTimeout(retryOccurence + 1);
+  protected makeAutoReconnectRetry(retryOccurence: number, error: any) {
+    const nextRetry = this.nextRetryTimeout(retryOccurence + 1, error);
 
     this.retryTimeout = setTimeout(() => {
       this.onConnectionError(retryOccurence + 1);
