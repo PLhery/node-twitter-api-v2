@@ -260,7 +260,7 @@ const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 ### <a name='Methodsproperties'></a>Methods / properties
 
 - `.autoReconnect: boolean` / defaults `false` / Set this to `true` to enable reconnect feature.
-- `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by `min((attempt ** 2) * 1000, 25000)` milliseconds.
+- `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by return of `.nextRetryTimeout()` call milliseconds.
 - `.keepAliveTimeoutMs: number` / default `120000` (2 minutes) / Defined whenever connection should be automatically closed if nothing is received from Twitter during this time (it should not happend in any situation, because Twitter sends keep-alive packets). **Can be set to `Infinity` to disable this feature**.
 - `.nextRetryTimeout: TStreamConnectRetryFn` / Override this function that takes a `tryOccurence` (starting from 1) and returns the number of milliseconds to wait before trying to reconnect to Twitter.
 - `.close()`: Emits `ConnectionClosed` event and terminates connection.

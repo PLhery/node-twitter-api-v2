@@ -1,3 +1,7 @@
+1.6.5
+-----
+- Fix: Increase retry timeout on stream reconnection
+
 1.6.4
 -----
 - Fix: Reject stream reconnection if a reconnect process is already started
