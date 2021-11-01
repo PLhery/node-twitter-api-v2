@@ -99,6 +99,13 @@ export class ApiRequestError extends ApiError implements TwitterApiRequestError 
   get requestError(): Error {
     return this._options.requestError;
   }
+
+  toJSON() {
+    return {
+      type: this.type,
+      error: this.requestError,
+    };
+  }
 }
 
 interface IBuildApiResponseError {
@@ -181,6 +188,16 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
       EApiV1ErrorCode.BadAuthenticationData,
       EApiV1ErrorCode.InvalidOrExpiredToken,
     );
+  }
+
+  toJSON() {
+    return {
+      type: this.type,
+      code: this.code,
+      error: this.data,
+      rateLimit: this.rateLimit,
+      headers: this.headers,
+    };
   }
 }
 

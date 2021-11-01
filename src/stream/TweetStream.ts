@@ -25,11 +25,11 @@ export interface IConnectTweetStreamParams {
 export type TStreamConnectRetryFn = (tryOccurence: number) => number;
 
 // In seconds
-const basicRetriesAttempt = [5, 15, 30, 60, 90, 120];
+const basicRetriesAttempt = [5, 15, 30, 60, 90, 120, 180, 300, 600, 900];
 // Default retry function
 const basicReconnectRetry: TStreamConnectRetryFn =
   tryOccurence => tryOccurence > basicRetriesAttempt.length
-    ? 120000
+    ? 901000
     : basicRetriesAttempt[tryOccurence - 1] * 1000;
 
 export class TweetStream<T = any> extends EventEmitter {
@@ -182,14 +182,13 @@ export class TweetStream<T = any> extends EventEmitter {
 
     if (this.res) {
       this.res.removeAllListeners();
+      // Close response silentely
+      this.res.destroy();
     }
     if (this.req) {
       this.req.removeAllListeners();
-
-      if (!this.req.destroyed) {
-        // Close connection silentely
-        this.req.destroy();
-      }
+      // Close connection silentely
+      this.req.destroy();
     }
   }
 
