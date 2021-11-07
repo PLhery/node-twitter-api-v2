@@ -145,6 +145,12 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
         accessSecret: this._accessSecret,
       };
     }
+    else if (this._clientId) {
+      return {
+        type: 'oauth2-user',
+        clientId: this._clientId!,
+      };
+    }
     return { type: 'none' };
   }
 

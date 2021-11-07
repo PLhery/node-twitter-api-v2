@@ -36,6 +36,11 @@ export interface IClientTokenBearer {
   type: 'oauth2';
 }
 
+export interface IClientOAuth2UserClient {
+  clientId: string;
+  type: 'oauth2-user';
+}
+
 export interface IClientTokenBasic {
   token: string;
   type: 'basic';
@@ -53,4 +58,4 @@ export interface IClientTokenNone {
   type: 'none';
 }
 
-export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientTokenOauth | IClientTokenBasic;
+export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientTokenOauth | IClientTokenBasic | IClientOAuth2UserClient;
