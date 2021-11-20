@@ -142,7 +142,7 @@ describe('Tweets endpoints for v2 API', () => {
   }).timeout(60 * 1000);
 
   it('.tweet - Creates a tweet', async () => {
-    const status = "Hello Twitter!"
+    const status = 'Hello Twitter!'
 
     const { data: { text } } = await client.v2.tweet(status)
 
