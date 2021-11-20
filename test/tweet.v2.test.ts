@@ -140,4 +140,12 @@ describe('Tweets endpoints for v2 API', () => {
 
     expect(usersThatRt.data[0].created_at).to.be.a('string');
   }).timeout(60 * 1000);
+
+  it('.tweet - Creates a tweet', async () => {
+    const status = "Hello Twitter!"
+
+    const { data: { text } } = await client.v2.tweet(status)
+
+    expect(text).to.equal(status)
+  }).timeout(60 * 1000);
 });
