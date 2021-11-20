@@ -173,7 +173,7 @@ export interface SendTweetV2Params {
     exclude_reply_user_ids?: string[];
     in_reply_to_tweet_id: string[];
   };
-  reply_settings?: "mentionedUsers" | "following" | "everyone"
+  reply_settings?: 'mentionedUsers' | 'following' | 'everyone'
 }
 
 //// FINALLY, TweetV2
