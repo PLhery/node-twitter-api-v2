@@ -9,6 +9,7 @@ import type {
   ListPinV2Result,
   ListUpdateV2Params,
   ListUpdateV2Result,
+  TweetV2DeleteTweetResult,
   TweetV2HideReplyResult,
   TweetV2LikeResult,
   TweetV2RetweetResult,
@@ -98,6 +99,18 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
     return this.delete<TweetV2RetweetResult>('users/:id/retweets/:tweet_id', undefined, {
       params: { id: loggedUserId, tweet_id: targetTweetId },
     });
+  }
+
+  /**
+   * Allows a user or authenticated user ID to delete a Tweet
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
+   */
+  public deleteTweet(tweetId: string) {
+    return this.delete<TweetV2DeleteTweetResult>('tweets/:id', undefined, {
+      params: {
+        id: tweetId
+      }
+    })
   }
 
   /* Users */

@@ -134,6 +134,10 @@ export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
 
 export type TweetV2RetweetedByResult = DataMetaAndIncludeV2<UserV2[], { result_count: number }, ApiV2Includes>;
 
+/// Tweets
+
+export type TweetV2DeleteTweetResult = DataV2<{ deleted: boolean }>;
+
 /// -- Batch compliance
 
 export interface BatchComplianceJobV2 {
