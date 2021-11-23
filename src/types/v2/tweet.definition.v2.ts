@@ -154,6 +154,28 @@ export interface TweetOrganicMetricsV2 {
 
 export type TweetPromotedMetricsV2 = TweetOrganicMetricsV2;
 
+export interface SendTweetV2Params {
+  direct_message_deep_link?: string;
+  for_super_followers_only?: 'True' | 'False';
+  geo?: {
+    place_id: string;
+  };
+  media?: {
+    media_ids?: string[];
+    tagged_user_ids?: string[];
+  };
+  poll?: {
+    duration_minutes: number;
+    options: string[];
+  };
+  quote_tweet_id?: string;
+  reply?: {
+    exclude_reply_user_ids?: string[];
+    in_reply_to_tweet_id: string[];
+  };
+  reply_settings?: 'mentionedUsers' | 'following' | 'everyone'
+}
+
 //// FINALLY, TweetV2
 export interface TweetV2 {
   id: string;

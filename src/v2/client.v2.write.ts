@@ -9,8 +9,10 @@ import type {
   ListPinV2Result,
   ListUpdateV2Params,
   ListUpdateV2Result,
+  SendTweetV2Params,
   TweetV2HideReplyResult,
   TweetV2LikeResult,
+  TweetV2PostTweetResult,
   TweetV2RetweetResult,
   UserV2BlockResult,
   UserV2FollowResult,
@@ -98,6 +100,17 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
     return this.delete<TweetV2RetweetResult>('users/:id/retweets/:tweet_id', undefined, {
       params: { id: loggedUserId, tweet_id: targetTweetId },
     });
+  }
+
+  /**
+ * Creates a Tweet on behalf of an authenticated user.
+ * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+ */
+  public tweet(status: string, payload: Partial<SendTweetV2Params> = {}) {
+    return this.post<TweetV2PostTweetResult>('tweets', {
+      text: status,
+      ...payload
+    })
   }
 
   /* Users */
