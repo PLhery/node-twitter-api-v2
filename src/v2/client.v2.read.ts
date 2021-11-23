@@ -338,8 +338,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns a list of users who are muted by the authenticating user.
    * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/get-users-muting
    */
-  public async userMutingUsers(options: Partial<UserV2TimelineParams> = {}) {
-    const { id_str: userId } = await this.getCurrentUserObject();
+  public async userMutingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
     const params = { id: userId };
     const initialRq = await this.get<UserV2TimelineResult>('users/:id/muting', options, { fullResponse: true, params });
 
