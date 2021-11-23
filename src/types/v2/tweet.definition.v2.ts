@@ -173,7 +173,7 @@ export interface SendTweetV2Params {
   quote_tweet_id?: string;
   reply?: {
     exclude_reply_user_ids?: string[];
-    in_reply_to_tweet_id: string[];
+    in_reply_to_tweet_id: string;
   };
   reply_settings?: TTweetReplySettingsV2 | string;
   text?: string;

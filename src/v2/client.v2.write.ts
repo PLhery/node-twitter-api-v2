@@ -120,6 +120,42 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   }
 
   /**
+   * Reply to a Tweet on behalf of an authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   */
+  public reply(status: string, toTweetId: string, payload: Partial<SendTweetV2Params> = {}) {
+    const reply = { in_reply_to_tweet_id: toTweetId, ...payload.reply ?? {} };
+
+    return this.post<TweetV2PostTweetResult>('tweets', { text: status, ...payload, reply });
+  }
+
+  /**
+   * Post a series of tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   */
+  public async tweetThread(tweets: (SendTweetV2Params | string)[]) {
+    const postedTweets: TweetV2PostTweetResult[] = [];
+
+    for (const tweet of tweets) {
+      // Retrieve the last sent tweet
+      const lastTweet = postedTweets.length ? postedTweets[postedTweets.length - 1] : null;
+      // Build the tweet query params
+      const queryParams: SendTweetV2Params = { ...(typeof tweet === 'string' ? ({ text: tweet }) : tweet) };
+      // Reply to an existing tweet if needed
+      const inReplyToId = lastTweet ? lastTweet.data.id : queryParams.reply?.in_reply_to_tweet_id;
+      const status = queryParams.text ?? '';
+
+      if (inReplyToId) {
+        postedTweets.push(await this.reply(status, inReplyToId, queryParams));
+      } else {
+        postedTweets.push(await this.tweet(status, queryParams));
+      }
+    }
+
+    return postedTweets;
+  }
+
+  /**
    * Allows a user or authenticated user ID to delete a Tweet
    * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
    */
