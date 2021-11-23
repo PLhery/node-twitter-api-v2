@@ -116,6 +116,10 @@ export type TweetV2SingleStreamResult = TweetV2SingleResult & {
   matching_rules: { id: string | number, tag: string }[];
 };
 
+/// Tweet
+
+export type TweetV2PostTweetResult = DataV2<{ id: string, text: string }>;
+
 /// -- Replies --
 
 export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;
@@ -133,6 +137,10 @@ export type TweetV2LikedByResult = DataAndIncludeV2<UserV2[], ApiV2Includes>;
 export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
 
 export type TweetV2RetweetedByResult = DataMetaAndIncludeV2<UserV2[], { result_count: number }, ApiV2Includes>;
+
+/// Tweets
+
+export type TweetV2DeleteTweetResult = DataV2<{ deleted: boolean }>;
 
 /// -- Batch compliance
 

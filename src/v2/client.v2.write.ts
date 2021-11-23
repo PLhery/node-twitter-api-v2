@@ -9,8 +9,11 @@ import type {
   ListPinV2Result,
   ListUpdateV2Params,
   ListUpdateV2Result,
+  TweetV2DeleteTweetResult,
+  SendTweetV2Params,
   TweetV2HideReplyResult,
   TweetV2LikeResult,
+  TweetV2PostTweetResult,
   TweetV2RetweetResult,
   UserV2BlockResult,
   UserV2FollowResult,
@@ -97,6 +100,34 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   public unretweet(loggedUserId: string, targetTweetId: string) {
     return this.delete<TweetV2RetweetResult>('users/:id/retweets/:tweet_id', undefined, {
       params: { id: loggedUserId, tweet_id: targetTweetId },
+    });
+  }
+
+  /**
+   * Creates a Tweet on behalf of an authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   */
+  public tweet(status: string, payload?: Partial<SendTweetV2Params>): Promise<TweetV2PostTweetResult>;
+  public tweet(payload: SendTweetV2Params): Promise<TweetV2PostTweetResult>;
+  public tweet(status: string | SendTweetV2Params, payload: Partial<SendTweetV2Params> = {}) {
+    if (typeof status === 'object') {
+      payload = status;
+    } else {
+      payload = { text: status, ...payload };
+    }
+
+    return this.post<TweetV2PostTweetResult>('tweets', payload);
+  }
+
+  /**
+   * Allows a user or authenticated user ID to delete a Tweet
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
+   */
+  public deleteTweet(tweetId: string) {
+    return this.delete<TweetV2DeleteTweetResult>('tweets/:id', undefined, {
+      params: {
+        id: tweetId,
+      },
     });
   }
 

@@ -140,4 +140,14 @@ describe('Tweets endpoints for v2 API', () => {
 
     expect(usersThatRt.data[0].created_at).to.be.a('string');
   }).timeout(60 * 1000);
+
+  it('.tweet/.deleteTweet - Creates a tweet then delete it', async () => {
+    const status = '[TEST THIS IS A TEST TWEET.]';
+
+    const { data: { text, id } } = await userClient.v2.tweet(status);
+    expect(text).to.equal(status);
+
+    const { data: { deleted } } = await userClient.v2.deleteTweet(id);
+    expect(deleted).to.equal(true);
+  }).timeout(60 * 1000);
 });
