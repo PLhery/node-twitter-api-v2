@@ -104,16 +104,21 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   }
 
   /**
- * Creates a Tweet on behalf of an authenticated user.
- * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
- */
-  public tweet(status: string, payload: Partial<SendTweetV2Params> = {}) {
-    return this.post<TweetV2PostTweetResult>('tweets', {
-      text: status,
-      ...payload
-    })
+   * Creates a Tweet on behalf of an authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   */
+  public tweet(status: string, payload?: Partial<SendTweetV2Params>): Promise<TweetV2PostTweetResult>;
+  public tweet(payload: SendTweetV2Params): Promise<TweetV2PostTweetResult>;
+  public tweet(status: string | SendTweetV2Params, payload: Partial<SendTweetV2Params> = {}) {
+    if (typeof status === 'object') {
+      payload = status;
+    } else {
+      payload = { text: status, ...payload };
+    }
+
+    return this.post<TweetV2PostTweetResult>('tweets', payload);
   }
-    
+
   /**
    * Allows a user or authenticated user ID to delete a Tweet
    * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
@@ -121,9 +126,9 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   public deleteTweet(tweetId: string) {
     return this.delete<TweetV2DeleteTweetResult>('tweets/:id', undefined, {
       params: {
-        id: tweetId
-      }
-    })
+        id: tweetId,
+      },
+    });
   }
 
   /* Users */

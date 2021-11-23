@@ -154,6 +154,8 @@ export interface TweetOrganicMetricsV2 {
 
 export type TweetPromotedMetricsV2 = TweetOrganicMetricsV2;
 
+export type TTweetReplySettingsV2 = 'mentionedUsers' | 'following' | 'everyone';
+
 export interface SendTweetV2Params {
   direct_message_deep_link?: string;
   for_super_followers_only?: 'True' | 'False';
@@ -173,7 +175,8 @@ export interface SendTweetV2Params {
     exclude_reply_user_ids?: string[];
     in_reply_to_tweet_id: string[];
   };
-  reply_settings?: 'mentionedUsers' | 'following' | 'everyone'
+  reply_settings?: TTweetReplySettingsV2 | string;
+  text?: string;
 }
 
 //// FINALLY, TweetV2
