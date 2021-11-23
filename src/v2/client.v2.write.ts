@@ -10,8 +10,10 @@ import type {
   ListUpdateV2Params,
   ListUpdateV2Result,
   TweetV2DeleteTweetResult,
+  SendTweetV2Params,
   TweetV2HideReplyResult,
   TweetV2LikeResult,
+  TweetV2PostTweetResult,
   TweetV2RetweetResult,
   UserV2BlockResult,
   UserV2FollowResult,
@@ -101,6 +103,17 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
     });
   }
 
+  /**
+ * Creates a Tweet on behalf of an authenticated user.
+ * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+ */
+  public tweet(status: string, payload: Partial<SendTweetV2Params> = {}) {
+    return this.post<TweetV2PostTweetResult>('tweets', {
+      text: status,
+      ...payload
+    })
+  }
+    
   /**
    * Allows a user or authenticated user ID to delete a Tweet
    * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id

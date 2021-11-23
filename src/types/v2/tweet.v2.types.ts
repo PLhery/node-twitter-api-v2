@@ -116,6 +116,10 @@ export type TweetV2SingleStreamResult = TweetV2SingleResult & {
   matching_rules: { id: string | number, tag: string }[];
 };
 
+/// Tweet
+
+export type TweetV2PostTweetResult = DataV2<{ id: string, text: string }>;
+
 /// -- Replies --
 
 export type TweetV2HideReplyResult = DataV2<{ hidden: boolean }>;
