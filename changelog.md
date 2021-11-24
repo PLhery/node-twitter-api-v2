@@ -1,3 +1,10 @@
+1.7.0
+-----
+- Feat: Create tweet v2 endpoint (thanks to @sudo-kaizen) #110
+- Feat: Delete tweet v2 endpoint (thanks to @sudo-kaizen) #111
+- Feat: Tweet thread and reply to a tweet v2
+- Fix: BREAKING: Explicitly specify userId on userMutingUsers (thanks to @mika-f) #114
+
 1.6.5
 -----
 - Fix: Increase retry timeout on stream reconnection
