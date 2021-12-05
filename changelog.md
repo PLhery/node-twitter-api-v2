@@ -1,3 +1,7 @@
+1.7.1
+-----
+- Fix: wrong type for optional parameter images in TweetEntityUrlV2
+
 1.7.0
 -----
 - Feat: Create tweet v2 endpoint (thanks to @sudo-kaizen) #110
