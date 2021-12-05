@@ -98,11 +98,13 @@ export interface TweetEntityUrlV2 {
   title?: string;
   description?: string;
   status?: string;
-  images?: {
-    url: string;
-    width: number;
-    height: number;
-  }
+  images?: TweetEntityUrlImageV2[];
+}
+
+export interface TweetEntityUrlImageV2 {
+  url: string;
+  width: number;
+  height: number;
 }
 
 export interface TweetEntityHashtagV2 {
