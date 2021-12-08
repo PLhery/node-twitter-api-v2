@@ -29,6 +29,7 @@ describe('List endpoints for v1.1 API', () => {
   it('.addListMembers/.removeListMembers/.listMembers/.listStatuses - Manage list members and list statuses', async () => {
     const newList = await client.v1.createList({ name: 'test list', mode: 'private' });
 
+    await sleepTest(1000);
     await client.v1.addListMembers({ list_id: newList.id_str, user_id: '12' });
     await sleepTest(1000);
 
