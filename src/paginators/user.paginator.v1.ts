@@ -39,6 +39,10 @@ export class UserSearchV1Paginator extends TwitterPaginator<UserV1[], UserSearch
     return !result.data.length;
   }
 
+  protected canFetchNextPage(result: UserV1[]) {
+    return result.length > 0;
+  }
+
   protected getItemArray() {
     return this.users;
   }

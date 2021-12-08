@@ -40,6 +40,10 @@ abstract class TweetTimelineV1Paginator<
     return !result.data.length;
   }
 
+  protected canFetchNextPage(result: TResult) {
+    return result.length > 0;
+  }
+
   protected getItemArray() {
     return this.tweets;
   }

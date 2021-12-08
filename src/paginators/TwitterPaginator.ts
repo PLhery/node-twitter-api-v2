@@ -79,6 +79,8 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
 
   protected abstract isFetchLastOver(result: TwitterResponse<TApiResult>): boolean;
 
+  protected abstract canFetchNextPage(result: TApiResult): boolean;
+
   /* Iterator methods */
   protected abstract getItemArray(): TItem[];
 
@@ -157,9 +159,12 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
     yield* this.getItemArray();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let paginator = this;
+    let canFetchNextPage = this.canFetchNextPage(this._realData);
 
-    while (this._isRateLimitOk && paginator.getItemArray().length > 0) {
+    while (canFetchNextPage && this._isRateLimitOk && paginator.getItemArray().length > 0) {
       const next = await paginator.next(this._maxResultsWhenFetchLast);
+      canFetchNextPage = this.canFetchNextPage(next._realData);
+
       this._rateLimit = next._rateLimit;
       const items = next.getItemArray();
       yield* items;

@@ -16,7 +16,13 @@ export abstract class CursoredV1Paginator<
   }
 
   protected isFetchLastOver(result: TwitterResponse<TApiResult>) {
-    return this.isNextCursorInvalid(result.data.next_cursor) && this.isNextCursorInvalid(result.data.next_cursor_str);
+    // If we cant fetch next page
+    return !this.canFetchNextPage(result.data);
+  }
+
+  protected canFetchNextPage(result: TApiResult) {
+    // If one of cursor is valid
+    return !this.isNextCursorInvalid(result.next_cursor) || !this.isNextCursorInvalid(result.next_cursor_str);
   }
 
   private isNextCursorInvalid(value: string | number | undefined) {
