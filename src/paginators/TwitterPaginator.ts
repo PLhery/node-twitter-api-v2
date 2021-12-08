@@ -145,6 +145,10 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
     return this._realData;
   }
 
+  get done() {
+    return !this.canFetchNextPage(this._realData);
+  }
+
   /**
    * Iterate over currently fetched items.
    */

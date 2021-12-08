@@ -21,6 +21,16 @@ for (const fetchedTweet of homeTimeline) {
 }
 ```
 
+## Check if a next page is available
+
+You can know if a paginator is over by looking up the `.done` property.
+
+```ts
+while (!homeTimeline.done) {
+  await homeTimeline.fetchNext();
+}
+```
+
 ## Download next page
 
 You can fetch the next page of the collection with the method `.fetchNext()`.
