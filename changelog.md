@@ -1,3 +1,8 @@
+1.7.2
+-----
+- Fix: Paginator can return multiple times the same results in some conditions
+- Feat: .done properties for paginators, to know when a next page is fetchable
+
 1.7.1
 -----
 - Fix: wrong type for optional parameter images in TweetEntityUrlV2
