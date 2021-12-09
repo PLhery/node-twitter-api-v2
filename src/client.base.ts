@@ -7,6 +7,10 @@ import {
 } from './client-mixins/request-maker.mixin';
 import TweetStream from './stream/TweetStream';
 
+export type ClientOptions = {
+  timeout? : number
+}
+
 export type TGetClientRequestArgs = TCustomizableRequestArgs & {
   prefix?: string;
   fullResponse?: boolean;
@@ -45,6 +49,7 @@ export type TStreamClientRequestArgsWithoutAutoConnect = TStreamClientRequestArg
  */
 export default abstract class TwitterApiBase extends ClientRequestMaker {
   protected _prefix: string | undefined;
+  protected _timeout: number | undefined;
   protected _currentUser: UserV1 | null = null;
 
   /**
@@ -54,25 +59,25 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   /**
    * Create a new TwitterApi object with OAuth 2.0 Bearer authentification.
    */
-  constructor(bearerToken: string);
+  constructor(bearerToken: string, options?: ClientOptions);
   /**
    * Create a new TwitterApi object with three-legged OAuth 1.0a authentification.
    */
-  constructor(tokens: TwitterApiTokens);
+  constructor(tokens: TwitterApiTokens, options?: ClientOptions);
   /**
    * Create a new TwitterApi object with only client ID needed for OAuth2 user-flow.
    */
-  constructor(oauth2Init: TwitterApiOAuth2Init);
+  constructor(oauth2Init: TwitterApiOAuth2Init, options?: ClientOptions);
   /**
    * Create a new TwitterApi object with Basic HTTP authentification.
    */
-  constructor(credentials: TwitterApiBasicAuth);
+  constructor(credentials: TwitterApiBasicAuth, options?: ClientOptions);
   /**
    * Create a clone of {instance}.
    */
   constructor(instance: TwitterApiBase);
 
-  public constructor(token?: TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string | TwitterApiBase) {
+  public constructor(token?: TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string | TwitterApiBase, options?: ClientOptions) {
     super();
 
     if (typeof token === 'string') {
@@ -108,6 +113,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     else if (typeof token === 'object' && 'clientId' in token) {
       this._clientId = token.clientId;
     }
+
+    if (options?.timeout !== undefined)
+      this._timeout = options.timeout;
   }
 
   /* Prefix/Token handling */
@@ -221,6 +229,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     if (prefix)
       url = prefix + url;
 
+    if (rest.timeout === undefined && this._timeout !== undefined)
+      rest.timeout = this._timeout;
+
     const resp = await this.send<T>({
       url,
       method: 'GET',
@@ -242,6 +253,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     if (prefix)
       url = prefix + url;
 
+    if (rest.timeout === undefined && this._timeout !== undefined)
+      rest.timeout = this._timeout;
+
     const resp = await this.send<T>({
       url,
       method: 'DELETE',
@@ -258,6 +272,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   public async post<T = any>(url: string, body?: TRequestBody, { fullResponse, prefix = this._prefix, ...rest }: TClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
     if (prefix)
       url = prefix + url;
+
+    if (rest.timeout === undefined && this._timeout !== undefined)
+      rest.timeout = this._timeout;
 
     const resp = await this.send<T>({
       url,
@@ -276,6 +293,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     if (prefix)
       url = prefix + url;
 
+    if (rest.timeout === undefined && this._timeout !== undefined)
+      rest.timeout = this._timeout;
+
     const resp = await this.send<T>({
       url,
       method: 'PUT',
@@ -292,6 +312,9 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   public async patch<T = any>(url: string, body?: TRequestBody, { fullResponse, prefix = this._prefix, ...rest }: TClientRequestArgs = {}) : Promise<T | TwitterResponse<T>> {
     if (prefix)
       url = prefix + url;
+
+    if (rest.timeout === undefined && this._timeout !== undefined)
+      rest.timeout = this._timeout;
 
     const resp = await this.send<T>({
       url,

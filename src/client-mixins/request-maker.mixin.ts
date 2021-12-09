@@ -56,7 +56,7 @@ interface IGetStreamRequestArgsSync {
   autoConnect: false;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave' | 'timeout'>;
 
 export abstract class ClientRequestMaker {
   protected _bearerToken?: string;
