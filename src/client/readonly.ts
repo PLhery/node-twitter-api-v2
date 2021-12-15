@@ -37,9 +37,9 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
   /**
    * Fetch and cache current user.
-   * This method can only be called with a OAuth 1.0a user authentification.
+   * This method can only be called with a OAuth 1.0a user authentication.
    *
-   * You can use this method to test if authentification was successful.
+   * You can use this method to test if authentication was successful.
    * Next calls to this methods will use the cached user, unless `forceFetch: true` is given.
    */
   public async currentUser(forceFetch = false) {
@@ -52,7 +52,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     return this.v2.search(what, options);
   }
 
-  /* Authentification */
+  /* Authentication */
 
   /**
    * Generate the OAuth request token link for user-based OAuth 1.0 auth.
@@ -139,7 +139,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
   }
 
   /**
-   * Enable application-only authentification.
+   * Enable application-only authentication.
    *
    * To make the request, instanciate TwitterApi with consumer and secret.
    *
@@ -154,7 +154,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     if (!this._consumerToken || !this._consumerSecret)
       throw new Error('You must setup TwitterApi instance with consumers to enable app-only login');
 
-    // Create a client with Basic authentification
+    // Create a client with Basic authentication
     const basicClient = new TwitterApi({ username: this._consumerToken, password: this._consumerSecret });
     const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
@@ -162,10 +162,15 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     return new TwitterApi(res.access_token);
   }
 
-  /* OAuth 2 user authentification */
+  /* OAuth 2 user authentication */
 
   /**
    * Generate the OAuth request token link for user-based OAuth 2.0 auth.
+   *
+   * - **You can only use v2 API endpoints with this authentication method.**
+   * - **You need to specify which scope you want to have when you create your auth link. Make sure it matches your needs.**
+   *
+   * See https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token for details.
    *
    * ```ts
    * // Instanciate TwitterApi with client ID
@@ -184,7 +189,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
   generateOAuth2AuthLink(redirectUri: string, options: Partial<BuildOAuth2RequestLinkArgs> = {}) {
     if (!this._clientId) {
       throw new Error(
-        'Twitter API instance is not initialized with client ID. ' +
+        'Twitter API instance is not initialized with client ID. You can find your client ID in Twitter Developer Portal. ' +
         'Please build an instance with: new TwitterApi({ clientId: \'<yourClientId>\' })',
       );
     }
@@ -218,6 +223,8 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * After user is redirect from your callback, use obtained code to
    * instanciate the new TwitterApi instance.
    *
+   * You need to obtain `codeVerifier` from a call to `.generateOAuth2AuthLink`.
+   *
    * ```ts
    * // Use the saved codeVerifier associated to state (present in query string of callback)
    * const requestClient = new TwitterApi({ clientId: 'yourClientId' });
@@ -248,6 +255,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       redirect_uri: redirectUri,
       grant_type: 'authorization_code',
       client_id: this._clientId,
+      client_secret: this._clientSecret,
     });
 
     return this.parseOAuth2AccessTokenResult(accessTokenResult);
@@ -275,6 +283,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
       client_id: this._clientId,
+      client_secret: this._clientSecret,
     });
 
     return this.parseOAuth2AccessTokenResult(accessTokenResult);
@@ -296,6 +305,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     return await this.post<void>('https://api.twitter.com/2/oauth2/revoke', {
       client_id: this._clientId,
+      client_secret: this._clientSecret,
       token,
       token_type_hint: tokenType,
     });

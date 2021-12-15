@@ -1,4 +1,4 @@
-import { TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1 } from './types';
+import type { TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -46,17 +46,18 @@ export type TStreamClientRequestArgsWithoutAutoConnect = TStreamClientRequestArg
 export default abstract class TwitterApiBase extends ClientRequestMaker {
   protected _prefix: string | undefined;
   protected _currentUser: UserV1 | null = null;
+  protected _currentUserV2: UserV2Result | null = null;
 
   /**
-   * Create a new TwitterApi object without authentification.
+   * Create a new TwitterApi object without authentication.
    */
   constructor();
   /**
-   * Create a new TwitterApi object with OAuth 2.0 Bearer authentification.
+   * Create a new TwitterApi object with OAuth 2.0 Bearer authentication.
    */
   constructor(bearerToken: string);
   /**
-   * Create a new TwitterApi object with three-legged OAuth 1.0a authentification.
+   * Create a new TwitterApi object with three-legged OAuth 1.0a authentication.
    */
   constructor(tokens: TwitterApiTokens);
   /**
@@ -64,7 +65,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    */
   constructor(oauth2Init: TwitterApiOAuth2Init);
   /**
-   * Create a new TwitterApi object with Basic HTTP authentification.
+   * Create a new TwitterApi object with Basic HTTP authentication.
    */
   constructor(credentials: TwitterApiBasicAuth);
   /**
@@ -88,6 +89,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._bearerToken = token._bearerToken;
       this._basicToken = token._basicToken;
       this._clientId = token._clientId;
+      this._clientSecret = token._clientSecret;
       this._rateLimits = token._rateLimits;
     }
     else if (typeof token === 'object' && 'appKey' in token) {
@@ -107,6 +109,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     }
     else if (typeof token === 'object' && 'clientId' in token) {
       this._clientId = token.clientId;
+      this._clientSecret = token.clientSecret;
     }
   }
 
@@ -206,6 +209,25 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     this._currentUser = currentUser;
 
     return currentUser;
+  }
+
+  /**
+   * Get cached current user from v2 API.
+   * This can only be the slimest available `UserV2` object, with only `id`, `name` and `username` properties defined.
+   *
+   * To get a customized `UserV2Result`, use `.v2.me()`
+   *
+   * OAuth2 scopes: `tweet.read` & `users.read`
+   */
+  protected async getCurrentUserV2Object(forceFetch = false) {
+    if (!forceFetch && this._currentUserV2) {
+      return this._currentUserV2;
+    }
+
+    const currentUserV2 = await this.get<UserV2Result>('users/me', undefined, { prefix: 'https://api.twitter.com/2/' });
+    this._currentUserV2 = currentUserV2;
+
+    return currentUserV2;
   }
 
   /* Direct HTTP methods */

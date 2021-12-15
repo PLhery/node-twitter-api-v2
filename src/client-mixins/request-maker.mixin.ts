@@ -5,6 +5,7 @@ import { trimUndefinedProperties } from '../helpers';
 import OAuth1Helper from './oauth1.helper';
 import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
+import { OAuth2Helper } from './oauth2.helper';
 
 export type TRequestFullData = {
   url: URL,
@@ -66,6 +67,7 @@ export abstract class ClientRequestMaker {
   protected _accessSecret?: string;
   protected _basicToken?: string;
   protected _clientId?: string;
+  protected _clientSecret?: string;
   protected _oauth?: OAuth1Helper;
   protected _rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
 
@@ -164,6 +166,10 @@ export abstract class ClientRequestMaker {
     else if (this._basicToken) {
       // Basic auth, to request a bearer token
       headers.Authorization = 'Basic ' + this._basicToken;
+    }
+    else if (this._clientId && this._clientSecret) {
+      // Basic auth with clientId + clientSecret
+      headers.Authorization = 'Basic ' + OAuth2Helper.getAuthHeader(this._clientId, this._clientSecret);
     }
     else if (this._consumerSecret && this._oauth) {
       // Merge query and body

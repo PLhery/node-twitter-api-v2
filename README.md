@@ -79,7 +79,7 @@ Here's the detailed feature list of `twitter-api-v2`:
 
 ### Basics:
 - Support for v1.1 and **v2 of Twitter API**
-- Make signed HTTP requests to Twitter with every auth type: **OAuth 1.0a**, **OAuth2** and **Basic** HTTP Authorization
+- Make signed HTTP requests to Twitter with every auth type: **OAuth 1.0a**, **OAuth2** (even brand new user context OAuth2!) and **Basic** HTTP Authorization
 - Helpers for numerous HTTP request methods (`GET`, `POST`, `PUT`, `DELETE` and `PATCH`),
   that handle query string parse & format, automatic body formatting and more
 - High-class support for stream endpoints, with easy data consumption and auto-reconnect on stream errors
@@ -107,7 +107,7 @@ Learn how to use the full potential of `twitter-api-v2`.
 
 - Get started
   - [Create a client and make your first request](./doc/basics.md)
-  - [Handle Twitter authentification flows](./doc/auth.md)
+  - [Handle Twitter authentication flows](./doc/auth.md)
   - [Explore some examples](./doc/examples.md)
 - Use endpoints wrappers — ensure typings of request & response
   - [Available endpoint wrappers for v1.1 API](./doc/v1.md)

@@ -213,6 +213,16 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /* Users */
 
   /**
+   * Returns information about an authorized user.
+   * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-me
+   *
+   * OAuth2 scopes: `tweet.read` & `users.read`
+   */
+  public me(options: Partial<UsersV2Params> = {}) {
+    return this.get<UserV2Result>('users/me', options);
+  }
+
+  /**
    * Returns a variety of information about a single user specified by the requested ID.
    * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-id
    */
@@ -277,7 +287,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns a list of users the specified user ID is following.
    * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-following
    *
-   * OAuth2 scope: `account.follows.read`
+   * OAuth2 scope: `follows.read`
    */
   public following(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
   public following(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowingV2Paginator>;

@@ -25,7 +25,7 @@ import { TwitterApi } from 'twitter-api-v2';
 const { TwitterApi } = require('twitter-api-v2');
 ```
 
-Instanciate with your wanted authentification method.
+Instanciate with your wanted authentication method.
 
 ```ts
 // OAuth 1.0a (User context)
@@ -57,9 +57,9 @@ you can choose the right sub-client:
 - `Read-write`: `rwClient = client.readWrite`
 - `Read-only`: `roClient = client.readOnly`
 
-## Authentification
+## Authentication
 
-Please see [Authentification part](./auth.md) of the doc.
+Please see [Authentication part](./auth.md) of the doc.
 
 ### Get current user
 

@@ -199,7 +199,7 @@ await client.v1.setWelcomeDm(welcomeDm[EDirectMessageEventTypeV1.WelcomeCreate].
 
 You can see a [real-life example of a 3-legged auth flow here](https://github.com/alkihis/twitter-api-v2-user-oauth-flow-example).
 
-See also [authentification documentation](./auth.md) for examples and explainations about Twitter auth flow.
+See also [authentication documentation](./auth.md) for examples and explainations about Twitter auth flow.
 
 ### Generate a auth link and get access tokens
 
