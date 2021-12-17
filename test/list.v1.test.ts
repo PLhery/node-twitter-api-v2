@@ -12,11 +12,14 @@ describe('List endpoints for v1.1 API', () => {
 
   it('.createList/.updateList/.listOwnerships/.removeList/.list - Create, update, get and delete a list', async () => {
     const newList = await client.v1.createList({ name: 'cats', mode: 'private' });
+
+    await sleepTest(1000);
     let createdList = await client.v1.list({ list_id: newList.id_str });
 
     expect(createdList.id_str).to.equal(newList.id_str);
 
     await client.v1.updateList({ list_id: newList.id_str, name: 'cats updated' });
+    await sleepTest(1000);
     createdList = await client.v1.list({ list_id: newList.id_str });
     expect(createdList.name).to.equal('cats updated');
 
