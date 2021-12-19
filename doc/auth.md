@@ -1,24 +1,25 @@
-# Authentification
+# Authentication
 
-This part will guide you through the multiple steps of Twitter API authentification process
+This part will guide you through the multiple steps of Twitter API authentication process
 inside `twitter-api-v2` package.
 
 Please first see the [Basics](./basics.md) to know how to create a client with your application keys.
 
-***First***, you must know which type of authentification you want to use.
+***First***, you must know which type of authentication you want to use.
 
-- User authentification (3-legged OAuth 1.0a flow, see [User-wide authentification flow](#user-wide-authentification-flow))
-- App-only authentification (Bearer token, see [Application-only authentification flow](#application-only-authentification-flow))
-- Basic authentification (couple of username+password, see [Basic authentification flow](#basic-authentification-flow))
+- User authentication (3-legged OAuth 1.0a flow, see [User-wide authentication flow](#user-wide-authentication-flow))
+- App-only authentication (Bearer token, see [Application-only authentication flow](#application-only-authentication-flow))
+- Basic authentication (couple of username+password, see [Basic authentication flow](#basic-authentication-flow))
+- User authentication, but with fine-grained scopes (3-legged OAuth 2 flow, see [User-wide authentication flow for OAuth2](#oauth2-user-wide-authentication-flow))
 
 **Note**: You can find a [project real-life example of a 3-legged auth flow here](https://github.com/alkihis/twitter-api-v2-user-oauth-flow-example).
 
-## User-wide authentification flow
+## User-wide authentication flow
 
 Many endpoints on the Twitter developer platform use the OAuth 1.0a method to act on behalf of a Twitter account.
 For example, if you have a Twitter developer app, you can make API requests on behalf of any Twitter account as long as that user authenticates your app.
 
-This method is **fairly the most complex** of authentification flow options, but it is, at least for now, the **most used method across Twitter API**.
+This method is **fairly the most complex** of authentication flow options, but it is, at least for now, the **most used method across Twitter API**.
 
 It is named "3-legged" because it is splitted in 3 parts:
 1. You (the app/server) generate a auth link that is clickable by a external user, and gives you *temporary* access tokens
@@ -40,8 +41,8 @@ You need to have a client instantiated with your **consumer keys** from Twitter.
 const client = new TwitterApi({ appKey: CONSUMER_KEY, appSecret: CONSUMER_SECRET });
 ```
 
-To create the authentification link, use `client.generateAuthLink()` method.
-**If you choose to redirect users to your website after authentification, you need to provide a callback URL here.**
+To create the authentication link, use `client.generateAuthLink()` method.
+**If you choose to redirect users to your website after authentication, you need to provide a callback URL here.**
 ```ts
 const authLink = await client.generateAuthLink(CALLBACK_URL);
 
@@ -92,7 +93,7 @@ app.get('/callback', (req, res) => {
 
   client.login(oauth_verifier)
     .then(({ client: loggedClient, accessToken, accessSecret }) => {
-      // loggedClient is an authentificated client in behalf of some user
+      // loggedClient is an authenticated client in behalf of some user
       // Store accessToken & accessSecret somewhere
     })
     .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
@@ -118,7 +119,7 @@ const client = new TwitterApi({
 
 // Give the PIN to client.login()
 const { client: loggedClient, accessToken, accessSecret } = await client.login(GIVEN_USER_PIN);
-// loggedClient is an authentificated client in behalf of some user
+// loggedClient is an authenticated client in behalf of some user
 // Store accessToken & accessSecret somewhere
 ```
 
@@ -129,7 +130,7 @@ You can use the method `.currentUser()` on your client.
 This a shortcut to `.v1.verifyCredentials()` with a **cache that store user to avoid multiple API calls**.
 Its returns a `UserV1` object.
 
-## Application-only authentification flow
+## Application-only authentication flow
 
 App-only flow use a single OAuth 2.0 Bearer Token that authenticates requests on behalf of your developer App.
 As this method is specific to the App, it does not involve any users.
@@ -147,7 +148,7 @@ const consumerClient = new TwitterApi({ appKey: CONSUMER_KEY, appSecret: CONSUME
 const client = await consumerClient.appLogin();
 ```
 
-## Basic authentification flow
+## Basic authentication flow
 
 Mainly for **Twitter enterprise APIs**, that require the use of HTTP Basic Authentication.
 You must pass a valid email address and password combination for each request.
@@ -156,4 +157,100 @@ The email and password combination are the same ones that you will use to access
 Use this combination to create your Twitter API client:
 ```ts
 const client = new TwitterApi({ username: MY_USERNAME, password: MY_PASSWORD });
+```
+
+## OAuth2 user-wide authentication flow
+
+Alternatively of OAuth 1.0a method, you can use OAuth2 user-context, which is restricted to **v2 of Twitter API**.
+This process is very similar of one used in OAuth 1.0a, so it's recommand to read it first to understand what's happening below.
+
+The main advantage of this method is that you can **explicitly specify which part of data you'll need from the Twitter user's account**.
+These parts are called **scopes**.
+
+This authentification is splitted into 3 parts:
+1. You (the app/server) generate a auth link with your client ID that is clickable by an external user
+2. The user clicks on the link, approves the application, it gives you a client code
+3. You use a code verifier generated at the first step along the client code to obtain **user-specific** access token; this token has a dedicated lifetime that can be extended with refresh tokens
+
+**NOTE**
+> - If you're building a server that serves content for users,
+>   you need to "remember" (store) some data between the first two steps,
+>   so be sure you have a available session-like store (file/memory/Redis/...) to share data across same-user requests.
+> - Between steps 1 & 2, users are redirected to official Twitter website. That means you need to have a dedicated page in your website meant to "welcome back" users that have been sent to Twitter (this is called **oauth callback**)
+
+### Create the auth link
+
+You need to have a client instantiated with your **client keys** from Twitter.
+If you've declared app as "public" app, you only need your **client ID**, if you've declared app as "confidential" app, you will need **client ID and client secret**.
+
+```ts
+const client = new TwitterApi({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
+```
+
+To create the authentication link, use `client.generateAuthLink()` method.
+**If you choose to redirect users to your website after authentication, you need to provide a callback URL here.**
+```ts
+// Don't forget to specify 'offline.access' in scope list if you want to refresh your token later
+const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', ...] });
+
+// Redirect your user to {url}, store {state} and {codeVerifier} into a DB/Redis/memory after user redirection
+```
+
+**IMPORTANT**: You need to store `state` and `codeVerifier` somewhere,
+because you will need them for step 2.
+
+### Collect returned auth codes and get access token
+
+When Twitter redirects to your page, it provides two query string parameters: `code` and `state`.
+
+**NOTE**: If the user refuses app access, `code` will not be provided.
+
+You need to extract those tokens, find the linked `codeVerifier` from given `state` (using your session store!), then ask for accesss token.
+
+Create a client with your **client ID** (and the **client secret** if it's needed), like at step 1.
+
+An example flow will be written here using the **express** framework, feel free to adapt to your case.
+
+```ts
+app.get('/callback', (req, res) => {
+  // Exact state and code from query string
+  const { state, code } = req.query;
+  // Get the saved oauth_token_secret from session
+  const { codeVerifier, state: sessionState } = req.session;
+
+  if (!codeVerifier || !state || !sessionState || !code) {
+    return res.status(400).send('You denied the app or your session expired!');
+  }
+  if (state !== sessionState) {
+    return res.status(400).send('Stored tokens didnt match!');
+  }
+
+  // Obtain access token
+  const client = new TwitterApi({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
+
+  client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
+    .then(({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
+      // {loggedClient} is an authenticated client in behalf of some user
+      // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
+      // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
+
+      // Example request
+      const { data: userObject } = await loggedClient.v2.me();
+    })
+    .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
+});
+```
+
+### Optional: refresh the token later
+
+If you choose to include `'offline.access'` as scope, you can store and re-use later `refreshToken` when `expiresIn` time kicks in.
+
+```ts
+// Obtain {refreshToken} from your DB/store
+const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(refreshToken);
+
+// Store refreshed {accessToken} and {newRefreshToken} to remplace the old ones
+
+// Example request
+await refreshedClient.v2.me();
 ```

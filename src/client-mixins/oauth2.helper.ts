@@ -14,6 +14,11 @@ export class OAuth2Helper {
     );
   }
 
+  static getAuthHeader(clientId: string, clientSecret: string) {
+    const key = encodeURIComponent(clientId) + ':' + encodeURIComponent(clientSecret);
+    return Buffer.from(key).toString('base64');;
+  }
+
   static generateRandomString(length: number) {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';

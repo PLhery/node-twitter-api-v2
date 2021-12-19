@@ -101,7 +101,7 @@ await stream.connect({ autoReconnect: true, autoReconnectRetries: Infinity });
 
 ## <a name='SpecificAPIv1.1implementations'></a>Specific API v1.1 implementations
 
-API v1.1 streaming-related endpoints works only with classic OAuth 1.0a authentification.
+API v1.1 streaming-related endpoints works only with classic OAuth 1.0a authentication.
 
 ### <a name='Filterendpoint'></a>Filter endpoint
 
@@ -145,7 +145,7 @@ const stream = await client.v1.sampleStream();
 
 ## <a name='SpecificAPIv2implementations'></a>Specific API v2 implementations
 
-API v2 streaming-related endpoints works only with Bearer OAuth2 authentification.
+API v2 streaming-related endpoints works only with Bearer OAuth2 authentication.
 
 ### <a name='Searchendpoint'></a>Search endpoint
 

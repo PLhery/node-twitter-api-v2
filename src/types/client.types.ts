@@ -24,6 +24,7 @@ export interface TwitterApiTokens {
 
 export interface TwitterApiOAuth2Init {
   clientId: string;
+  clientSecret?: string;
 }
 
 export interface TwitterApiBasicAuth {

@@ -206,7 +206,7 @@ export enum EApiV1ErrorCode {
   InvalidCoordinates = 3,
   NoLocationFound = 13,
 
-  // Authentification failures
+  // Authentication failures
   AuthenticationFail = 32,
   InvalidOrExpiredToken = 89,
   UnableToVerifyCredentials = 99,

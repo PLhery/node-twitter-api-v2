@@ -5,7 +5,7 @@ import { getRequestClient } from '../src/test/utils';
 // OAuth 1.0a
 const clientWithoutUser = getRequestClient();
 
-describe('Authentification API', () => {
+describe('Authentication API', () => {
   it('.generateAuthLink - Create a auth link', async () => {
     const tokens = await clientWithoutUser.generateAuthLink('oob');
 
