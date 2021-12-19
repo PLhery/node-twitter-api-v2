@@ -1,3 +1,8 @@
+1.8.0
+-----
+- Feat: Add OAuth2 user-context support
+- Feat: Add users/me v2 endpoint wrapper
+
 1.7.2
 -----
 - Fix: Paginator can return multiple times the same results in some conditions
