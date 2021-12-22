@@ -202,3 +202,9 @@ export class TweetV2UserLikedTweetsPaginator
 {
   protected _endpoint = 'users/:id/liked_tweets';
 }
+
+export class TweetV2ListTweetsPaginator
+  extends TweetListV2Paginator<Tweetv2ListResult, TweetV2PaginableListParams, TUserTimelinePaginatorShared>
+{
+  protected _endpoint = 'lists/:id/tweets';
+}

@@ -42,6 +42,10 @@ import {
   BatchComplianceV2Params,
   BatchComplianceV2JobResult,
   BatchComplianceJobV2,
+  GetListV2Params,
+  ListGetV2Result,
+  GetListTimelineV2Params,
+  ListTimelineV2Result,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -49,9 +53,13 @@ import {
   TweetUserMentionTimelineV2Paginator,
   TweetUserTimelineV2Paginator,
   TweetV2UserLikedTweetsPaginator,
+  UserOwnedListsV2Paginator,
+  UserListMembershipsV2Paginator,
+  UserListFollowedV2Paginator,
+  TweetV2ListTweetsPaginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
-import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
+import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
 import { isTweetStreamV2ErrorPayload } from '../helpers';
 import TweetStream from '../stream/TweetStream';
 import { PromiseOrType } from '../types/shared.types';
@@ -353,6 +361,118 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
     const initialRq = await this.get<UserV2TimelineResult>('users/:id/muting', options, { fullResponse: true, params });
 
     return new UserMutingUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /* Lists */
+
+  /**
+   * Returns the details of a specified List.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-lists-id
+   */
+  public list(id: string, options: Partial<GetListV2Params> = {}) {
+    return this.post<ListGetV2Result>('lists/:id', options, { params: { id } });
+  }
+
+  /**
+   * Returns all Lists owned by the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-users-id-owned_lists
+   */
+  public async listsOwned(userId: string, options: Partial<GetListTimelineV2Params> = {}) {
+    const params = { id: userId };
+    const initialRq = await this.get<ListTimelineV2Result>('users/:id/owned_lists', options, { fullResponse: true, params });
+
+    return new UserOwnedListsV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /**
+   * Returns all Lists a specified user is a member of.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/get-users-id-list_memberships
+   */
+  public async listMemberships(userId: string, options: Partial<GetListTimelineV2Params> = {}) {
+    const params = { id: userId };
+    const initialRq = await this.get<ListTimelineV2Result>('users/:id/list_memberships', options, { fullResponse: true, params });
+
+    return new UserListMembershipsV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /**
+   * Returns all Lists a specified user follows.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-follows/api-reference/get-users-id-followed_lists
+   */
+  public async listFollowed(userId: string, options: Partial<GetListTimelineV2Params> = {}) {
+    const params = { id: userId };
+    const initialRq = await this.get<ListTimelineV2Result>('users/:id/followed_lists', options, { fullResponse: true, params });
+
+    return new UserListFollowedV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /**
+   * Returns a list of Tweets from the specified List.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-tweets/api-reference/get-lists-id-tweets
+   */
+  public async listTweets(listId: string, options: Partial<TweetV2PaginableListParams> = {}) {
+    const params = { id: listId };
+    const initialRq = await this.get<Tweetv2ListResult>('lists/:id/tweets', options, { fullResponse: true, params });
+
+    return new TweetV2ListTweetsPaginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /**
+   * Returns a list of users who are members of the specified List.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/get-lists-id-members
+   */
+  public async listMembers(listId: string, options: Partial<UserV2TimelineParams> = {}) {
+    const params = { id: listId };
+    const initialRq = await this.get<UserV2TimelineResult>('lists/:id/members', options, { fullResponse: true, params });
+
+    return new UserListMembersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: { ...options },
+      sharedParams: params,
+    });
+  }
+
+  /**
+   * Returns a list of users who are followers of the specified List.
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-follows/api-reference/get-lists-id-followers
+   */
+  public async listFollowers(listId: string, options: Partial<UserV2TimelineParams> = {}) {
+    const params = { id: listId };
+    const initialRq = await this.get<UserV2TimelineResult>('lists/:id/followers', options, { fullResponse: true, params });
+
+    return new UserListFollowersV2Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
