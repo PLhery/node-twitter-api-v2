@@ -27,7 +27,7 @@ export type OrganicMetricV2 = PlaybackCountV2 & { view_count: number };
 
 export interface MediaObjectV2 {
   media_key: string;
-  type: string;
+  type: 'video' | 'animated_gif' | 'photo' | string;
   duration_ms?: number;
   height?: number;
   width?: number;

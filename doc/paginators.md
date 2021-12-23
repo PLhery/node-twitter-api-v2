@@ -7,19 +7,25 @@ By default, instance is built with the initial response data, and you have acces
 const homeTimeline = await client.v1.homeTimeline();
 ```
 
-## Iterate over the fetched tweets
+## Iterate over the fetched items
 
-You can use either `.tweets` (in paginators that returns tweets)
-or iterate with native `Symbol.iterator`.
+You can iterate with native `Symbol.iterator`.
 
 ```ts
-const fetchedTweets = homeTimeline.tweets; // Tweet(V1)(V2)[]
-
-// or iterate with for-of
 for (const fetchedTweet of homeTimeline) {
   // do something with fetchedTweet
 }
 ```
+
+## Access the fetched items
+
+In paginators that contains
+- tweets: `.tweets`
+- lists: `.lists`
+- users: `.users`
+- Only IDs: `.ids`
+- Welcome messages: `.welcomeMessages`
+- Events (like DM events): `.events`
 
 ## Check if a next page is available
 
