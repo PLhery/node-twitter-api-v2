@@ -6,6 +6,8 @@ import {
   TRequestQuery,
 } from './client-mixins/request-maker.mixin';
 import TweetStream from './stream/TweetStream';
+import { sharedPromise, SharedPromise } from './helpers';
+import { API_V1_1_PREFIX, API_V2_PREFIX } from './globals';
 
 export type TGetClientRequestArgs = TCustomizableRequestArgs & {
   prefix?: string;
@@ -45,8 +47,8 @@ export type TStreamClientRequestArgsWithoutAutoConnect = TStreamClientRequestArg
  */
 export default abstract class TwitterApiBase extends ClientRequestMaker {
   protected _prefix: string | undefined;
-  protected _currentUser: UserV1 | null = null;
-  protected _currentUserV2: UserV2Result | null = null;
+  protected _currentUser: SharedPromise<UserV1> | null = null;
+  protected _currentUserV2: SharedPromise<UserV2Result> | null = null;
 
   /**
    * Create a new TwitterApi object without authentication.
@@ -196,19 +198,21 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   /* Current user cache */
 
   /** Get cached current user. */
-  protected async getCurrentUserObject(forceFetch = false) {
+  protected getCurrentUserObject(forceFetch = false) {
     if (!forceFetch && this._currentUser) {
-      return this._currentUser;
+      if (this._currentUser.value) {
+        return Promise.resolve(this._currentUser.value);
+      }
+      return this._currentUser.promise;
     }
 
-    const currentUser = await this.get<UserV1>(
+    this._currentUser = sharedPromise(() => this.get<UserV1>(
       'account/verify_credentials.json',
       { tweet_mode: 'extended' },
-      { prefix: 'https://api.twitter.com/1.1/' },
-    );
-    this._currentUser = currentUser;
+      { prefix: API_V1_1_PREFIX },
+    ));
 
-    return currentUser;
+    return this._currentUser.promise;
   }
 
   /**
@@ -219,15 +223,17 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
    *
    * OAuth2 scopes: `tweet.read` & `users.read`
    */
-  protected async getCurrentUserV2Object(forceFetch = false) {
+  protected getCurrentUserV2Object(forceFetch = false) {
     if (!forceFetch && this._currentUserV2) {
-      return this._currentUserV2;
+      if (this._currentUserV2.value) {
+        return Promise.resolve(this._currentUserV2.value);
+      }
+      return this._currentUserV2.promise;
     }
 
-    const currentUserV2 = await this.get<UserV2Result>('users/me', undefined, { prefix: 'https://api.twitter.com/2/' });
-    this._currentUserV2 = currentUserV2;
+    this._currentUserV2 = sharedPromise(() => this.get<UserV2Result>('users/me', undefined, { prefix: API_V2_PREFIX }));
 
-    return currentUserV2;
+    return this._currentUserV2.promise;
   }
 
   /* Direct HTTP methods */

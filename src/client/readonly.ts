@@ -46,6 +46,22 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     return await this.getCurrentUserObject(forceFetch);
   }
 
+  /**
+   * Fetch and cache current user.
+   * This method can only be called with a OAuth 1.0a or OAuth2 user authentication.
+   *
+   * This can only be the slimest available `UserV2` object, with only id, name and username properties defined.
+   * To get a customized `UserV2Result`, use `.v2.me()`
+   *
+   * You can use this method to test if authentication was successful.
+   * Next calls to this methods will use the cached user, unless `forceFetch: true` is given.
+   *
+   * OAuth2 scopes: `tweet.read` & `users.read`
+   */
+  public async currentUserV2(forceFetch = false) {
+    return await this.getCurrentUserV2Object(forceFetch);
+  }
+
   /* Shortcuts to endpoints */
 
   public search(what: string, options?: Partial<Tweetv2SearchParams>) {

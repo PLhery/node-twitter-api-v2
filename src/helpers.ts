@@ -1,5 +1,22 @@
 import { TwitterApiV2Settings } from './settings';
 
+export interface SharedPromise<T> {
+  value: T | undefined;
+  promise: Promise<T>;
+}
+
+export function sharedPromise<T>(getter: () => Promise<T>) {
+  const sharedPromise: SharedPromise<T> = {
+    value: undefined,
+    promise: getter().then(val => {
+      sharedPromise.value = val;
+      return val;
+    }),
+  };
+
+  return sharedPromise;
+}
+
 export function arrayWrap<T>(value: T | T[]) : T[] {
   if (Array.isArray(value)) {
     return value;
