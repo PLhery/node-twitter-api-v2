@@ -58,7 +58,7 @@ Sometimes, you just want to quickly bootstrap an application using the Twitter A
 Even if they're a lot of available libraries on the JavaScript ecosystem, they usually just
 provide wrappers around HTTP methods, and some of them are bloated with many dependencies.
 
-`twitter-api-v2` meant to provide full endpoint wrapping, from method name to response data,
+`twitter-api-v2` is meant to provide full endpoint wrapping, from method name to response data,
 using descriptive typings for read/write/DMs rights, request parameters and response payload.
 
 A small feature comparaison with other libs:
