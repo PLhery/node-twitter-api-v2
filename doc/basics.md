@@ -39,7 +39,7 @@ const userClient = new TwitterApi({
   accessSecret: 'accessOAuthSecret',
 });
 
-// OAuth2 (App-only context)
+// OAuth2 (app-only or user context)
 // Create a client with an already known bearer token
 const appOnlyClient = new TwitterApi('bearerToken');
 // OR - you can also create a app-only client from your consumer keys -
@@ -63,11 +63,21 @@ Please see [Authentication part](./auth.md) of the doc.
 
 ### Get current user
 
-If you want to access currently logged user (= you're logged with OAuth 1.0a context),
+#### v1 API
+
+If you want to access currently logged user inside v1 API (= you're logged with OAuth 1.0a/OAuth2 user-context),
 you can use the method `.currentUser()`.
 
 This a shortcut to `.v1.verifyCredentials()` with a **cache that store user to avoid multiple API calls**.
 Its returns a `UserV1` object.
+
+#### v2 API
+
+If you want to access currently logged user inside v2 API,
+you can use the method `.currentUserV2()`.
+
+This a shortcut to `.v2.me()` with a **cache that store user to avoid multiple API calls**.
+Its returns a `UserV2Result` object.
 
 ## Use the versionned API clients - URL prefixes
 

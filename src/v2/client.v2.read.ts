@@ -561,7 +561,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Streams about 1% of all Tweets in real-time.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample-stream
    */
   public sampleStream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleResult>>;
   public sampleStream(options: Partial<Tweetv2FieldsParams> & { autoConnect: false }): TweetStream<TweetV2SingleResult>;
