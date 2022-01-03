@@ -1,3 +1,7 @@
+1.8.1
+-----
+- Feat: Add every GET lists v2 endpoints
+
 1.8.0
 -----
 - Feat: Add OAuth2 user-context support
