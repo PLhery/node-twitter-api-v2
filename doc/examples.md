@@ -15,11 +15,14 @@ For each implemented endpoint, you have a link to documentation available in JSD
 
 ### With user credentials (act as a logged user)
 
-This kind of auth is needed for endpoint mentionned with `"OAuth 1.0a User context"` in Twitter documentation.
+This kind of auth is needed for endpoint mentionned with `"OAuth 1.0a User context"` or `"OAuth 2.0 Authorization Code with PKCE"` in Twitter documentation.
 Usually, this is used to act on behalf of a user.
 
 Access token and access secret are obtained through [the 3-legged auth flow](./auth.md).
 
+- OAuth 1.0a User context
+
+This authentification method requires to use a couple of 4 keys, 2 are your app keys and 2 are obtained with the 3-legged auth flow.
 ```ts
 const client = new TwitterApi({
   appKey: '<YOUR-TWITTER-APP-TOKEN>',
@@ -28,6 +31,21 @@ const client = new TwitterApi({
   accessSecret: '<YOUR-TWITTER-ACCESS-SECERT>',
 });
 // NOTE: accessToken and accessSecret are not required if you want to generate OAuth login links.
+```
+
+- OAuth 2.0 Authorization Code with PKCE
+
+This authentification method only requires to use the obtained **access token** with the 3-legged OAuth2 auth flow.
+```ts
+const client = new TwitterApi('<YOUR-ACCESS-TOKEN>');
+```
+
+If your access token is no longer valid, but your have a refresh token (you specified `offline.access` in scope array), you can ask for a new access token with your client keys:
+```ts
+const client = new TwitterApi({ clientId: '<YOUR-CLIENT-ID>', clientSecret: '<YOUR-CLIENT-SECRET>' });
+const { client: refreshedClient, accessToken, refreshToken } = await client.refreshOAuth2Token('<YOUR-REFRESH-TOKEN>');
+
+// Use {refreshedClient}, and save {accessToken} and {refreshToken} in your storage to use them later
 ```
 
 ### With app-only credentials

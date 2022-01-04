@@ -246,7 +246,7 @@ app.get('/callback', (req, res) => {
 The `.loginWithOAuth2()` method already returns a logged client, but if you want to create an instance by yourself with an access token (for example to use your refresh token), use it as a **Bearer token**.
 
 ```ts
-const client = new TwitterApi('<YOUR_ACCESS_TOKEN>');
+const client = new TwitterApi('<YOUR-ACCESS-TOKEN>');
 ```
 
 ### Optional: refresh the token later
@@ -254,9 +254,9 @@ const client = new TwitterApi('<YOUR_ACCESS_TOKEN>');
 If you choose to include `'offline.access'` as scope, you can store and re-use later `refreshToken` when `expiresIn` time kicks in.
 
 ```ts
-// Obtain the couple {accessToken} + {refreshToken} from your DB/store
-const client = new TwitterApi(accessToken);
+const client = new TwitterApi({ clientId: '<YOUR-CLIENT-ID>', clientSecret: '<YOUR-CLIENT-SECRET>' });
 
+// Obtain the {refreshToken} from your DB/store
 const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(refreshToken);
 
 // Store refreshed {accessToken} and {newRefreshToken} to remplace the old ones
