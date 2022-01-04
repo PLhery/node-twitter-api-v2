@@ -13,6 +13,15 @@ export abstract class TwitterV2Paginator<
   protected _includesInstance?: TwitterV2IncludesHelper;
 
   protected updateIncludes(data: TResult) {
+    // Update errors
+    if (data.errors) {
+      if (!this._realData.errors) {
+        this._realData.errors = [];
+      }
+      this._realData.errors = [...this._realData.errors, ...data.errors];
+    }
+
+    // Update includes
     if (!data.includes) {
       return;
     }

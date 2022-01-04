@@ -92,6 +92,10 @@ for await (const tweet of mySearch) {
 }
 ```
 
+## v2 errors
+
+In some cases, paginators in v2 API can contains errors. You can access then with `.errors` getter.
+
 ## Previous page
 
 On paginators that supports it, you can get previous pages with `.previous()` and `.fetchPrevious()`.
