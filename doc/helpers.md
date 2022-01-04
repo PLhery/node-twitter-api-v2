@@ -111,6 +111,51 @@ Needed expansions for a method to work are specified (*`like this`*).
 - `.spaceSpeakers(space: SpaceV2): UserV2[]`: Get current speakers of the given space (*`speaker_ids`*)
 - `.spaceInvitedUsers(space: SpaceV2): UserV2[]`: Get current invited users of the given space (*`invited_user_ids`*)
 
+#### Sample usage of helper methods
+
+```ts
+/// - Tweets -
+
+// From a regular fetch
+const tweets = await client.v2.tweets(['20', '1257577057862610951'], {
+  'tweet.fields': ['author_id', 'source'],
+  expansions: ['author_id', 'referenced_tweets.id', 'in_reply_to_user_id'],
+});
+const includes = new TwitterV2IncludesHelper(tweets);
+
+for (const tweet of tweets.data) {
+  const author = includes.author(tweet); // author_id
+
+  const retweetedTweet = includes.retweet(tweet); // referenced_tweets.id
+  const quotedTweet = includes.quote(tweet); // referenced_tweets.id
+
+  const tweetRepliedTo = includes.repliedTo(tweet); // referenced_tweets.id
+  const tweetRepliedToAuthor = includes.repliedToAuthor(tweet); // in_reply_to_user_id
+}
+
+// Paginators bundle an accessor to an helper instance inside their .includes getter
+const jackTimeline = await client.v2.userTimeline('12', { expansions: ['attachments.media_keys', 'author_id'] });
+
+for (const tweet of jackTimeline) {
+  const mediasOfTweet = jackTimeline.includes.medias(tweet);
+  const authorUser = jackTimeline.includes.author(tweet);
+}
+
+
+/// - Spaces-
+
+const spacesBySearch = await client.v2.searchSpaces({
+  query: 'twitter',
+  state: 'live',
+  expansions: ['invited_user_ids', 'creator_id'],
+  'space.fields': ['title', 'invited_user_ids', 'creator_id'],
+});
+
+const includes = new TwitterV2IncludesHelper(spacesBySearch);
+const invitedUsers = includes.spaceInvitedUsers(spacesBySearch.data[0]);
+const creatorUser = includes.spaceCreator(spacesBySearch.data[0]);
+```
+
 ### <a name='Usagewithoutinstanciation'></a>Usage without instanciation
 
 You can use the helper without instanciate it, by using its `static` methods.
