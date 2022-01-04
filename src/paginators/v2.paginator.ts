@@ -96,4 +96,12 @@ export abstract class TimelineV2Paginator<
     }
     return this._includesInstance = new TwitterV2IncludesHelper(this._realData);
   }
+
+  get errors() {
+    return this._realData.errors ?? [];
+  }
+
+  get hasError() {
+    return this.errors.length > 0;
+  }
 }

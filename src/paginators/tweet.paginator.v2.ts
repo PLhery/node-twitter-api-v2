@@ -81,6 +81,14 @@ abstract class TweetsV2Paginator<
     }
     return this._includesInstance = new TwitterV2IncludesHelper(this._realData);
   }
+
+  get errors() {
+    return this._realData.errors ?? [];
+  }
+
+  get hasError() {
+    return this.errors.length > 0;
+  }
 }
 
 /** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines. */
