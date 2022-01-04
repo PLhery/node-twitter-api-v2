@@ -18,6 +18,7 @@ For each implemented endpoint, you have a link to documentation available in JSD
 	* [Select the right level of your client](#Selecttherightlevelofyourclient)
 * [Tweets](#Tweets)
 	* [Fetch and navigate through home timeline](#Fetchandnavigatethroughhometimeline)
+	* [Fetch and navigate through a user timeline](#Fetchandnavigatethroughausertimeline)
 	* [Post a new tweet with multiple images](#Postanewtweetwithmultipleimages)
 	* [Reply to a tweet with a video that have subtitles](#Replytoatweetwithavideothathavesubtitles)
 	* [Stream tweets in real time](#Streamtweetsinrealtime)
@@ -119,6 +120,32 @@ console.log(homeTimeline.tweets.length, 'fetched.');
 
 const nextHomePage = await homeTimeline.next();
 console.log('Fetched tweet IDs in next page:', nextHomePage.tweets.map(tweet => tweet.id_str));
+```
+
+### <a name='Fetchandnavigatethroughausertimeline'></a>Fetch and navigate through a user timeline
+
+Download tweets of user timeline using v2 API and consume them with a paginator.
+
+This example uses the `TwitterV2IncludesHelper`, [learn more about it here](./helpers.md#helpers-for-includes-of-v2-api-responses).
+
+```ts
+const jackTimeline = await client.v2.userTimeline('12', {
+  expansions: ['attachments.media_keys', 'attachments.poll_ids', 'referenced_tweets.id'],
+  'media.fields': ['url'],
+});
+
+// jackTimeline.includes contains a TwitterV2IncludesHelper instance
+for await (const tweet of jackTimeline) {
+  const medias = jackTimeline.includes.medias(tweet);
+  const poll = jackTimeline.includes.poll(tweet);
+
+  if (medias) {
+    console.log('This tweet contains medias! URLs:', medias.map(m => m.url));
+  }
+  if (poll) {
+    console.log('This tweet contains a poll! Options:', poll.options.map(opt => opt.label));
+  }
+}
 ```
 
 ### <a name='Postanewtweetwithmultipleimages'></a>Post a new tweet with multiple images
