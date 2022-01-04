@@ -28,6 +28,7 @@ describe('List endpoints for v1.1 API', () => {
 
     await sleepTest(1000);
     // This {does} works, but sometimes a 404 is returned...
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     await client.v1.removeList({ list_id: newList.id_str }).catch(() => {});
   }).timeout(60 * 1000);
 
@@ -47,6 +48,7 @@ describe('List endpoints for v1.1 API', () => {
     await client.v1.removeListMembers({ list_id: newList.id_str, user_id: '12' });
 
     await sleepTest(1000);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     await client.v1.removeList({ list_id: newList.id_str }).catch(() => {});
   }).timeout(60 * 1000);
 });

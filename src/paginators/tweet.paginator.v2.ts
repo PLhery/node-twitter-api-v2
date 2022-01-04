@@ -13,6 +13,7 @@ import {
   TweetV2PaginableListParams,
   Tweetv2FieldsParams,
 } from '../types';
+import { TwitterV2IncludesHelper } from '../v2/includes.v2.helper';
 
 /** A generic PreviousableTwitterPaginator able to consume TweetV2[]. */
 abstract class TweetsV2Paginator<
@@ -20,6 +21,8 @@ abstract class TweetsV2Paginator<
   TParams extends Partial<Tweetv2FieldsParams>,
   TShared = any,
 > extends PreviousableTwitterPaginator<TResult, TParams, TweetV2, TShared> {
+  protected _includesInstance?: TwitterV2IncludesHelper;
+
   protected updateIncludes(data: TResult) {
     if (!data.includes) {
       return;
@@ -70,7 +73,13 @@ abstract class TweetsV2Paginator<
   }
 
   get includes() {
-    return this._realData.includes ?? {};
+    if (!this._realData?.includes) {
+      return new TwitterV2IncludesHelper(this._realData);
+    }
+    if (this._includesInstance) {
+      return this._includesInstance;
+    }
+    return this._includesInstance = new TwitterV2IncludesHelper(this._realData);
   }
 }
 

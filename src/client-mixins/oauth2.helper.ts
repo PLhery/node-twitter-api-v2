@@ -16,7 +16,7 @@ export class OAuth2Helper {
 
   static getAuthHeader(clientId: string, clientSecret: string) {
     const key = encodeURIComponent(clientId) + ':' + encodeURIComponent(clientSecret);
-    return Buffer.from(key).toString('base64');;
+    return Buffer.from(key).toString('base64');
   }
 
   static generateRandomString(length: number) {

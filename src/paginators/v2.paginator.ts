@@ -1,5 +1,6 @@
 import type { TwitterResponse } from '../types';
 import type { DataMetaAndIncludeV2 } from '../types/v2/shared.v2.types';
+import { TwitterV2IncludesHelper } from '../v2/includes.v2.helper';
 import { PreviousableTwitterPaginator } from './TwitterPaginator';
 
 /** A generic PreviousableTwitterPaginator able to consume v2 timelines that use max_results and pagination tokens. */
@@ -9,6 +10,8 @@ export abstract class TimelineV2Paginator<
   TItem,
   TShared = any,
 > extends PreviousableTwitterPaginator<TResult, TParams, TItem, TShared> {
+  protected _includesInstance?: TwitterV2IncludesHelper;
+
   protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
     const result = response.data;
     const resultData = result.data ?? [];
@@ -85,6 +88,12 @@ export abstract class TimelineV2Paginator<
   }
 
   get includes() {
-    return this._realData.includes ?? {};
+    if (!this._realData?.includes) {
+      return new TwitterV2IncludesHelper(this._realData);
+    }
+    if (this._includesInstance) {
+      return this._includesInstance;
+    }
+    return this._includesInstance = new TwitterV2IncludesHelper(this._realData);
   }
 }
