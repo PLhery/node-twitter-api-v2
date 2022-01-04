@@ -12,13 +12,5 @@ export interface ITwitterApiV2SettingsLogger {
 export const TwitterApiV2Settings: ITwitterApiV2Settings = {
   debug: false,
   deprecationWarnings: true,
-  logger: {
-    log: (msg, payload) => {
-      if (payload) {
-        console.log(msg, payload);
-      } else {
-        console.log(msg);
-      }
-    }
-  },
+  logger: { log: console.log.bind(console) },
 };

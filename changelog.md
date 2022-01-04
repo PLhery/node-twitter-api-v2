@@ -1,6 +1,7 @@
 1.9.0
 -----
 - Feat: Helpers for v2 includes
+- Feat: Support for custom debug loggers
 - Fix: Errors accessor to get API errors in paginators #145
 - Fix: Correctly update .includes/.meta/.errors in paginators when using async iterator #142
 - Doc: Better doc & examples for OAuth 2.0 user-context
