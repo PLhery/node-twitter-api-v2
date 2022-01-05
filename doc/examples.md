@@ -139,7 +139,7 @@ for await (const tweet of jackTimeline) {
   const medias = jackTimeline.includes.medias(tweet);
   const poll = jackTimeline.includes.poll(tweet);
 
-  if (medias) {
+  if (medias.length) {
     console.log('This tweet contains medias! URLs:', medias.map(m => m.url));
   }
   if (poll) {
