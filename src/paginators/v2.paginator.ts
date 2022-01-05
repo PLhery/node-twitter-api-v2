@@ -1,14 +1,89 @@
 import type { TwitterResponse } from '../types';
 import type { DataMetaAndIncludeV2 } from '../types/v2/shared.v2.types';
+import { TwitterV2IncludesHelper } from '../v2/includes.v2.helper';
 import { PreviousableTwitterPaginator } from './TwitterPaginator';
 
-/** A generic PreviousableTwitterPaginator able to consume v2 timelines that use max_results and pagination tokens. */
+/** A generic PreviousableTwitterPaginator with common v2 helper methods. */
+export abstract class TwitterV2Paginator<
+  TResult extends DataMetaAndIncludeV2<any, any, any>,
+  TParams extends object,
+  TItem,
+  TShared = any,
+> extends PreviousableTwitterPaginator<TResult, TParams, TItem, TShared> {
+  protected _includesInstance?: TwitterV2IncludesHelper;
+
+  protected updateIncludes(data: TResult) {
+    // Update errors
+    if (data.errors) {
+      if (!this._realData.errors) {
+        this._realData.errors = [];
+      }
+      this._realData.errors = [...this._realData.errors, ...data.errors];
+    }
+
+    // Update includes
+    if (!data.includes) {
+      return;
+    }
+    if (!this._realData.includes) {
+      this._realData.includes = {};
+    }
+
+    const includesRealData = this._realData.includes;
+
+    for (const [includeKey, includeArray] of Object.entries(data.includes) as [keyof any, any[]][]) {
+      if (!includesRealData[includeKey]) {
+        includesRealData[includeKey] = [];
+      }
+
+      includesRealData[includeKey] = [
+        ...includesRealData[includeKey]!,
+        ...includeArray,
+      ];
+    }
+  }
+
+  /** Throw if the current paginator is not usable. */
+  protected assertUsable() {
+    if (this.unusable) {
+      throw new Error(
+        'Unable to use this paginator to fetch more data, as it does not contain any metadata.' +
+          ' Check .errors property for more details.',
+      );
+    }
+  }
+
+  get meta() {
+    return this._realData.meta;
+  }
+
+  get includes() {
+    if (!this._realData?.includes) {
+      return new TwitterV2IncludesHelper(this._realData);
+    }
+    if (this._includesInstance) {
+      return this._includesInstance;
+    }
+    return this._includesInstance = new TwitterV2IncludesHelper(this._realData);
+  }
+
+  get errors() {
+    return this._realData.errors ?? [];
+  }
+
+  /** `true` if this paginator only contains error payload and no metadata found to consume data. */
+  get unusable() {
+    return this.errors.length > 0 && !this._realData.meta && !this._realData.data;
+  }
+}
+
+/** A generic TwitterV2Paginator able to consume v2 timelines that use max_results and pagination tokens. */
 export abstract class TimelineV2Paginator<
   TResult extends DataMetaAndIncludeV2<any, any, any>,
   TParams extends { max_results?: number, pagination_token?: string },
   TItem,
   TShared = any,
-> extends PreviousableTwitterPaginator<TResult, TParams, TItem, TShared> {
+> extends TwitterV2Paginator<TResult, TParams, TItem, TShared> {
   protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
     const result = response.data;
     const resultData = result.data ?? [];
@@ -32,29 +107,9 @@ export abstract class TimelineV2Paginator<
     this.updateIncludes(result);
   }
 
-  protected updateIncludes(data: TResult) {
-    if (!data.includes) {
-      return;
-    }
-    if (!this._realData.includes) {
-      this._realData.includes = {};
-    }
-
-    const includesRealData = this._realData.includes;
-
-    for (const [includeKey, includeArray] of Object.entries(data.includes) as [keyof any, any[]][]) {
-      if (!includesRealData[includeKey]) {
-        includesRealData[includeKey] = [];
-      }
-
-      includesRealData[includeKey] = [
-        ...includesRealData[includeKey]!,
-        ...includeArray,
-      ];
-    }
-  }
-
   protected getNextQueryParams(maxResults?: number) {
+    this.assertUsable();
+
     return {
       ...this.injectQueryParams(maxResults),
       pagination_token: this._realData.meta.next_token,
@@ -62,6 +117,8 @@ export abstract class TimelineV2Paginator<
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
+    this.assertUsable();
+
     return {
       ...this.injectQueryParams(maxResults),
       pagination_token: this._realData.meta.previous_token,
@@ -78,13 +135,5 @@ export abstract class TimelineV2Paginator<
 
   protected canFetchNextPage(result: TResult) {
     return !!result.meta.next_token;
-  }
-
-  get meta() {
-    return this._realData.meta;
-  }
-
-  get includes() {
-    return this._realData.includes ?? {};
   }
 }

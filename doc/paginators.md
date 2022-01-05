@@ -77,6 +77,8 @@ for await (const tweet of homeTimeline) {
 For tweets endpoints that returns `meta`s and `includes` in their payload, `v2` paginators supports them (and merge them into a unique container :D),
 just use `Paginator.meta` or `Paginator.includes`.
 
+**`.includes` is an accessor to a `TwitterV2IncludesHelper` instance.** See how to [use it here](./helpers.md#helpers-for-includes-of-v2-api-responses).
+
 ```ts
 const mySearch = await client.v2.search('nodeJS');
 
@@ -89,6 +91,10 @@ for await (const tweet of mySearch) {
   // Once the next page is automatically fetched, they can be updated!
 }
 ```
+
+## v2 errors
+
+In some cases, paginators in v2 API can contains errors. You can access then with `.errors` getter.
 
 ## Previous page
 

@@ -1,4 +1,3 @@
-import { PreviousableTwitterPaginator } from './TwitterPaginator';
 import {
   Tweetv2SearchParams,
   Tweetv2SearchResult,
@@ -8,78 +7,17 @@ import {
   TweetV2TimelineParams,
   TweetV2UserTimelineResult,
   TweetV2UserTimelineParams,
-  ApiV2Includes,
   Tweetv2ListResult,
   TweetV2PaginableListParams,
-  Tweetv2FieldsParams,
 } from '../types';
-
-/** A generic PreviousableTwitterPaginator able to consume TweetV2[]. */
-abstract class TweetsV2Paginator<
-  TResult extends Tweetv2ListResult,
-  TParams extends Partial<Tweetv2FieldsParams>,
-  TShared = any,
-> extends PreviousableTwitterPaginator<TResult, TParams, TweetV2, TShared> {
-  protected updateIncludes(data: TResult) {
-    if (!data.includes) {
-      return;
-    }
-    if (!this._realData.includes) {
-      this._realData.includes = {};
-    }
-
-    const includesRealData = this._realData.includes;
-
-    for (const [includeKey, includeArray] of Object.entries(data.includes) as [keyof ApiV2Includes, any[]][]) {
-      if (!includesRealData[includeKey]) {
-        includesRealData[includeKey] = [];
-      }
-
-      includesRealData[includeKey] = [
-        ...includesRealData[includeKey]!,
-        ...includeArray,
-      ];
-    }
-  }
-
-  protected getPageLengthFromRequest(result: TwitterResponse<TResult>) {
-    return result.data.data?.length ?? 0;
-  }
-
-  protected isFetchLastOver(result: TwitterResponse<TResult>) {
-    return !result.data.data?.length || !this.canFetchNextPage(result.data);
-  }
-
-  protected canFetchNextPage(result: TResult) {
-    return !!result.meta.next_token;
-  }
-
-  protected getItemArray() {
-    return this.tweets;
-  }
-
-  /**
-   * Tweets returned by paginator.
-   */
-  get tweets() {
-    return this._realData.data ?? [];
-  }
-
-  get meta() {
-    return this._realData.meta;
-  }
-
-  get includes() {
-    return this._realData.includes ?? {};
-  }
-}
+import { TimelineV2Paginator, TwitterV2Paginator } from './v2.paginator';
 
 /** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines. */
 abstract class TweetTimelineV2Paginator<
   TResult extends Tweetv2TimelineResult,
   TParams extends TweetV2TimelineParams,
   TShared = any,
-> extends TweetsV2Paginator<TResult, TParams, TShared> {
+> extends TwitterV2Paginator<TResult, TParams, TweetV2, TShared> {
   protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
     const result = response.data;
     const resultData = result.data ?? [];
@@ -105,6 +43,8 @@ abstract class TweetTimelineV2Paginator<
   }
 
   protected getNextQueryParams(maxResults?: number) {
+    this.assertUsable();
+
     return {
       ...this.injectQueryParams(maxResults),
       until_id: this._realData.meta.oldest_id,
@@ -112,10 +52,35 @@ abstract class TweetTimelineV2Paginator<
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
+    this.assertUsable();
+
     return {
       ...this.injectQueryParams(maxResults),
       since_id: this._realData.meta.newest_id,
     };
+  }
+
+  protected getPageLengthFromRequest(result: TwitterResponse<TResult>) {
+    return result.data.data?.length ?? 0;
+  }
+
+  protected isFetchLastOver(result: TwitterResponse<TResult>) {
+    return !result.data.data?.length || !this.canFetchNextPage(result.data);
+  }
+
+  protected canFetchNextPage(result: TResult) {
+    return !!result.meta.next_token;
+  }
+
+  protected getItemArray() {
+    return this.tweets;
+  }
+
+  /**
+   * Tweets returned by paginator.
+   */
+  get tweets() {
+    return this._realData.data ?? [];
   }
 }
 
@@ -158,42 +123,16 @@ abstract class TweetListV2Paginator<
   TResult extends Tweetv2ListResult,
   TParams extends TweetV2PaginableListParams,
   TShared = any,
-> extends TweetsV2Paginator<TResult, TParams, TShared> {
-  protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
-    const result = response.data;
-    const resultData = result.data ?? [];
-    this._rateLimit = response.rateLimit!;
-
-    if (!this._realData.data) {
-      this._realData.data = [];
-    }
-
-    if (isNextPage) {
-      this._realData.meta.result_count += result.meta.result_count;
-      this._realData.meta.next_token = result.meta.next_token;
-      this._realData.data.push(...resultData);
-    }
-    else {
-      this._realData.meta.result_count += result.meta.result_count;
-      this._realData.meta.previous_token = result.meta.previous_token;
-      this._realData.data.unshift(...resultData);
-    }
-
-    this.updateIncludes(result);
+> extends TimelineV2Paginator<TResult, TParams, TweetV2, TShared> {
+  /**
+   * Tweets returned by paginator.
+   */
+  get tweets() {
+    return this._realData.data ?? [];
   }
 
-  protected getNextQueryParams(maxResults?: number) {
-    return {
-      ...this.injectQueryParams(maxResults),
-      pagination_token: this._realData.meta.next_token,
-    };
-  }
-
-  protected getPreviousQueryParams(maxResults?: number) {
-    return {
-      ...this.injectQueryParams(maxResults),
-      pagination_token: this._realData.meta.previous_token,
-    };
+  protected getItemArray() {
+    return this.tweets;
   }
 }
 

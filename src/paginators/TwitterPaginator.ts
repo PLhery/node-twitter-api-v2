@@ -157,7 +157,10 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   }
 
   /**
-   * Iterate over items "undefinitely" (until rate limit is hit / they're no more tweets available)
+   * Iterate over items "undefinitely" (until rate limit is hit / they're no more items available)
+   * This will **mutate the current instance** and fill data, metas, etc. inside this instance.
+   *
+   * If you need to handle concurrent requests, or you need to rely on immutability, please use `.fetchAndIterate()` instead.
    */
   async *[Symbol.asyncIterator](): AsyncGenerator<TItem, void, undefined> {
     yield* this.getItemArray();
@@ -167,12 +170,45 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
 
     while (canFetchNextPage && this._isRateLimitOk && paginator.getItemArray().length > 0) {
       const next = await paginator.next(this._maxResultsWhenFetchLast);
-      canFetchNextPage = this.canFetchNextPage(next._realData);
 
-      this._rateLimit = next._rateLimit;
+      // Store data into current instance [needed to access includes and meta]
+      this.refreshInstanceFromResult({ data: next._realData, headers: {}, rateLimit: next._rateLimit }, true);
+
+      canFetchNextPage = this.canFetchNextPage(next._realData);
       const items = next.getItemArray();
       yield* items;
 
+      paginator = next;
+    }
+  }
+
+  /**
+   * Iterate over items "undefinitely" without modifying the current instance (until rate limit is hit / they're no more items available)
+   *
+   * This will **NOT** mutate the current instance, meaning that current instance will not inherit from `includes` and `meta` (v2 API only).
+   * Use `Symbol.asyncIterator` (`for-await of`) to directly access items with current instance mutation.
+   */
+  async *fetchAndIterate(): AsyncGenerator<[TItem, this], void, undefined> {
+    for (const item of this.getItemArray()) {
+      yield [item, this];
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let paginator = this;
+    let canFetchNextPage = this.canFetchNextPage(this._realData);
+
+    while (canFetchNextPage && this._isRateLimitOk && paginator.getItemArray().length > 0) {
+      const next = await paginator.next(this._maxResultsWhenFetchLast);
+
+      // Store data into current instance [needed to access includes and meta]
+      this.refreshInstanceFromResult({ data: next._realData, headers: {}, rateLimit: next._rateLimit }, true);
+
+      canFetchNextPage = this.canFetchNextPage(next._realData);
+      for (const item of next.getItemArray()) {
+        yield [item, next];
+      }
+
+      this._rateLimit = next._rateLimit;
       paginator = next;
     }
   }

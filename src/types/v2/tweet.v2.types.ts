@@ -30,7 +30,7 @@ export interface TweetV2PaginableTimelineParams extends TweetV2TimelineParams {
 
 export interface TweetV2PaginableListParams extends Partial<Tweetv2FieldsParams> {
   pagination_token?: string;
-  max_results?: number | string;
+  max_results?: number;
 }
 
 export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParams {

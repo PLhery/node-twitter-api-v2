@@ -25,3 +25,45 @@ Some properties are common for both objects:
 
 ## Specific methods of `ApiResponseError`
 - `hasErrorCode(code: number | EApiV1ErrorCode | EApiV2ErrorCode)`: Tells if given Twitter error code is present in error response
+
+## Debug your requests
+
+If you keep obtaining errors and you don't know how to obtain the response data, or you want to see exactly what have been sent to Twitter,
+you can enable the debug mode:
+```ts
+import { TwitterApiV2Settings } from 'twitter-api-v2';
+
+TwitterApiV2Settings.debug = true;
+```
+
+By default, **all requests and responses** will be printed to console.
+
+You can customize the output by implementing your own debug logger:
+```ts
+// Here's the default logger:
+TwitterApiV2Settings.logger = {
+  log: (msg, payload) => console.log(msg, payload),
+};
+
+// .logger follows this interface:
+interface ITwitterApiV2SettingsLogger {
+  log(message: string, payload?: any): void;
+}
+
+// An example for a file logger
+import * as fs from 'fs';
+import * as util from 'util';
+
+const destination = fs.createWriteStream('requests.log', { flags: 'a' });
+
+TwitterApiV2Settings.logger = {
+  log: (msg, payload) => {
+    if (payload) {
+      const strPayload = util.inspect(payload);
+      destination.write(msg + ' ' + strPayload);
+    } else {
+      destination.write(msg);
+    }
+  },
+};
+```
