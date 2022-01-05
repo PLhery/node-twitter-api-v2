@@ -376,7 +376,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * https://developer.twitter.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-lists-id
    */
   public list(id: string, options: Partial<GetListV2Params> = {}) {
-    return this.post<ListGetV2Result>('lists/:id', options, { params: { id } });
+    return this.get<ListGetV2Result>('lists/:id', options, { params: { id } });
   }
 
   /**
