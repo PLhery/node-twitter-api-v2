@@ -243,7 +243,7 @@ app.get('/callback', (req, res) => {
 
 ### Use your access token
 
-The `.loginWithOAuth2()` method already returns a logged client, but if you want to create an instance by yourself with an access token (for example to use your refresh token), use it as a **Bearer token**.
+The `.loginWithOAuth2()` method already returns a logged client, but if you want to create an instance by yourself with an access token (for example to make a request from a saved access token), use it as a **Bearer token**.
 
 ```ts
 const client = new TwitterApi('<YOUR-ACCESS-TOKEN>');
