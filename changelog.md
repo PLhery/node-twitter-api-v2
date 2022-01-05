@@ -4,6 +4,7 @@
 - Feat: Support for custom debug loggers
 - Fix: Errors accessor to get API errors in paginators #145
 - Fix: Correctly update .includes/.meta/.errors in paginators when using async iterator #142
+- Fix: Incorrect HTTP method for GET lists #147 #148
 - Doc: Better doc & examples for OAuth 2.0 user-context
 
 1.8.1
