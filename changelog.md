@@ -1,3 +1,7 @@
+1.9.1
+-----
+- Fix: Use next_token instead of until_id if pagination token available #152
+
 1.9.0
 -----
 - Feat: Helpers for v2 includes
