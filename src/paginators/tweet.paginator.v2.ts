@@ -13,7 +13,7 @@ import {
 } from '../types';
 import { TimelineV2Paginator, TwitterV2Paginator } from './v2.paginator';
 
-/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines. */
+/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with since_id, until_id and next_token (when available). */
 abstract class TweetTimelineV2Paginator<
   TResult extends Tweetv2TimelineResult,
   TParams extends TweetV2TimelineParams,
@@ -63,7 +63,7 @@ abstract class TweetTimelineV2Paginator<
     return {
       ...this.injectQueryParams(maxResults),
       since_id: this._realData.meta.newest_id,
-    };
+    } as Partial<TParams>;
   }
 
   protected getPageLengthFromRequest(result: TwitterResponse<TResult>) {
@@ -90,11 +90,20 @@ abstract class TweetTimelineV2Paginator<
   }
 }
 
+/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with since_id, until_id and pagination_token (when available). */
 abstract class TweetPaginableTimelineV2Paginator<
-  TResult extends Tweetv2TimelineResult,
+  TResult extends TweetV2UserTimelineResult,
   TParams extends TweetV2PaginableTimelineParams,
   TShared = any,
 > extends TweetTimelineV2Paginator<TResult, TParams, TShared> {
+  protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
+    super.refreshInstanceFromResult(response, isNextPage);
+
+    if (!isNextPage) {
+      this._realData.meta.previous_token = response.data.meta.previous_token;
+    }
+  }
+
   protected getNextQueryParams(maxResults?: number) {
     this.assertUsable();
 
@@ -104,6 +113,20 @@ abstract class TweetPaginableTimelineV2Paginator<
       params.pagination_token = this._realData.meta.next_token;
     } else {
       params.until_id = this._realData.meta.oldest_id;
+    }
+
+    return params;
+  }
+
+  protected getPreviousQueryParams(maxResults?: number) {
+    this.assertUsable();
+
+    const params: Partial<TParams> = { ...this.injectQueryParams(maxResults) };
+
+    if (this._realData.meta.previous_token) {
+      params.pagination_token = this._realData.meta.previous_token;
+    } else {
+      params.since_id = this._realData.meta.newest_id;
     }
 
     return params;
