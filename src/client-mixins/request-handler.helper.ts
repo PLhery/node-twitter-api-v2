@@ -54,23 +54,12 @@ export class RequestHandlerHelper<T> {
 
   protected createRequestError(error: Error): ApiRequestError {
     if (TwitterApiV2Settings.debug) {
-      TwitterApiV2Settings.logger.log('Request network error:', error);
+      TwitterApiV2Settings.logger.log('Request error:', error);
     }
 
     return new ApiRequestError('Request failed.', {
       request: this.req,
       error,
-    });
-  }
-
-  protected createTimeoutError(): ApiRequestError {
-    if (TwitterApiV2Settings.debug) {
-      TwitterApiV2Settings.logger.log('Request has timed out.');
-    }
-
-    return new ApiRequestError('Request timed out.', {
-      request: this.req,
-      error: new Error('Timeout'),
     });
   }
 
@@ -139,9 +128,8 @@ export class RequestHandlerHelper<T> {
     this.req.removeAllListeners('timeout');
   }
 
-  protected timeoutErrorHandler(reject: TRequestRejecter) {
-    reject(this.createTimeoutError());
-    this.req.removeAllListeners('timeout');
+  protected timeoutErrorHandler() {
+    this.req.destroy(new Error('Request timeout.'));
   }
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
@@ -233,7 +221,7 @@ export class RequestHandlerHelper<T> {
       req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
 
       if (this.requestData.options.timeout) {
-        req.on('timeout', this.timeoutErrorHandler.bind(this, reject));
+        req.on('timeout', this.timeoutErrorHandler.bind(this));
       }
 
       if (this.requestData.body) {
