@@ -13,13 +13,13 @@ export interface TweetV2TimelineParams extends Partial<Tweetv2FieldsParams> {
   end_time?: string;
   /** ISO date string */
   start_time?: string;
-  max_results?: number | string;
+  max_results?: number;
   since_id?: string;
   until_id?: string;
+  next_token?: string;
 }
 
 export interface Tweetv2SearchParams extends TweetV2TimelineParams {
-  next_token?: string;
   previous_token?: string;
   query: string;
 }
@@ -108,7 +108,7 @@ export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], {
 }, ApiV2Includes>;
 
 export type Tweetv2SearchResult = Tweetv2TimelineResult;
-export type TweetV2UserTimelineResult = Tweetv2TimelineResult;
+export type TweetV2UserTimelineResult = Tweetv2TimelineResult & MetaV2<{ previous_token?: string }>;
 
 export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
 export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;

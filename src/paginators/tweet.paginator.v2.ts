@@ -9,10 +9,11 @@ import {
   TweetV2UserTimelineParams,
   Tweetv2ListResult,
   TweetV2PaginableListParams,
+  TweetV2PaginableTimelineParams,
 } from '../types';
 import { TimelineV2Paginator, TwitterV2Paginator } from './v2.paginator';
 
-/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines. */
+/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with since_id, until_id and next_token (when available). */
 abstract class TweetTimelineV2Paginator<
   TResult extends Tweetv2TimelineResult,
   TParams extends TweetV2TimelineParams,
@@ -45,10 +46,15 @@ abstract class TweetTimelineV2Paginator<
   protected getNextQueryParams(maxResults?: number) {
     this.assertUsable();
 
-    return {
-      ...this.injectQueryParams(maxResults),
-      until_id: this._realData.meta.oldest_id,
-    };
+    const params: Partial<TParams> = { ...this.injectQueryParams(maxResults) };
+
+    if (this._realData.meta.next_token) {
+      params.next_token = this._realData.meta.next_token;
+    } else {
+      params.until_id = this._realData.meta.oldest_id;
+    }
+
+    return params;
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
@@ -57,7 +63,7 @@ abstract class TweetTimelineV2Paginator<
     return {
       ...this.injectQueryParams(maxResults),
       since_id: this._realData.meta.newest_id,
-    };
+    } as Partial<TParams>;
   }
 
   protected getPageLengthFromRequest(result: TwitterResponse<TResult>) {
@@ -70,6 +76,37 @@ abstract class TweetTimelineV2Paginator<
 
   protected canFetchNextPage(result: TResult) {
     return !!result.meta.next_token;
+  }
+
+  protected getItemArray() {
+    return this.tweets;
+  }
+
+  /**
+   * Tweets returned by paginator.
+   */
+  get tweets() {
+    return this._realData.data ?? [];
+  }
+}
+
+/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with pagination_tokens. */
+abstract class TweetPaginableTimelineV2Paginator<
+  TResult extends TweetV2UserTimelineResult,
+  TParams extends TweetV2PaginableTimelineParams,
+  TShared = any,
+> extends TimelineV2Paginator<TResult, TParams, TweetV2, TShared> {
+  protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
+    super.refreshInstanceFromResult(response, isNextPage);
+
+    const result = response.data;
+
+    if (isNextPage) {
+      this._realData.meta.oldest_id = result.meta.oldest_id;
+    }
+    else {
+      this._realData.meta.newest_id = result.meta.newest_id;
+    }
   }
 
   protected getItemArray() {
@@ -103,13 +140,13 @@ export class TweetSearchAllV2Paginator extends TweetTimelineV2Paginator<Tweetv2S
 type TUserTimelinePaginatorShared = { id: string };
 
 export class TweetUserTimelineV2Paginator
-  extends TweetTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
+  extends TweetPaginableTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/tweets';
 }
 
 export class TweetUserMentionTimelineV2Paginator
-  extends TweetTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
+  extends TweetPaginableTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2PaginableTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/mentions';
 }
