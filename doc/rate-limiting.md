@@ -72,7 +72,7 @@ try {
 *Warning*: This method can be VERY ineffective, as it can wait up to 15 minutes (Twitter's usual rate limit reset time).
 ```ts
 function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(ms, resolve));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function autoRetryOnRateLimitError<T>(callback: () => T | Promise<T>) {
