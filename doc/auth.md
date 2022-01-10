@@ -67,7 +67,7 @@ When Twitter redirects to your page, it provides two query string parameters: `o
 You need to extract those tokens, find the linked `oauth_token_secret` from given `oauth_token` (using your session store!),
 then ask for persistent tokens.
 
-Create a client with these tokens as access token, then call `client.login(oauth_verified)` to create a logged client.
+Create a client with these tokens as access token, then call `client.login(oauth_verifier)` to create a logged client.
 
 An example flow will be written here using the **express** framework, feel free to adapt to your case.
 
