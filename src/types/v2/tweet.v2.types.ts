@@ -16,10 +16,10 @@ export interface TweetV2TimelineParams extends Partial<Tweetv2FieldsParams> {
   max_results?: number | string;
   since_id?: string;
   until_id?: string;
+  next_token?: string;
 }
 
 export interface Tweetv2SearchParams extends TweetV2TimelineParams {
-  next_token?: string;
   previous_token?: string;
   query: string;
 }

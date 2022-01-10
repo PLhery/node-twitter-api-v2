@@ -45,10 +45,15 @@ abstract class TweetTimelineV2Paginator<
   protected getNextQueryParams(maxResults?: number) {
     this.assertUsable();
 
-    return {
-      ...this.injectQueryParams(maxResults),
-      until_id: this._realData.meta.oldest_id,
-    };
+    const params: Partial<TParams> = { ...this.injectQueryParams(maxResults) };
+
+    if (this._realData.meta.next_token) {
+      params.next_token = this._realData.meta.next_token;
+    } else {
+      params.until_id = this._realData.meta.oldest_id;
+    }
+
+    return params;
   }
 
   protected getPreviousQueryParams(maxResults?: number) {
