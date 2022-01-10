@@ -9,6 +9,7 @@ import {
   TweetV2UserTimelineParams,
   Tweetv2ListResult,
   TweetV2PaginableListParams,
+  TweetV2PaginableTimelineParams,
 } from '../types';
 import { TimelineV2Paginator, TwitterV2Paginator } from './v2.paginator';
 
@@ -89,6 +90,26 @@ abstract class TweetTimelineV2Paginator<
   }
 }
 
+abstract class TweetPaginableTimelineV2Paginator<
+  TResult extends Tweetv2TimelineResult,
+  TParams extends TweetV2PaginableTimelineParams,
+  TShared = any,
+> extends TweetTimelineV2Paginator<TResult, TParams, TShared> {
+  protected getNextQueryParams(maxResults?: number) {
+    this.assertUsable();
+
+    const params: Partial<TParams> = { ...this.injectQueryParams(maxResults) };
+
+    if (this._realData.meta.next_token) {
+      params.pagination_token = this._realData.meta.next_token;
+    } else {
+      params.until_id = this._realData.meta.oldest_id;
+    }
+
+    return params;
+  }
+}
+
 // ----------------
 // - Tweet search -
 // ----------------
@@ -108,13 +129,13 @@ export class TweetSearchAllV2Paginator extends TweetTimelineV2Paginator<Tweetv2S
 type TUserTimelinePaginatorShared = { id: string };
 
 export class TweetUserTimelineV2Paginator
-  extends TweetTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
+  extends TweetPaginableTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/tweets';
 }
 
 export class TweetUserMentionTimelineV2Paginator
-  extends TweetTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
+  extends TweetPaginableTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2PaginableTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/mentions';
 }
