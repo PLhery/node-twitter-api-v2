@@ -90,46 +90,34 @@ abstract class TweetTimelineV2Paginator<
   }
 }
 
-/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with since_id, until_id and pagination_token (when available). */
+/** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with pagination_tokens. */
 abstract class TweetPaginableTimelineV2Paginator<
   TResult extends TweetV2UserTimelineResult,
   TParams extends TweetV2PaginableTimelineParams,
   TShared = any,
-> extends TweetTimelineV2Paginator<TResult, TParams, TShared> {
+> extends TimelineV2Paginator<TResult, TParams, TweetV2, TShared> {
   protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: boolean) {
     super.refreshInstanceFromResult(response, isNextPage);
 
-    if (!isNextPage) {
-      this._realData.meta.previous_token = response.data.meta.previous_token;
+    const result = response.data;
+
+    if (isNextPage) {
+      this._realData.meta.oldest_id = result.meta.oldest_id;
+    }
+    else {
+      this._realData.meta.newest_id = result.meta.newest_id;
     }
   }
 
-  protected getNextQueryParams(maxResults?: number) {
-    this.assertUsable();
-
-    const params: Partial<TParams> = { ...this.injectQueryParams(maxResults) };
-
-    if (this._realData.meta.next_token) {
-      params.pagination_token = this._realData.meta.next_token;
-    } else {
-      params.until_id = this._realData.meta.oldest_id;
-    }
-
-    return params;
+  protected getItemArray() {
+    return this.tweets;
   }
 
-  protected getPreviousQueryParams(maxResults?: number) {
-    this.assertUsable();
-
-    const params: Partial<TParams> = { ...this.injectQueryParams(maxResults) };
-
-    if (this._realData.meta.previous_token) {
-      params.pagination_token = this._realData.meta.previous_token;
-    } else {
-      params.since_id = this._realData.meta.newest_id;
-    }
-
-    return params;
+  /**
+   * Tweets returned by paginator.
+   */
+  get tweets() {
+    return this._realData.data ?? [];
   }
 }
 
