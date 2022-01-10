@@ -63,6 +63,17 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected createTimeoutError(): ApiRequestError {
+    if (TwitterApiV2Settings.debug) {
+      TwitterApiV2Settings.logger.log('Request has timed out.');
+    }
+
+    return new ApiRequestError('Request timed out.', {
+      request: this.req,
+      error: new Error('Timeout'),
+    });
+  }
+
   protected formatV1Errors(errors: ErrorV1[]) {
     return errors
       .map(({ code, message }) => `${message} (Twitter code ${code})`)
@@ -125,6 +136,12 @@ export class RequestHandlerHelper<T> {
 
   protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
     reject(this.createRequestError(requestError));
+    this.req.removeAllListeners('timeout');
+  }
+
+  protected timeoutErrorHandler(reject: TRequestRejecter) {
+    reject(this.createTimeoutError());
+    this.req.removeAllListeners('timeout');
   }
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
@@ -134,6 +151,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+    this.req.removeAllListeners('timeout');
     const rateLimit = this.getRateLimitFromResponse(res);
     const data = this.getParsedResponse(res);
 
@@ -213,6 +231,10 @@ export class RequestHandlerHelper<T> {
       req.on('error', this.requestErrorHandler.bind(this, reject));
 
       req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
+
+      if (this.requestData.options.timeout) {
+        req.on('timeout', this.timeoutErrorHandler.bind(this, reject));
+      }
 
       if (this.requestData.body) {
         req.write(this.requestData.body);

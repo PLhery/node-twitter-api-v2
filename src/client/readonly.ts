@@ -143,7 +143,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       appSecret: this._consumerSecret!,
       accessToken: oauth_result.oauth_token,
       accessSecret: oauth_result.oauth_token_secret,
-    });
+    }, this._clientSettings);
 
     return {
       accessToken: oauth_result.oauth_token,
@@ -175,7 +175,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
     // New object with Bearer token
-    return new TwitterApi(res.access_token);
+    return new TwitterApi(res.access_token, this._clientSettings);
   }
 
   /* OAuth 2 user authentication */
@@ -328,7 +328,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
   }
 
   protected parseOAuth2AccessTokenResult(result: AccessOAuth2TokenResult) {
-    const client = new TwitterApi(result.access_token);
+    const client = new TwitterApi(result.access_token, this._clientSettings);
     const scope = result.scope.split(' ').filter(e => e) as TOAuth2Scope[];
 
     return {

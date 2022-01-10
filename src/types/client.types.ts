@@ -1,3 +1,5 @@
+import type { Agent } from 'http';
+
 export enum ETwitterStreamEvent {
   Connected = 'connected',
   ConnectError = 'connect error',
@@ -60,3 +62,7 @@ export interface IClientTokenNone {
 }
 
 export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientTokenOauth | IClientTokenBasic | IClientOAuth2UserClient;
+
+export interface IClientSettings {
+  agent: Agent;
+}
