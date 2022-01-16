@@ -1,3 +1,5 @@
+import type { Agent } from 'http';
+
 export enum ETwitterStreamEvent {
   Connected = 'connected',
   ConnectError = 'connect error',
@@ -60,3 +62,8 @@ export interface IClientTokenNone {
 }
 
 export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientTokenOauth | IClientTokenBasic | IClientOAuth2UserClient;
+
+export interface IClientSettings {
+  /** Used to send HTTPS requests. This is mostly used to make requests work behind a proxy. */
+  httpAgent: Agent;
+}

@@ -1,6 +1,7 @@
-import { TwitterRateLimit, TwitterResponse } from '../types';
+import { IClientSettings, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { RequestOptions } from 'https';
+import type { ClientRequestArgs } from 'http';
 import { trimUndefinedProperties } from '../helpers';
 import OAuth1Helper from './oauth1.helper';
 import RequestHandlerHelper from './request-handler.helper';
@@ -11,7 +12,7 @@ export type TRequestFullData = {
   url: URL,
   options: RequestOptions,
   body?: any,
-  rateLimitSaver?: (rateLimit: TwitterRateLimit) => any
+  rateLimitSaver?: (rateLimit: TwitterRateLimit) => any,
 };
 export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
@@ -70,6 +71,7 @@ export abstract class ClientRequestMaker {
   protected _clientSecret?: string;
   protected _oauth?: OAuth1Helper;
   protected _rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
+  protected _clientSettings: Partial<IClientSettings> = {};
 
   protected static readonly BODY_METHODS = new Set(['POST', 'PUT', 'PATCH']);
 
@@ -80,7 +82,12 @@ export abstract class ClientRequestMaker {
   /** Send a new request and returns a wrapped `Promise<TwitterResponse<T>`. */
   send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     const args = this.getHttpRequestArgs(requestParams);
-    const options = { method: args.method, headers: args.headers, timeout: requestParams.timeout };
+    const options: Partial<ClientRequestArgs> = {
+      method: args.method,
+      headers: args.headers,
+      timeout: requestParams.timeout,
+      agent: this._clientSettings.httpAgent,
+    };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
 
     if (args.body) {
@@ -108,7 +115,11 @@ export abstract class ClientRequestMaker {
 
   sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T> {
     const args = this.getHttpRequestArgs(requestParams);
-    const options = { method: args.method, headers: args.headers };
+    const options: Partial<ClientRequestArgs> = {
+      method: args.method,
+      headers: args.headers,
+      agent: this._clientSettings.httpAgent,
+    };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
     const enableAutoConnect = requestParams.autoConnect !== false;
 

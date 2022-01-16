@@ -100,3 +100,22 @@ and gives you access to endpoint-wrapper methods!
 ## Use the endpoint-wrapper methods
 
 See the [documentation for v1 client API](./v1.md) or [documentation for v2 client API](./v2.md).
+
+## Make requests behind a proxy
+
+If your network connection is behind a proxy and you don't be able to make requests with the default configuration, you can use a custom HTTP agent to configure this behavior.
+
+```ts
+// Note: this package is an external package, it isn't bundled with Node.
+import * as HttpProxyAgent from 'https-proxy-agent';
+
+// HTTPS proxy to connect to
+// twitter-api-v2 will always use HTTPS
+const proxy = process.env.HTTP_PROXY || 'https://1.1.1.1:3000';
+
+// create an instance of the `HttpProxyAgent` class with the proxy server information
+const httpAgent = new HttpProxyAgent(proxy);
+
+// Instanciate helper with the agent
+const client = new TwitterApi('<bearerToken>', { httpAgent });
+```

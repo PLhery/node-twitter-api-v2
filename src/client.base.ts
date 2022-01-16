@@ -1,4 +1,4 @@
-import type { TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
+import type { IClientSettings, TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
 import {
   ClientRequestMaker,
   TCustomizableRequestArgs,
@@ -53,29 +53,32 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   /**
    * Create a new TwitterApi object without authentication.
    */
-  constructor();
+  constructor(_?: undefined, settings?: Partial<IClientSettings>);
   /**
    * Create a new TwitterApi object with OAuth 2.0 Bearer authentication.
    */
-  constructor(bearerToken: string);
+  constructor(bearerToken: string, settings?: Partial<IClientSettings>);
   /**
    * Create a new TwitterApi object with three-legged OAuth 1.0a authentication.
    */
-  constructor(tokens: TwitterApiTokens);
+  constructor(tokens: TwitterApiTokens, settings?: Partial<IClientSettings>);
   /**
    * Create a new TwitterApi object with only client ID needed for OAuth2 user-flow.
    */
-  constructor(oauth2Init: TwitterApiOAuth2Init);
+  constructor(oauth2Init: TwitterApiOAuth2Init, settings?: Partial<IClientSettings>);
   /**
    * Create a new TwitterApi object with Basic HTTP authentication.
    */
-  constructor(credentials: TwitterApiBasicAuth);
+  constructor(credentials: TwitterApiBasicAuth, settings?: Partial<IClientSettings>);
   /**
    * Create a clone of {instance}.
    */
-  constructor(instance: TwitterApiBase);
+  constructor(instance: TwitterApiBase, settings?: Partial<IClientSettings>);
 
-  public constructor(token?: TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string | TwitterApiBase) {
+  public constructor(
+    token?: TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string | TwitterApiBase,
+    settings: Partial<IClientSettings> = {},
+  ) {
     super();
 
     if (typeof token === 'string') {
@@ -112,6 +115,10 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     else if (typeof token === 'object' && 'clientId' in token) {
       this._clientId = token.clientId;
       this._clientSecret = token.clientSecret;
+    }
+
+    if (settings) {
+      this._clientSettings = { ...settings };
     }
   }
 
