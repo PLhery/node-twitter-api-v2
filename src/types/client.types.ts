@@ -64,5 +64,6 @@ export interface IClientTokenNone {
 export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientTokenOauth | IClientTokenBasic | IClientOAuth2UserClient;
 
 export interface IClientSettings {
-  agent: Agent;
+  /** Used to send HTTPS requests. This is mostly used to make requests work behind a proxy. */
+  httpAgent: Agent;
 }

@@ -86,7 +86,7 @@ export abstract class ClientRequestMaker {
       method: args.method,
       headers: args.headers,
       timeout: requestParams.timeout,
-      agent: this._clientSettings.agent,
+      agent: this._clientSettings.httpAgent,
     };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
 
@@ -118,7 +118,7 @@ export abstract class ClientRequestMaker {
     const options: Partial<ClientRequestArgs> = {
       method: args.method,
       headers: args.headers,
-      agent: this._clientSettings.agent,
+      agent: this._clientSettings.httpAgent,
     };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
     const enableAutoConnect = requestParams.autoConnect !== false;
