@@ -57,7 +57,7 @@ await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
 ## Why?
 
 Sometimes, you just want to quickly bootstrap an application using the Twitter API.
-Even though there is a lot of libraries available on the JavaScript ecosystem, they usually just
+Even though there are a lot of libraries available on the JavaScript ecosystem, they usually just
 provide wrappers around HTTP methods, and some of them are bloated with many dependencies.
 
 `twitter-api-v2` is meant to provide full endpoint wrapping, from method name to response data,
