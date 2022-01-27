@@ -46,6 +46,9 @@ import {
   ListGetV2Result,
   GetListTimelineV2Params,
   ListTimelineV2Result,
+  TweetRetweetedOrLikedByV2Params,
+  TweetRetweetedOrLikedByV2ParamsWithPaginator,
+  TweetRetweetedOrLikedByV2ParamsWithoutPaginator,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -59,7 +62,7 @@ import {
   TweetV2ListTweetsPaginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
-import { UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
+import { TweetLikingUsersV2Paginator, TweetRetweetersUsersV2Paginator, UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
 import { isTweetStreamV2ErrorPayload } from '../helpers';
 import TweetStream from '../stream/TweetStream';
 import { PromiseOrType } from '../types/shared.types';
@@ -164,16 +167,52 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Allows you to get information about who has Retweeted a Tweet.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/get-tweets-id-retweeted_by
    */
-  public tweetRetweetedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
-    return this.get<TweetV2RetweetedByResult>('tweets/:id/retweeted_by', options, { params: { id: tweetId } });
+  public tweetRetweetedBy(tweetId: string, options?: Partial<TweetRetweetedOrLikedByV2ParamsWithoutPaginator>): Promise<TweetV2RetweetedByResult>;
+  public tweetRetweetedBy(tweetId: string, options: TweetRetweetedOrLikedByV2ParamsWithPaginator): Promise<TweetRetweetersUsersV2Paginator>;
+  public async tweetRetweetedBy(tweetId: string, options: TweetRetweetedOrLikedByV2Params = {}) {
+    const { asPaginator, ...parameters } = options;
+    const initialRq = await this.get<TweetV2RetweetedByResult>('tweets/:id/retweeted_by', parameters as any, {
+      fullResponse: true,
+      params: { id: tweetId },
+    });
+
+    if (!asPaginator) {
+      return initialRq.data;
+    }
+
+    return new TweetRetweetersUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: parameters,
+      sharedParams: { id: tweetId },
+    });
   }
 
   /**
    * Allows you to get information about who has Liked a Tweet.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-tweets-id-liking_users
    */
-  public tweetLikedBy(tweetId: string, options: Partial<UsersV2Params> = {}) {
-    return this.get<TweetV2LikedByResult>('tweets/:id/liking_users', options, { params: { id: tweetId } });
+  public tweetLikedBy(tweetId: string, options?: Partial<TweetRetweetedOrLikedByV2ParamsWithoutPaginator>): Promise<TweetV2LikedByResult>;
+  public tweetLikedBy(tweetId: string, options: TweetRetweetedOrLikedByV2ParamsWithPaginator): Promise<TweetLikingUsersV2Paginator>;
+  public async tweetLikedBy(tweetId: string, options: TweetRetweetedOrLikedByV2Params = {}) {
+    const { asPaginator, ...parameters } = options;
+    const initialRq = await this.get<TweetV2LikedByResult>('tweets/:id/liking_users', parameters as any, {
+      fullResponse: true,
+      params: { id: tweetId },
+    });
+
+    if (!asPaginator) {
+      return initialRq.data;
+    }
+
+    return new TweetLikingUsersV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: parameters,
+      sharedParams: { id: tweetId },
+    });
   }
 
   /**

@@ -130,13 +130,17 @@ export type TweetV2LikeResult = DataV2<{
   liked: boolean;
 }>;
 
-export type TweetV2LikedByResult = DataAndIncludeV2<UserV2[], ApiV2Includes>;
+export type TweetV2LikedByResult = DataMetaAndIncludeV2<UserV2[], {
+  result_count: number;
+  next_token?: string;
+  previous_token?: string;
+}, ApiV2Includes>;
 
 /// -- Retweets
 
 export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
 
-export type TweetV2RetweetedByResult = DataMetaAndIncludeV2<UserV2[], { result_count: number }, ApiV2Includes>;
+export type TweetV2RetweetedByResult = TweetV2LikedByResult;
 
 /// Tweets
 
