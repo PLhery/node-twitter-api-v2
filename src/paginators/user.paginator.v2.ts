@@ -42,3 +42,11 @@ export class UserListMembersV2Paginator extends UserTimelineV2Paginator<UserV2Ti
 export class UserListFollowersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
   protected _endpoint = 'lists/:id/followers';
 }
+
+export class TweetLikingUsersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
+  protected _endpoint = 'tweets/:id/liking_users';
+}
+
+export class TweetRetweetersUsersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
+  protected _endpoint = 'tweets/:id/retweeted_by';
+}
