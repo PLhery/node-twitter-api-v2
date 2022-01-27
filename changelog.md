@@ -1,3 +1,9 @@
+1.10.0
+------
+- Feat: Pagination support for `tweets/:id/liking_users` and `tweets/:id/retweeted_by` #165
+- Feat: Support custom Node HTTP agents #149
+- Doc: Better example for `.v2.me()` and fix typos #160 #164 (thanks to @rbochenek and @ShubhamKushwah)
+
 1.9.1
 -----
 - Fix: Use next_token instead of until_id if pagination token available #152
