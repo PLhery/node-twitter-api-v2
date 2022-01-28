@@ -36,10 +36,10 @@ yarn add twitter-api-v2
 npm i twitter-api-v2
 ```
 
-Here's is a quick example of usage:
+Here's a quick example of usage:
 
 ```ts
-import TwitterApi from 'twitter-api-v2';
+import { TwitterApi } from 'twitter-api-v2';
 
 // Instanciate with desired auth type (here's Bearer v2 auth)
 const twitterClient = new TwitterApi('<YOUR_APP_USER_TOKEN>');
