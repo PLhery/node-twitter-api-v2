@@ -12,6 +12,7 @@ export type TRequestFullData = {
   body?: any,
   rateLimitSaver?: (rateLimit: TwitterRateLimit) => any,
   requestEventDebugHandler?: TRequestDebuggerHandler,
+  compression?: boolean,
 };
 
 export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
@@ -42,12 +43,13 @@ export interface IGetHttpRequestArgs {
   enableRateLimitSave?: boolean;
   timeout?: number;
   requestEventDebugHandler?: TRequestDebuggerHandler;
+  disableCompression?: boolean;
 }
 
 export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
   autoConnect?: boolean;
-  }
+}
 
 export interface IGetStreamRequestArgsAsync {
   payloadIsError?: (data: any) => boolean;
@@ -59,5 +61,5 @@ export interface IGetStreamRequestArgsSync {
   autoConnect: false;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'timeout' | 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'disableCompression' | 'timeout' | 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
 

@@ -5,6 +5,7 @@ import TweetStream from '../stream/TweetStream';
 import { ApiPartialResponseError, ApiRequestError, ApiResponseError } from '../types';
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
 import type { TRequestFullData, TRequestFullStreamData } from '../types/request-maker.mixin.types';
+import * as zlib from 'zlib';
 
 type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
@@ -121,6 +122,32 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected getResponseDataStream(res: IncomingMessage) {
+    if (!this.requestData.compression) {
+      return res;
+    }
+
+    const contentEncoding = (res.headers['content-encoding'] || 'identity').trim().toLowerCase();
+    const zlibOptions = {
+      flush: zlib.constants.Z_SYNC_FLUSH,
+      finishFlush: zlib.constants.Z_SYNC_FLUSH,
+    };
+
+    if (contentEncoding === 'gzip') {
+      const gunzip = zlib.createGunzip(zlibOptions);
+      res.pipe(gunzip);
+
+      return gunzip;
+    } else if (contentEncoding === 'deflate') {
+      const inflate = zlib.createInflate(zlibOptions);
+      res.pipe(inflate);
+
+      return inflate;
+    }
+
+    return res;
+  }
+
   protected getParsedResponse(res: IncomingMessage) {
     let data: any = this.responseData;
 
@@ -156,10 +183,12 @@ export class RequestHandlerHelper<T> {
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
     this.res = res;
 
+    const dataStream = this.getResponseDataStream(res);
+
     // Register the response data
-    res.on('data', chunk => this.responseData += chunk);
-    res.on('end', this.onResponseEndHandler.bind(this, resolve, reject));
-    res.on('close', this.onResponseCloseHandler.bind(this, resolve, reject));
+    dataStream.on('data', chunk => this.responseData += chunk);
+    dataStream.on('end', this.onResponseEndHandler.bind(this, resolve, reject));
+    dataStream.on('close', this.onResponseCloseHandler.bind(this, resolve, reject));
 
     // Debug handlers
     if (this.requestData.requestEventDebugHandler) {
@@ -264,6 +293,11 @@ export class RequestHandlerHelper<T> {
 
     const url = this.requestData.url;
     const auth = url.username ? `${url.username}:${url.password}` : undefined;
+    const headers = this.requestData.options.headers ?? {};
+
+    if (this.requestData.compression) {
+      headers['accept-encoding'] = 'gzip, deflate';
+    }
 
     this.req = request({
       ...this.requestData.options,
@@ -273,6 +307,7 @@ export class RequestHandlerHelper<T> {
       path: url.pathname + url.search,
       protocol: url.protocol,
       auth,
+      headers,
     });
   }
 

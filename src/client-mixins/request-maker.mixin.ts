@@ -42,12 +42,15 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
+    const isCompressionDisabled = this._clientSettings.disableCompression || requestParams.disableCompression;
+
     return new RequestHandlerHelper<T>({
       url: args.url,
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       requestEventDebugHandler: requestParams.requestEventDebugHandler,
+      compression: !isCompressionDisabled,
     })
       .makeRequest();
   }
