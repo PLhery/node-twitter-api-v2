@@ -6,8 +6,9 @@ import { ApiPartialResponseError, ApiRequestError, ApiResponseError } from '../t
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
 import type { TRequestFullData, TRequestFullStreamData } from '../types/request-maker.mixin.types';
 import * as zlib from 'zlib';
+import { Readable } from 'stream';
 
-type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
+type TRequestReadyPayload = { req: ClientRequest, res: Readable, originalResponse: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
 type TRequestRejecter = (error: ApiRequestError) => void;
@@ -128,18 +129,30 @@ export class RequestHandlerHelper<T> {
     }
 
     const contentEncoding = (res.headers['content-encoding'] || 'identity').trim().toLowerCase();
-    const zlibOptions = {
-      flush: zlib.constants.Z_SYNC_FLUSH,
-      finishFlush: zlib.constants.Z_SYNC_FLUSH,
-    };
 
+    if (contentEncoding === 'br') {
+      const brotli = zlib.createBrotliDecompress({
+        flush: zlib.constants.BROTLI_OPERATION_FLUSH,
+        finishFlush: zlib.constants.BROTLI_OPERATION_FLUSH,
+      });
+      res.pipe(brotli);
+
+      return brotli;
+    }
     if (contentEncoding === 'gzip') {
-      const gunzip = zlib.createGunzip(zlibOptions);
+      const gunzip = zlib.createGunzip({
+        flush: zlib.constants.Z_SYNC_FLUSH,
+        finishFlush: zlib.constants.Z_SYNC_FLUSH,
+      });
       res.pipe(gunzip);
 
       return gunzip;
-    } else if (contentEncoding === 'deflate') {
-      const inflate = zlib.createInflate(zlibOptions);
+    }
+    if (contentEncoding === 'deflate') {
+      const inflate = zlib.createInflate({
+        flush: zlib.constants.Z_SYNC_FLUSH,
+        finishFlush: zlib.constants.Z_SYNC_FLUSH,
+      });
       res.pipe(inflate);
 
       return inflate;
@@ -265,8 +278,10 @@ export class RequestHandlerHelper<T> {
         TwitterApiV2Settings.logger.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode} (starting stream)`);
       }
 
+      const dataStream = this.getResponseDataStream(res);
+
       // HTTP code ok, consume stream
-      resolve({ req: this.req, res, requestData: this.requestData });
+      resolve({ req: this.req, res: dataStream, originalResponse: res, requestData: this.requestData });
     }
     else {
       // Handle response normally, can only rejects
@@ -287,16 +302,16 @@ export class RequestHandlerHelper<T> {
   }
 
   protected buildRequest() {
-    if (TwitterApiV2Settings.debug) {
-      this.debugRequest();
-    }
-
     const url = this.requestData.url;
     const auth = url.username ? `${url.username}:${url.password}` : undefined;
     const headers = this.requestData.options.headers ?? {};
 
     if (this.requestData.compression) {
-      headers['accept-encoding'] = 'gzip, deflate';
+      headers['accept-encoding'] = 'br;q=1.0, gzip;q=0.8, deflate;q=0.5, *;q=0.1';
+    }
+
+    if (TwitterApiV2Settings.debug) {
+      this.debugRequest();
     }
 
     this.req = request({
@@ -355,8 +370,8 @@ export class RequestHandlerHelper<T> {
   }
 
   async makeRequestAsStream() {
-    const { req, res, requestData } = await this.makeRequestAndResolveWhenReady();
-    return new TweetStream<T>(requestData as TRequestFullStreamData, req, res);
+    const { req, res, requestData, originalResponse } = await this.makeRequestAndResolveWhenReady();
+    return new TweetStream<T>(requestData as TRequestFullStreamData, { req, res, originalResponse });
   }
 
   makeRequestAndResolveWhenReady() {

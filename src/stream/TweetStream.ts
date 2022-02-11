@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import type { IncomingMessage, ClientRequest } from 'http';
+import type { Readable } from 'stream';
 import RequestHandlerHelper from '../client-mixins/request-handler.helper';
 import { ETwitterStreamEvent } from '../types';
 import { TRequestFullStreamData } from '../types/request-maker.mixin.types';
@@ -19,6 +20,12 @@ export interface IConnectTweetStreamParams {
   /** Check for 'lost connection' status every `keepAliveTimeout` milliseconds. Defaults to 2 minutes (`120000`). */
   keepAliveTimeout: number | 'disable';
   nextRetryTimeout?: TStreamConnectRetryFn;
+}
+
+export interface IWithConnectionTweetStream {
+  req: ClientRequest;
+  res: Readable;
+  originalResponse: IncomingMessage;
 }
 
 /** Returns a number of milliseconds to wait for {tryOccurence} (starting from 1) */
@@ -45,21 +52,22 @@ export class TweetStream<T = any> extends EventEmitter {
   protected connectionProcessRunning = false;
 
   protected req?: ClientRequest;
-  protected res?: IncomingMessage;
+  protected res?: Readable;
+  protected originalResponse?: IncomingMessage;
 
   constructor(
     protected requestData: TRequestFullStreamData,
-    req?: ClientRequest,
-    res?: IncomingMessage,
+    connection?: IWithConnectionTweetStream,
   ) {
     super();
 
     this.onKeepAliveTimeout = this.onKeepAliveTimeout.bind(this);
     this.initEventsFromParser();
 
-    if (req && res) {
-      this.req = req;
-      this.res = res;
+    if (connection) {
+      this.req = connection.req;
+      this.res = connection.res;
+      this.originalResponse = connection.originalResponse;
       this.initEventsFromRequest();
     }
   }
@@ -286,10 +294,11 @@ export class TweetStream<T = any> extends EventEmitter {
         this.closeWithoutEmit();
       }
 
-      const { req, res } = await new RequestHandlerHelper(this.requestData).makeRequestAndResolveWhenReady();
+      const { req, res, originalResponse } = await new RequestHandlerHelper(this.requestData).makeRequestAndResolveWhenReady();
 
       this.req = req;
       this.res = res;
+      this.originalResponse = originalResponse;
 
       this.emit(initialConnection ? ETwitterStreamEvent.Connected : ETwitterStreamEvent.Reconnected);
       this.parser.reset();

@@ -79,12 +79,15 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
+    const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
+
     const requestData: TRequestFullStreamData = {
       url: args.url,
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       payloadIsError: requestParams.payloadIsError,
+      compression: !isCompressionDisabled,
     };
 
     const stream = new TweetStream<T>(requestData);
