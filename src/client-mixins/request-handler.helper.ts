@@ -124,8 +124,10 @@ export class RequestHandlerHelper<T> {
   }
 
   protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
+    this.requestData.debug?.stepLogger('request-error', { uuid: this.requestData.debug.uuid, requestError })
+
     reject(this.createRequestError(requestError));
-    this.req.removeAllListeners('timeout');
+    // this.req.removeAllListeners('timeout');
   }
 
   protected timeoutErrorHandler() {
@@ -133,13 +135,21 @@ export class RequestHandlerHelper<T> {
   }
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+    this.requestData.debug?.stepLogger('response', { uuid: this.requestData.debug.uuid, res })
+
+    if (this.requestData.debug) {
+      res.on('error', error => this.requestData.debug?.stepLogger('response-error', { uuid: this.requestData.debug.uuid, error }))
+      res.on('close', () => this.requestData.debug?.stepLogger('response-close', { uuid: this.requestData.debug.uuid }))
+      res.on('end', () => this.requestData.debug?.stepLogger('response-end', { uuid: this.requestData.debug.uuid }))
+    }
+
     // Register the response data
     res.on('data', chunk => this.responseData += chunk);
     res.on('end', this.onResponseEndHandler.bind(this, resolve, reject, res));
   }
 
   protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
-    this.req.removeAllListeners('timeout');
+    // this.req.removeAllListeners('timeout');
     const rateLimit = this.getRateLimitFromResponse(res);
     const data = this.getParsedResponse(res);
 
@@ -217,6 +227,21 @@ export class RequestHandlerHelper<T> {
 
       // Handle request errors
       req.on('error', this.requestErrorHandler.bind(this, reject));
+
+      if (this.requestData.debug) {
+        req.on('abort', () => this.requestData.debug?.stepLogger('abort', { uuid: this.requestData.debug.uuid }))
+
+        req.on('socket', socket => {
+          this.requestData.debug?.stepLogger('socket', { uuid: this.requestData.debug.uuid, socket })
+
+          socket.on('error', error => this.requestData.debug?.stepLogger('socket-error', { uuid: this.requestData.debug.uuid, socket, error }))
+          socket.on('connect', () => this.requestData.debug?.stepLogger('socket-connect', { uuid: this.requestData.debug.uuid, socket }))
+          socket.on('close', withError => this.requestData.debug?.stepLogger('socket-close', { uuid: this.requestData.debug.uuid, socket, withError }))
+          socket.on('end', () => this.requestData.debug?.stepLogger('socket-end', { uuid: this.requestData.debug.uuid, socket }))
+          socket.on('lookup', (...data) => this.requestData.debug?.stepLogger('socket-lookup', { uuid: this.requestData.debug.uuid, socket, data }))
+          socket.on('timeout', () => this.requestData.debug?.stepLogger('socket-timeout', { uuid: this.requestData.debug.uuid, socket }))
+        })
+      }
 
       req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
 

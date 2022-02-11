@@ -8,11 +8,17 @@ import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
 import { OAuth2Helper } from './oauth2.helper';
 
+interface IDebugRequest<TUuid = number | string> {
+  uuid: TUuid;
+  stepLogger: (phaseOrEvent: string, data: any) => void,
+}
+
 export type TRequestFullData = {
   url: URL,
   options: RequestOptions,
   body?: any,
   rateLimitSaver?: (rateLimit: TwitterRateLimit) => any,
+  debug?: IDebugRequest,
 };
 export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
 export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
