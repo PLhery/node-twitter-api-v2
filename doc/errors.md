@@ -1,17 +1,23 @@
 # Error handling
 
-When a request fails, you can catch a `ApiRequestError` or a `ApiResponseError` object (both instances of `Error`), that contain useful information about whats happening.
+When a request fails, you can catch a `ApiRequestError`, a `ApiPartialResponseError` or a `ApiResponseError` object (all instances of `Error`), that contain useful information about whats happening.
 
 - An `ApiRequestError` happens when the request **failed to sent** (network error, bad URL...).
+- An `ApiPartialResponseError` happens the response has been partially sent, but the connection is closed (by you, the OS or Twitter).
 - An `ApiResponseError` happens when **Twitter replies with an error**.
 
 Some properties are common for both objects:
 - `error` is `true`
-- `type` contains either `ETwitterApiError.Request` or `ETwitterApiError.Response` (depending of error)
+- `type` contains either `ETwitterApiError.Request`,  `ETwitterApiError.PartialResponse` or `ETwitterApiError.Response` (depending of error)
 - `request` containing node's raw `ClientRequest` instance
 
 ## Specific properties of `ApiRequestError`
 - `requestError`, an instance of `Error` that has been thrown through `request.on('error')` handler
+
+## Specific properties of `ApiPartialResponseError`
+- `responseError`, an instance of `Error` that has been thrown by `response.on('error')`, or by the tentative of parsing the result of a partial response
+- `response`, containing raw node's `IncomingMessage` instance
+- `rawContent`, containing all the chunks received from distant server
 
 ## Specific properties of `ApiResponseError`
 - `data`, containing parsed Twitter response data (type of `TwitterApiErrorData`)
@@ -26,7 +32,43 @@ Some properties are common for both objects:
 ## Specific methods of `ApiResponseError`
 - `hasErrorCode(code: number | EApiV1ErrorCode | EApiV2ErrorCode)`: Tells if given Twitter error code is present in error response
 
-## Debug your requests
+## Advanced: Debug a single request
+
+If you want to debug a single request made through direct HTTP handlers `.get`/`.post`/`.delete`,
+you can use an additionnal property named `requestEventDebugHandler`.
+
+```ts
+client.v1.get(
+  'statuses/user_timeline.json',
+  { user_id: 10, count: 200 },
+  { requestEventDebugHandler: (eventType, data) => console.log('Event', eventType, 'with data', data) },
+)
+```
+
+It takes a function of type `(event: TRequestDebuggerHandlerEvent, data?: any) => void` where available events are:
+```ts
+type TRequestDebuggerHandlerEvent = 'abort' | 'socket' | 'socket-error' | 'socket-connect'
+  | 'socket-close' | 'socket-end' | 'socket-lookup' | 'socket-timeout' | 'request-error'
+  | 'response' | 'response-aborted' | 'response-error' | 'response-close' | 'response-end';
+```
+
+`data` parameter associated to events:
+- `abort`: None / `abort` event of `request`
+- `socket`: `{ socket: Socket }` / `request.socket` object, when it is available through `request.on('socket')`
+- `socket-error`: `{ socket: Socket, error: Error }` / `error` event of `request.socket`
+- `socket-connect`: `{ socket: Socket }` / `connect` event of `request.socket`
+- `socket-close`: `{ socket: Socket, withError: boolean }` / `close` event of `request.socket`
+- `socket-end`: `{ socket: Socket }` / `end` event of `request.socket`
+- `socket-lookup`: `{ socket: Socket, data: [err: Error?, address: string, family: string | number, host: string] }` / `lookup` event of `request.socket`
+- `socket-timeout`: `{ socket: Socket }` / `timeout` event of `request.socket`
+- `request-error`: `{ requestError: Error }` / `error` event of `request`
+- `response`: `{ res: IncomingMessage }` / `response` object, when it is available through `request.on('response')`
+- `response-aborted`: `{ error?: Error }` / `aborted` event of `response`
+- `response-error`: `{ error: Error }` / `error` event of `response`
+- `response-close`: `{ data: string }` (raw response data) / `close` event of `response`
+- `response-end`: None / `end` event of `response`
+
+## Advanced: Debug all made requests
 
 If you keep obtaining errors and you don't know how to obtain the response data, or you want to see exactly what have been sent to Twitter,
 you can enable the debug mode:

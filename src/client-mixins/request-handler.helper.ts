@@ -1,16 +1,16 @@
 import { request } from 'https';
+import type { IncomingMessage, ClientRequest } from 'http';
 import { TwitterApiV2Settings } from '../settings';
 import TweetStream from '../stream/TweetStream';
-import { ApiRequestError, ApiResponseError } from '../types';
+import { ApiPartialResponseError, ApiRequestError, ApiResponseError } from '../types';
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
-import type { TRequestFullData, TRequestFullStreamData } from './request-maker.mixin';
-import type { IncomingMessage, ClientRequest } from 'http';
+import type { TRequestFullData, TRequestFullStreamData } from '../types/request-maker.mixin.types';
 
 type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
 type TRequestRejecter = (error: ApiRequestError) => void;
-type TResponseRejecter = (error: ApiResponseError) => void;
+type TResponseRejecter = (error: ApiResponseError | ApiPartialResponseError) => void;
 
 interface IBuildErrorParams {
   res: IncomingMessage;
@@ -21,6 +21,7 @@ interface IBuildErrorParams {
 
 export class RequestHandlerHelper<T> {
   protected req!: ClientRequest;
+  protected res!: IncomingMessage;
   protected responseData = '';
 
   constructor(protected requestData: TRequestFullData | TRequestFullStreamData) {}
@@ -60,6 +61,24 @@ export class RequestHandlerHelper<T> {
     return new ApiRequestError('Request failed.', {
       request: this.req,
       error,
+    });
+  }
+
+  protected createPartialResponseError(error: Error, abortClose: boolean): ApiPartialResponseError {
+    const res = this.res;
+    let message = `Request failed with partial response with HTTP code ${res.statusCode}`;
+
+    if (abortClose) {
+      message += ' (connection abruptly closed)';
+    } else {
+      message += ' (parse error)';
+    }
+
+    return new ApiPartialResponseError(message, {
+      request: this.req,
+      response: this.res,
+      responseError: error,
+      rawContent: this.responseData,
     });
   }
 
@@ -111,19 +130,21 @@ export class RequestHandlerHelper<T> {
     }
     // f-e oauth token endpoints
     else if (this.isFormEncodedEndpoint()) {
-      const response_form_entries: any = {};
+      const formEntries: any = {};
 
       for (const [item, value] of new URLSearchParams(data)) {
-        response_form_entries[item] = value;
+        formEntries[item] = value;
       }
 
-      data = response_form_entries;
+      data = formEntries;
     }
 
     return data;
   }
 
   protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
+    this.requestData.requestEventDebugHandler?.('request-error', { requestError })
+
     reject(this.createRequestError(requestError));
     this.req.removeAllListeners('timeout');
   }
@@ -133,32 +154,78 @@ export class RequestHandlerHelper<T> {
   }
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+    this.res = res;
+
     // Register the response data
     res.on('data', chunk => this.responseData += chunk);
-    res.on('end', this.onResponseEndHandler.bind(this, resolve, reject, res));
+    res.on('end', this.onResponseEndHandler.bind(this, resolve, reject));
+    res.on('close', this.onResponseCloseHandler.bind(this, resolve, reject));
+
+    // Debug handlers
+    if (this.requestData.requestEventDebugHandler) {
+      this.requestData.requestEventDebugHandler('response', { res });
+
+      res.on('aborted', error => this.requestData.requestEventDebugHandler!('response-aborted', { error }));
+      res.on('error', error => this.requestData.requestEventDebugHandler!('response-error', {  error }));
+      res.on('close', () => this.requestData.requestEventDebugHandler!('response-close', { data: this.responseData }));
+      res.on('end', () => this.requestData.requestEventDebugHandler!('response-end'));
+    }
   }
 
-  protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+  protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
     this.req.removeAllListeners('timeout');
-    const rateLimit = this.getRateLimitFromResponse(res);
-    const data = this.getParsedResponse(res);
+    const rateLimit = this.getRateLimitFromResponse(this.res);
+    let data: any;
+
+    try {
+      data = this.getParsedResponse(this.res);
+    } catch (e) {
+      reject(this.createPartialResponseError(e as Error, false));
+      return;
+    }
 
     // Handle bad error codes
-    const code = res.statusCode!;
+    const code = this.res.statusCode!;
     if (code >= 400) {
-      reject(this.createResponseError({ data, res, rateLimit, code }));
+      reject(this.createResponseError({ data, res: this.res, rateLimit, code }));
+      return;
     }
 
     if (TwitterApiV2Settings.debug) {
-      TwitterApiV2Settings.logger.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode}`);
+      TwitterApiV2Settings.logger.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${this.res.statusCode}`);
       TwitterApiV2Settings.logger.log('Response body:', data);
     }
 
     resolve({
       data,
-      headers: res.headers,
+      headers: this.res.headers,
       rateLimit,
     });
+  }
+
+  protected onResponseCloseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
+    this.req.removeAllListeners('timeout');
+    const res = this.res;
+
+    if (res.aborted) {
+      // Try to parse the request (?)
+      try {
+        this.getParsedResponse(this.res);
+        // Ok, try to resolve normally the request
+        return this.onResponseEndHandler(resolve, reject);
+      } catch (e) {
+        // Parse error, just drop with content
+        return reject(this.createPartialResponseError(e as Error, true));
+      }
+    }
+    if (!res.complete) {
+      return reject(this.createPartialResponseError(
+        new Error('Response has been interrupted before response could be parsed.'),
+        true,
+      ));
+    }
+
+    // else: end has been called
   }
 
   protected streamResponseHandler(resolve: TReadyRequestResolver, reject: TResponseRejecter, res: IncomingMessage) {
@@ -209,6 +276,21 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected registerRequestEventDebugHandlers(req: ClientRequest) {
+    req.on('abort', () => this.requestData.requestEventDebugHandler!('abort'));
+
+    req.on('socket', socket => {
+      this.requestData.requestEventDebugHandler!('socket', { socket });
+
+      socket.on('error', error => this.requestData.requestEventDebugHandler!('socket-error', { socket, error }));
+      socket.on('connect', () => this.requestData.requestEventDebugHandler!('socket-connect', { socket }));
+      socket.on('close', withError => this.requestData.requestEventDebugHandler!('socket-close', { socket, withError }));
+      socket.on('end', () => this.requestData.requestEventDebugHandler!('socket-end', { socket }));
+      socket.on('lookup', (...data) => this.requestData.requestEventDebugHandler!('socket-lookup', { socket, data }));
+      socket.on('timeout', () => this.requestData.requestEventDebugHandler!('socket-timeout', { socket }));
+    });
+  }
+
   makeRequest() {
     this.buildRequest();
 
@@ -222,6 +304,11 @@ export class RequestHandlerHelper<T> {
 
       if (this.requestData.options.timeout) {
         req.on('timeout', this.timeoutErrorHandler.bind(this));
+      }
+
+      // Debug handlers
+      if (this.requestData.requestEventDebugHandler) {
+        this.registerRequestEventDebugHandlers(req);
       }
 
       if (this.requestData.body) {

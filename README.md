@@ -36,7 +36,7 @@ yarn add twitter-api-v2
 npm i twitter-api-v2
 ```
 
-Here's is a quick example of usage:
+Here's a quick example of usage:
 
 ```ts
 import { TwitterApi } from 'twitter-api-v2';

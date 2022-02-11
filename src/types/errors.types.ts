@@ -47,6 +47,7 @@ export interface TwitterApiErrorData {
 
 export enum ETwitterApiError {
   Request = 'request',
+  PartialResponse = 'partial-response',
   Response = 'response',
 }
 
@@ -68,7 +69,7 @@ export interface TwitterApiError extends TwitterResponse<TwitterApiErrorData> {
 /* ERRORS INSTANCES */
 
 abstract class ApiError extends Error {
-  abstract type: ETwitterApiError.Request | ETwitterApiError.Response;
+  abstract type: ETwitterApiError.Request | ETwitterApiError.Response | ETwitterApiError.PartialResponse;
   abstract request: ClientRequest;
   error = true as const;
 }
@@ -104,6 +105,51 @@ export class ApiRequestError extends ApiError implements TwitterApiRequestError 
     return {
       type: this.type,
       error: this.requestError,
+    };
+  }
+}
+
+interface IBuildApiPartialRequestError {
+  readonly request: ClientRequest;
+  readonly response: IncomingMessage;
+  readonly rawContent: string;
+  responseError: Error;
+}
+
+export class ApiPartialResponseError extends ApiError implements IBuildApiPartialRequestError {
+  protected _options: any;
+
+  type = ETwitterApiError.PartialResponse as const;
+
+  constructor(message: string, options: IBuildApiPartialRequestError) {
+    super(message);
+
+    Error.captureStackTrace(this, this.constructor);
+
+    // Do not show on Node stack trace
+    Object.defineProperty(this, '_options', { value: options });
+  }
+
+  get request(): ClientRequest {
+    return this._options.request;
+  }
+
+  get response(): IncomingMessage {
+    return this._options.response;
+  }
+
+  get responseError(): Error {
+    return this._options.responseError;
+  }
+
+  get rawContent(): string {
+    return this._options.rawContent;
+  }
+
+  toJSON() {
+    return {
+      type: this.type,
+      error: this.responseError,
     };
   }
 }

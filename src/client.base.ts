@@ -1,13 +1,11 @@
 import type { IClientSettings, TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
 import {
   ClientRequestMaker,
-  TCustomizableRequestArgs,
-  TRequestBody,
-  TRequestQuery,
 } from './client-mixins/request-maker.mixin';
 import TweetStream from './stream/TweetStream';
 import { sharedPromise, SharedPromise } from './helpers';
 import { API_V1_1_PREFIX, API_V2_PREFIX } from './globals';
+import type { TCustomizableRequestArgs, TRequestBody, TRequestQuery } from './types/request-maker.mixin.types';
 
 export type TGetClientRequestArgs = TCustomizableRequestArgs & {
   prefix?: string;
