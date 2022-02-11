@@ -213,13 +213,10 @@ export class RequestHandlerHelper<T> {
         this.getParsedResponse(this.res);
         // Ok, try to resolve normally the request
         return this.onResponseEndHandler(resolve, reject);
-      } catch (e) {}
-
-      // Parse error, just drop with content
-      return reject(this.createPartialResponseError(
-        new Error('Response has been interrupted and partial response could not be parsed.'),
-        true,
-      ));
+      } catch (e) {
+        // Parse error, just drop with content
+        return reject(this.createPartialResponseError(e as Error, true));
+      }
     }
     if (!res.complete) {
       return reject(this.createPartialResponseError(
