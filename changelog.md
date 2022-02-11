@@ -1,7 +1,7 @@
 1.10.3
 ------
 - Feat: Native support of gzip compression for streaming endpoints
-- Feat: Native support of brotli (25% more compressed that gzip) compression for non-streaming endpoints, when available
+- Feat: Native support of brotli (25% more compressed than gzip) compression for non-streaming endpoints, when available
 
 1.10.2
 ------
