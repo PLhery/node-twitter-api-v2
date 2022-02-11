@@ -1,7 +1,7 @@
 import { request } from 'https';
 import { TwitterApiV2Settings } from '../settings';
 import TweetStream from '../stream/TweetStream';
-import { ApiRequestError, ApiResponseError } from '../types';
+import { ApiPartialResponseError, ApiRequestError, ApiResponseError } from '../types';
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
 import type { TRequestFullData, TRequestFullStreamData } from './request-maker.mixin';
 import type { IncomingMessage, ClientRequest } from 'http';
@@ -10,7 +10,7 @@ type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestD
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
 type TResponseResolver<T> = (value: TwitterResponse<T>) => void;
 type TRequestRejecter = (error: ApiRequestError) => void;
-type TResponseRejecter = (error: ApiResponseError) => void;
+type TResponseRejecter = (error: ApiResponseError | ApiPartialResponseError) => void;
 
 interface IBuildErrorParams {
   res: IncomingMessage;
@@ -64,6 +64,25 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected createPartialResponseError(error: Error, content: any, abortClose: boolean): ApiPartialResponseError {
+    const res = this.res;
+    let message = `Request failed with partial response with HTTP code ${res.statusCode}`;
+
+    if (abortClose) {
+      message += ' (connection closed by Twitter)';
+    } else {
+      message += ' (parse error)';
+    }
+
+    return new ApiPartialResponseError(message, {
+      request: this.req,
+      response: this.res,
+      responseError: error,
+      rawContent: this.responseData,
+      content,
+    });
+  }
+
   protected formatV1Errors(errors: ErrorV1[]) {
     return errors
       .map(({ code, message }) => `${message} (Twitter code ${code})`)
@@ -112,13 +131,13 @@ export class RequestHandlerHelper<T> {
     }
     // f-e oauth token endpoints
     else if (this.isFormEncodedEndpoint()) {
-      const response_form_entries: any = {};
+      const formEntries: any = {};
 
       for (const [item, value] of new URLSearchParams(data)) {
-        response_form_entries[item] = value;
+        formEntries[item] = value;
       }
 
-      data = response_form_entries;
+      data = formEntries;
     }
 
     return data;
@@ -128,7 +147,7 @@ export class RequestHandlerHelper<T> {
     this.requestData.debug?.stepLogger('request-error', { uuid: this.requestData.debug.uuid, requestError })
 
     reject(this.createRequestError(requestError));
-    // this.req.removeAllListeners('timeout');
+    this.req.removeAllListeners('timeout');
   }
 
   protected timeoutErrorHandler() {
@@ -148,41 +167,56 @@ export class RequestHandlerHelper<T> {
 
     // Register the response data
     res.on('data', chunk => this.responseData += chunk);
-    res.on('end', this.onResponseEndHandler.bind(this, resolve, reject, res));
-    res.on('close', this.onResponseCloseHandler.bind(this, reject));
+    res.on('end', this.onResponseEndHandler.bind(this, resolve, reject));
+    res.on('close', this.onResponseCloseHandler.bind(this, resolve, reject));
   }
 
-  protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
-    // this.req.removeAllListeners('timeout');
-    const rateLimit = this.getRateLimitFromResponse(res);
-    const data = this.getParsedResponse(res);
+  protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
+    this.req.removeAllListeners('timeout');
+    const rateLimit = this.getRateLimitFromResponse(this.res);
+    let data: any;
+
+    try {
+      data = this.getParsedResponse(this.res);
+    } catch (e) {
+      reject(this.createPartialResponseError(e, undefined, false));
+      return;
+    }
 
     // Handle bad error codes
-    const code = res.statusCode!;
+    const code = this.res.statusCode!;
     if (code >= 400) {
-      reject(this.createResponseError({ data, res, rateLimit, code }));
+      reject(this.createResponseError({ data, res: this.res, rateLimit, code }));
+      return;
     }
 
     if (TwitterApiV2Settings.debug) {
-      TwitterApiV2Settings.logger.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${res.statusCode}`);
+      TwitterApiV2Settings.logger.log(`[${this.requestData.options.method} ${this.hrefPathname}]: Request succeeds with code ${this.res.statusCode}`);
       TwitterApiV2Settings.logger.log('Response body:', data);
     }
 
     resolve({
       data,
-      headers: res.headers,
+      headers: this.res.headers,
       rateLimit,
     });
   }
 
-  protected onResponseCloseHandler(reject: Function) {
+  protected onResponseCloseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
+    this.req.removeAllListeners('timeout');
     const res = this.res;
 
     if (res.aborted) {
-      reject(this.createRequestError(new Error('Response has been aborted by Twitter.')));
+      // Try to parse the request (?)
+      // Or try here and create a partial response error?
+      return this.onResponseEndHandler(resolve, reject);
     }
     if (!res.complete) {
-      reject(this.createRequestError(new Error('Response has been interrupted before response could be parsed.')));
+      return reject(this.createPartialResponseError(
+        new Error('Response has been interrupted before response could be parsed.'),
+        undefined,
+        true,
+      ));
     }
 
     // else: end has been called
