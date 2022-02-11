@@ -1,10 +1,10 @@
 import { request } from 'https';
+import type { IncomingMessage, ClientRequest } from 'http';
 import { TwitterApiV2Settings } from '../settings';
 import TweetStream from '../stream/TweetStream';
 import { ApiPartialResponseError, ApiRequestError, ApiResponseError } from '../types';
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
-import type { TRequestFullData, TRequestFullStreamData } from './request-maker.mixin';
-import type { IncomingMessage, ClientRequest } from 'http';
+import type { TRequestFullData, TRequestFullStreamData } from '../types/request-maker.mixin.types';
 
 type TRequestReadyPayload = { req: ClientRequest, res: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
@@ -69,7 +69,7 @@ export class RequestHandlerHelper<T> {
     let message = `Request failed with partial response with HTTP code ${res.statusCode}`;
 
     if (abortClose) {
-      message += ' (connection closed by Twitter)';
+      message += ' (connection abruptly closed)';
     } else {
       message += ' (parse error)';
     }
@@ -143,7 +143,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
-    this.requestData.debug?.stepLogger('request-error', { uuid: this.requestData.debug.uuid, requestError })
+    this.requestData.requestEventDebugHandler?.('request-error', { requestError })
 
     reject(this.createRequestError(requestError));
     this.req.removeAllListeners('timeout');
@@ -155,19 +155,21 @@ export class RequestHandlerHelper<T> {
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
     this.res = res;
-    this.requestData.debug?.stepLogger('response', { uuid: this.requestData.debug.uuid, res })
-
-    if (this.requestData.debug) {
-      res.on('aborted', error => this.requestData.debug?.stepLogger('response-aborted', { uuid: this.requestData.debug.uuid, error }))
-      res.on('error', error => this.requestData.debug?.stepLogger('response-error', { uuid: this.requestData.debug.uuid, error }))
-      res.on('close', () => this.requestData.debug?.stepLogger('response-close', { uuid: this.requestData.debug.uuid, data: this.responseData }))
-      res.on('end', () => this.requestData.debug?.stepLogger('response-end', { uuid: this.requestData.debug.uuid }))
-    }
 
     // Register the response data
     res.on('data', chunk => this.responseData += chunk);
     res.on('end', this.onResponseEndHandler.bind(this, resolve, reject));
     res.on('close', this.onResponseCloseHandler.bind(this, resolve, reject));
+
+    // Debug handlers
+    if (this.requestData.requestEventDebugHandler) {
+      this.requestData.requestEventDebugHandler('response', { res });
+
+      res.on('aborted', error => this.requestData.requestEventDebugHandler!('response-aborted', { error }));
+      res.on('error', error => this.requestData.requestEventDebugHandler!('response-error', {  error }));
+      res.on('close', () => this.requestData.requestEventDebugHandler!('response-close', { data: this.responseData }));
+      res.on('end', () => this.requestData.requestEventDebugHandler!('response-end'));
+    }
   }
 
   protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
@@ -277,6 +279,21 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  protected registerRequestEventDebugHandlers(req: ClientRequest) {
+    req.on('abort', () => this.requestData.requestEventDebugHandler!('abort'));
+
+    req.on('socket', socket => {
+      this.requestData.requestEventDebugHandler!('socket', { socket });
+
+      socket.on('error', error => this.requestData.requestEventDebugHandler!('socket-error', { socket, error }));
+      socket.on('connect', () => this.requestData.requestEventDebugHandler!('socket-connect', { socket }));
+      socket.on('close', withError => this.requestData.requestEventDebugHandler!('socket-close', { socket, withError }));
+      socket.on('end', () => this.requestData.requestEventDebugHandler!('socket-end', { socket }));
+      socket.on('lookup', (...data) => this.requestData.requestEventDebugHandler!('socket-lookup', { socket, data }));
+      socket.on('timeout', () => this.requestData.requestEventDebugHandler!('socket-timeout', { socket }));
+    });
+  }
+
   makeRequest() {
     this.buildRequest();
 
@@ -286,25 +303,15 @@ export class RequestHandlerHelper<T> {
       // Handle request errors
       req.on('error', this.requestErrorHandler.bind(this, reject));
 
-      if (this.requestData.debug) {
-        req.on('abort', () => this.requestData.debug?.stepLogger('abort', { uuid: this.requestData.debug.uuid }))
-
-        req.on('socket', socket => {
-          this.requestData.debug?.stepLogger('socket', { uuid: this.requestData.debug.uuid, socket })
-
-          socket.on('error', error => this.requestData.debug?.stepLogger('socket-error', { uuid: this.requestData.debug.uuid, socket, error }))
-          socket.on('connect', () => this.requestData.debug?.stepLogger('socket-connect', { uuid: this.requestData.debug.uuid, socket }))
-          socket.on('close', withError => this.requestData.debug?.stepLogger('socket-close', { uuid: this.requestData.debug.uuid, socket, withError }))
-          socket.on('end', () => this.requestData.debug?.stepLogger('socket-end', { uuid: this.requestData.debug.uuid, socket }))
-          socket.on('lookup', (...data) => this.requestData.debug?.stepLogger('socket-lookup', { uuid: this.requestData.debug.uuid, socket, data }))
-          socket.on('timeout', () => this.requestData.debug?.stepLogger('socket-timeout', { uuid: this.requestData.debug.uuid, socket }))
-        })
-      }
-
       req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
 
       if (this.requestData.options.timeout) {
         req.on('timeout', this.timeoutErrorHandler.bind(this));
+      }
+
+      // Debug handlers
+      if (this.requestData.requestEventDebugHandler) {
+        this.registerRequestEventDebugHandlers(req);
       }
 
       if (this.requestData.body) {

@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 import type { IncomingMessage, ClientRequest } from 'http';
 import RequestHandlerHelper from '../client-mixins/request-handler.helper';
-import { TRequestFullStreamData } from '../client-mixins/request-maker.mixin';
 import { ETwitterStreamEvent } from '../types';
+import { TRequestFullStreamData } from '../types/request-maker.mixin.types';
 import TweetStreamEventCombiner from './TweetStreamEventCombiner';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 

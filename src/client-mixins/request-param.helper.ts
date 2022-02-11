@@ -1,6 +1,6 @@
 import { FormDataHelper } from './form-data.helper';
 import type { RequestOptions } from 'https';
-import type { TBodyMode, TRequestBody, TRequestQuery, TRequestStringQuery } from './request-maker.mixin';
+import type { TBodyMode, TRequestBody, TRequestQuery, TRequestStringQuery } from '../types/request-maker.mixin.types';
 
 /* Helpers functions that are specific to this class but do not depends on instance */
 

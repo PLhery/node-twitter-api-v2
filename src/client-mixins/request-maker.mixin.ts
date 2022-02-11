@@ -1,71 +1,12 @@
 import { IClientSettings, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
-import type { RequestOptions } from 'https';
 import type { ClientRequestArgs } from 'http';
 import { trimUndefinedProperties } from '../helpers';
 import OAuth1Helper from './oauth1.helper';
 import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
 import { OAuth2Helper } from './oauth2.helper';
-
-interface IDebugRequest<TUuid = number | string> {
-  uuid: TUuid;
-  stepLogger: (phaseOrEvent: string, data: any) => void,
-}
-
-export type TRequestFullData = {
-  url: URL,
-  options: RequestOptions,
-  body?: any,
-  rateLimitSaver?: (rateLimit: TwitterRateLimit) => any,
-  debug?: IDebugRequest,
-};
-export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
-export type TRequestQuery = Record<string, string | number | boolean | string[] | undefined>;
-export type TRequestStringQuery = Record<string, string>;
-export type TRequestBody = Record<string, any> | Buffer;
-export type TBodyMode = 'json' | 'url' | 'form-data' | 'raw';
-
-interface IWriteAuthHeadersArgs {
-  headers: Record<string, string>;
-  bodyInSignature: boolean;
-  url: URL;
-  method: string;
-  query: TRequestQuery;
-  body: TRequestBody;
-}
-
-export interface IGetHttpRequestArgs {
-  url: string;
-  method: string;
-  query?: TRequestQuery;
-  /** The URL parameters, if you specify an endpoint with `:id`, for example. */
-  params?: TRequestQuery;
-  body?: TRequestBody;
-  headers?: Record<string, string>;
-  forceBodyMode?: TBodyMode;
-  enableAuth?: boolean;
-  enableRateLimitSave?: boolean;
-  timeout?: number;
-  debug?: IDebugRequest;
-}
-
-export interface IGetStreamRequestArgs {
-  payloadIsError?: (data: any) => boolean;
-  autoConnect?: boolean;
-}
-
-interface IGetStreamRequestArgsAsync {
-  payloadIsError?: (data: any) => boolean;
-  autoConnect?: true;
-}
-
-interface IGetStreamRequestArgsSync {
-  payloadIsError?: (data: any) => boolean;
-  autoConnect: false;
-}
-
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'timeout' | 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
+import type { IGetHttpRequestArgs, IGetStreamRequestArgs, IGetStreamRequestArgsAsync, IGetStreamRequestArgsSync, IWriteAuthHeadersArgs, TRequestFullStreamData } from '../types/request-maker.mixin.types';
 
 export abstract class ClientRequestMaker {
   protected _bearerToken?: string;
@@ -106,7 +47,7 @@ export abstract class ClientRequestMaker {
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
-      debug: requestParams.debug,
+      requestEventDebugHandler: requestParams.requestEventDebugHandler,
     })
       .makeRequest();
   }

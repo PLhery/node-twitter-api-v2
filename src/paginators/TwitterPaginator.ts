@@ -1,6 +1,6 @@
 import { TwitterRateLimit, TwitterResponse } from '../types';
 import TwitterApiSubClient from '../client.subclient';
-import { TRequestQuery } from '../client-mixins/request-maker.mixin';
+import type { TRequestQuery } from '../types/request-maker.mixin.types';
 
 export interface ITwitterPaginatorArgs<TApiResult, TApiParams, TParams> {
   realData: TApiResult;

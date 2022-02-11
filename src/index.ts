@@ -9,4 +9,3 @@ export * from './types';
 export * from './paginators';
 export * from './stream/TweetStream';
 export * from './settings';
-export { IGetHttpRequestArgs } from './client-mixins/request-maker.mixin';
