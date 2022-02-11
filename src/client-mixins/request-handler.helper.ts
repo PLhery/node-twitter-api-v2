@@ -139,7 +139,7 @@ export class RequestHandlerHelper<T> {
 
     if (this.requestData.debug) {
       res.on('error', error => this.requestData.debug?.stepLogger('response-error', { uuid: this.requestData.debug.uuid, error }))
-      res.on('close', () => this.requestData.debug?.stepLogger('response-close', { uuid: this.requestData.debug.uuid }))
+      res.on('close', () => this.requestData.debug?.stepLogger('response-close', { uuid: this.requestData.debug.uuid, data: this.responseData }))
       res.on('end', () => this.requestData.debug?.stepLogger('response-end', { uuid: this.requestData.debug.uuid }))
     }
 
