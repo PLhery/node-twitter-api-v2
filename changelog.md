@@ -1,3 +1,8 @@
+1.10.1
+------
+- Fix: Crash when a v2 paginator is empty and response does not contains a `.meta` property #177
+- Fix: "Memory leak" when response are abruptly closed by Twitter or OS, because no close/error listener on response object was attributed
+
 1.10.0
 ------
 - Feat: Pagination support for `tweets/:id/liking_users` and `tweets/:id/retweeted_by` #165
