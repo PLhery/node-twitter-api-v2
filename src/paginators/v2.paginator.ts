@@ -134,6 +134,6 @@ export abstract class TimelineV2Paginator<
   }
 
   protected canFetchNextPage(result: TResult) {
-    return !!result.meta.next_token;
+    return !!result.meta?.next_token;
   }
 }
