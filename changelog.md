@@ -1,3 +1,7 @@
+1.10.2
+------
+- Feat: Native support of gzip/deflate compression for non-streaming endpoints
+
 1.10.1
 ------
 - Fix: Crash when a v2 paginator is empty and response does not contains a `.meta` property #177
