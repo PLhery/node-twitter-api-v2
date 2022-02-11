@@ -64,7 +64,7 @@ export class RequestHandlerHelper<T> {
     });
   }
 
-  protected createPartialResponseError(error: Error, content: any, abortClose: boolean): ApiPartialResponseError {
+  protected createPartialResponseError(error: Error, abortClose: boolean): ApiPartialResponseError {
     const res = this.res;
     let message = `Request failed with partial response with HTTP code ${res.statusCode}`;
 
@@ -79,7 +79,6 @@ export class RequestHandlerHelper<T> {
       response: this.res,
       responseError: error,
       rawContent: this.responseData,
-      content,
     });
   }
 
@@ -179,7 +178,7 @@ export class RequestHandlerHelper<T> {
     try {
       data = this.getParsedResponse(this.res);
     } catch (e) {
-      reject(this.createPartialResponseError(e, undefined, false));
+      reject(this.createPartialResponseError(e as Error, false));
       return;
     }
 
@@ -208,13 +207,21 @@ export class RequestHandlerHelper<T> {
 
     if (res.aborted) {
       // Try to parse the request (?)
-      // Or try here and create a partial response error?
-      return this.onResponseEndHandler(resolve, reject);
+      try {
+        this.getParsedResponse(this.res);
+        // Ok, try to resolve normally the request
+        return this.onResponseEndHandler(resolve, reject);
+      } catch (e) {}
+
+      // Parse error, just drop with content
+      return reject(this.createPartialResponseError(
+        new Error('Response has been interrupted and partial response could not be parsed.'),
+        true,
+      ));
     }
     if (!res.complete) {
       return reject(this.createPartialResponseError(
         new Error('Response has been interrupted before response could be parsed.'),
-        undefined,
         true,
       ));
     }

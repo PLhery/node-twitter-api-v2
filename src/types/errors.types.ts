@@ -113,7 +113,6 @@ interface IBuildApiPartialRequestError {
   readonly request: ClientRequest;
   readonly response: IncomingMessage;
   readonly rawContent: string;
-  readonly content?: any;
   responseError: Error;
 }
 
@@ -145,10 +144,6 @@ export class ApiPartialResponseError extends ApiError implements IBuildApiPartia
 
   get rawContent(): string {
     return this._options.rawContent;
-  }
-
-  get content(): unknown {
-    return this._options.content;
   }
 
   toJSON() {
