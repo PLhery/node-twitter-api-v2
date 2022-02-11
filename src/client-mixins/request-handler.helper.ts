@@ -21,6 +21,7 @@ interface IBuildErrorParams {
 
 export class RequestHandlerHelper<T> {
   protected req!: ClientRequest;
+  protected res!: IncomingMessage;
   protected responseData = '';
 
   constructor(protected requestData: TRequestFullData | TRequestFullStreamData) {}
@@ -135,6 +136,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
+    this.res = res;
     this.requestData.debug?.stepLogger('response', { uuid: this.requestData.debug.uuid, res })
 
     if (this.requestData.debug) {
@@ -147,6 +149,7 @@ export class RequestHandlerHelper<T> {
     // Register the response data
     res.on('data', chunk => this.responseData += chunk);
     res.on('end', this.onResponseEndHandler.bind(this, resolve, reject, res));
+    res.on('close', this.onResponseCloseHandler.bind(this, reject));
   }
 
   protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
@@ -170,6 +173,19 @@ export class RequestHandlerHelper<T> {
       headers: res.headers,
       rateLimit,
     });
+  }
+
+  protected onResponseCloseHandler(reject: Function) {
+    const res = this.res;
+
+    if (res.aborted) {
+      reject(this.createRequestError(new Error('Response has been aborted by Twitter.')));
+    }
+    if (!res.complete) {
+      reject(this.createRequestError(new Error('Response has been interrupted before response could be parsed.')));
+    }
+
+    // else: end has been called
   }
 
   protected streamResponseHandler(resolve: TReadyRequestResolver, reject: TResponseRejecter, res: IncomingMessage) {
