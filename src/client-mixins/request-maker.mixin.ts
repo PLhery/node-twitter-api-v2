@@ -42,7 +42,7 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
-    const isCompressionDisabled = this._clientSettings.disableCompression || requestParams.disableCompression;
+    const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
 
     return new RequestHandlerHelper<T>({
       url: args.url,
