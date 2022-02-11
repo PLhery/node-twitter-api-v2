@@ -47,6 +47,7 @@ export interface IGetHttpRequestArgs {
   enableAuth?: boolean;
   enableRateLimitSave?: boolean;
   timeout?: number;
+  debug?: IDebugRequest;
 }
 
 export interface IGetStreamRequestArgs {
@@ -105,6 +106,7 @@ export abstract class ClientRequestMaker {
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
+      debug: requestParams.debug,
     })
       .makeRequest();
   }
