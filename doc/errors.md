@@ -32,6 +32,15 @@ Some properties are common for both objects:
 ## Specific methods of `ApiResponseError`
 - `hasErrorCode(code: number | EApiV1ErrorCode | EApiV2ErrorCode)`: Tells if given Twitter error code is present in error response
 
+## Compression
+
+Requests (that aren't used for streaming) natively support `gzip`/`deflate` compression.
+If it causes issues, you can force compression to be disabled:
+
+```ts
+const client = new TwitterApi(tokens, { disableCompression: true });
+```
+
 ## Advanced: Debug a single request
 
 If you want to debug a single request made through direct HTTP handlers `.get`/`.post`/`.delete`,
