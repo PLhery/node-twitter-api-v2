@@ -1,5 +1,7 @@
 import * as fs from 'fs';
+import { safeDeprecationWarning } from '../helpers';
 import type { TUploadableMedia, TUploadTypeV1 } from '../types';
+import { EUploadMimeType } from '../types';
 
 // -------------
 // Media helpers
@@ -58,8 +60,10 @@ export async function getFileSizeFromFileHandle(fileHandle: TFileHandle) {
   }
 }
 
-export function getMimeType(file: TUploadableMedia, type?: TUploadTypeV1 | string) {
-  if (typeof file === 'string' && !type) {
+export function getMimeType(file: TUploadableMedia, type?: TUploadTypeV1 | string, mimeType?: EUploadMimeType | string) {
+  if (typeof mimeType === 'string') {
+    return mimeType;
+  } else if (typeof file === 'string' && !type) {
     return getMimeByName(file);
   } else if (typeof type === 'string') {
     return getMimeByType(type);
@@ -69,31 +73,46 @@ export function getMimeType(file: TUploadableMedia, type?: TUploadTypeV1 | strin
 }
 
 function getMimeByName(name: string) {
-  if (name.endsWith('.jpeg') || name.endsWith('.jpg')) return 'image/jpeg';
-  if (name.endsWith('.png')) return 'image/png';
-  if (name.endsWith('.webp')) return 'image/webp';
-  if (name.endsWith('.gif')) return 'image/gif';
-  if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return 'video/mp4';
-  if (name.endsWith('.srt')) return 'text/plain';
+  if (name.endsWith('.jpeg') || name.endsWith('.jpg')) return EUploadMimeType.Jpeg;
+  if (name.endsWith('.png')) return EUploadMimeType.Png;
+  if (name.endsWith('.webp')) return EUploadMimeType.Webp;
+  if (name.endsWith('.gif')) return EUploadMimeType.Gif;
+  if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return EUploadMimeType.Mp4;
+  if (name.endsWith('.srt')) return EUploadMimeType.Srt;
 
-  return 'image/jpeg';
+  safeDeprecationWarning({
+    instance: 'TwitterApiv1ReadWrite',
+    method: 'uploadMedia',
+    problem: `options.mimeType is missing and filename couldn't help to resolve MIME type, so it will fallback to image/jpeg`,
+    resolution: `If you except to give filenames without extensions, please specify explicitlty the MIME type using options.mimeType`,
+  });
+
+  return EUploadMimeType.Jpeg;
 }
 
 function getMimeByType(type: TUploadTypeV1 | string) {
-  if (type === 'gif') return 'image/gif';
-  if (type === 'jpg') return 'image/jpeg';
-  if (type === 'png') return 'image/png';
-  if (type === 'webp') return 'image/webp';
-  if (type === 'srt') return 'text/plain';
-  if (type === 'mp4' || type === 'longmp4') return 'video/mp4';
+  safeDeprecationWarning({
+    instance: 'TwitterApiv1ReadWrite',
+    method: 'uploadMedia',
+    problem: `you're using options.type`,
+    resolution: `Remove options.type argument and migrate to options.mimeType which takes the real MIME type. ` +
+      `If you're using type=longmp4, add options.longVideo alongside of mimeType=EUploadMimeType.Mp4`,
+  });
+
+  if (type === 'gif') return EUploadMimeType.Gif;
+  if (type === 'jpg') return EUploadMimeType.Jpeg;
+  if (type === 'png') return EUploadMimeType.Png;
+  if (type === 'webp') return EUploadMimeType.Webp;
+  if (type === 'srt') return EUploadMimeType.Srt;
+  if (type === 'mp4' || type === 'longmp4') return EUploadMimeType.Mp4;
 
   return type;
 }
 
 export function getMediaCategoryByMime(name: string, target: 'tweet' | 'dm') {
-  if (name === 'video/mp4') return target === 'tweet' ? 'TweetVideo' : 'DmVideo';
-  if (name === 'image/gif') return target === 'tweet' ? 'TweetGif' : 'DmGif';
-  if (name === 'text/plain') return 'Subtitles';
+  if (name === EUploadMimeType.Mp4) return target === 'tweet' ? 'TweetVideo' : 'DmVideo';
+  if (name === EUploadMimeType.Gif) return target === 'tweet' ? 'TweetGif' : 'DmGif';
+  if (name === EUploadMimeType.Srt) return 'Subtitles';
   else return target === 'tweet' ? 'TweetImage' : 'DmImage';
 }
 

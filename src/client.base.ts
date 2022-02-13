@@ -79,6 +79,36 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   ) {
     super();
 
+    if (typeof token !== 'undefined') {
+      this.setToken(token);
+    }
+
+    if (settings) {
+      this._clientSettings = { ...settings };
+    }
+  }
+
+  /* Prefix/Token handling */
+
+  protected setPrefix(prefix: string | undefined) {
+    this._prefix = prefix;
+  }
+
+  public cloneWithPrefix(prefix: string): this {
+    const clone = (this.constructor as any)(this);
+    (clone as TwitterApiBase).setPrefix(prefix);
+
+    return clone;
+  }
+
+  /**
+   * Set current token.
+   * **Don't** change the token used by sub-instances, like `.v1`, `.v1.stream`, etc.
+   * If you want to change token of every instance, you need to do it for each instance!
+   *
+   * This suppose the instance hasn't been initialized. Don't call this method to change a token of an existing instance!
+   */
+  protected setToken(token: TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string | TwitterApiBase) {
     if (typeof token === 'string') {
       this._bearerToken = token;
     }
@@ -114,23 +144,6 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._clientId = token.clientId;
       this._clientSecret = token.clientSecret;
     }
-
-    if (settings) {
-      this._clientSettings = { ...settings };
-    }
-  }
-
-  /* Prefix/Token handling */
-
-  protected setPrefix(prefix: string | undefined) {
-    this._prefix = prefix;
-  }
-
-  public cloneWithPrefix(prefix: string): this {
-    const clone = (this.constructor as any)(this);
-    (clone as TwitterApiBase).setPrefix(prefix);
-
-    return clone;
   }
 
   public getActiveTokens(): TClientTokens {

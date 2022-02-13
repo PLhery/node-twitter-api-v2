@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { TwitterApi } from '../src';
+import { EUploadMimeType, TwitterApi } from '../src';
 import { getUserClient } from '../src/test/utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -27,14 +27,14 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a JPG image from file handle', async () => {
     // Upload media (from fileHandle)
-    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(jpgImg, 'r'), { type: 'jpg' });
+    const fromHandle = await client.v1.uploadMedia(await fs.promises.open(jpgImg, 'r'), { mimeType: EUploadMimeType.Jpeg });
     expect(fromHandle).to.be.an('string');
     expect(fromHandle).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
 
   it('Upload a JPG image from numbered file handle', async () => {
     // Upload media (from numbered fileHandle)
-    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(jpgImg, 'r'), { type: 'jpg', maxConcurrentUploads: 1 });
+    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(jpgImg, 'r'), { type: EUploadMimeType.Jpeg, maxConcurrentUploads: 1 });
     expect(fromNumberFh).to.be.an('string');
     expect(fromNumberFh).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
@@ -48,7 +48,7 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a GIF image from buffer', async () => {
     // Upload media (from buffer)
-    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: 'gif' });
+    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: EUploadMimeType.Gif });
     expect(fromBuffer).to.be.an('string');
     expect(fromBuffer).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);

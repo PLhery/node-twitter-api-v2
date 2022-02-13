@@ -23,6 +23,7 @@ import {
   GetListV1Params,
   AddOrRemoveListMembersV1Params,
   UpdateListV1Params,
+  EUploadMimeType,
 } from '../types';
 import * as fs from 'fs';
 import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
@@ -388,7 +389,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     }
   }
 
-  protected async getUploadMediaRequirements(file: TUploadableMedia, { type, target }: Partial<UploadMediaV1Params> = {}) {
+  protected async getUploadMediaRequirements(file: TUploadableMedia, { mimeType, type, target, longVideo }: Partial<UploadMediaV1Params> = {}) {
     // Get the file handle (if not buffer)
     let fileHandle: TFileHandle;
 
@@ -396,23 +397,23 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       fileHandle = await getFileHandle(file);
 
       // Get the mimetype
-      const mimeType = getMimeType(file, type);
+      const realMimeType = getMimeType(file, type, mimeType);
 
       // Get the media category
       let mediaCategory: string;
 
       // If explicit longmp4 OR explicit MIME type and not DM target
-      if (type === 'longmp4' || (type === 'video/mp4' && target !== 'dm')) {
+      if (realMimeType === EUploadMimeType.Mp4 && ((!mimeType && !type && target !== 'dm') || longVideo)) {
         mediaCategory = 'amplify_video';
       } else {
-        mediaCategory = getMediaCategoryByMime(mimeType, target ?? 'tweet');
+        mediaCategory = getMediaCategoryByMime(realMimeType, target ?? 'tweet');
       }
 
       return {
         fileHandle,
         mediaCategory,
         fileSize: await getFileSizeFromFileHandle(fileHandle),
-        mimeType,
+        mimeType: realMimeType,
       };
     } catch (e) {
       // Close file if any

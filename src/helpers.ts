@@ -71,6 +71,6 @@ export function safeDeprecationWarning(message: IDeprecationWarning) {
     `, ${message.problem}.\n${message.resolution}.`;
 
   console.warn(formattedMsg);
-  console.warn('To disable this message, import TwitterApiV2Settings from twitter-api-v2 and set TwitterApiV2Settings.deprecationWarnings to false.');
+  console.warn('To disable this message, import variable TwitterApiV2Settings from twitter-api-v2 and set TwitterApiV2Settings.deprecationWarnings to false.');
   deprecationWarningsCache.add(hash);
 }
