@@ -1,3 +1,4 @@
+import type { ClientRequestArgs } from 'http';
 import type TwitterApiBase from '../../client.base';
 import type { IGetHttpRequestArgs } from '../request-maker.mixin.types';
 import type { TwitterResponse } from '../responses.types';
@@ -28,6 +29,7 @@ export interface ITwitterApiBeforeRequestConfigHookArgs {
 
 export interface ITwitterApiBeforeRequestHookArgs extends ITwitterApiBeforeRequestConfigHookArgs {
   computedParams: IComputedHttpRequestArgs;
+  requestOptions: Partial<ClientRequestArgs>
 }
 
 export interface ITwitterApiAfterRequestHookArgs extends ITwitterApiBeforeRequestHookArgs {

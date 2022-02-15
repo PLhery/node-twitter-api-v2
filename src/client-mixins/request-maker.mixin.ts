@@ -61,7 +61,7 @@ export abstract class ClientRequestMaker {
 
     // Pre-request hooks
     if (this._clientSettings.plugins) {
-      await this.applyPreRequestHooks(requestParams, args);
+      await this.applyPreRequestHooks(requestParams, args, options);
     }
 
     const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
@@ -78,7 +78,7 @@ export abstract class ClientRequestMaker {
 
     // Post-request hooks
     if (this._clientSettings.plugins) {
-      await this.applyPostRequestHooks(requestParams, args, response);
+      await this.applyPostRequestHooks(requestParams, args, options, response);
     }
 
     return response;
@@ -289,7 +289,7 @@ export abstract class ClientRequestMaker {
     }
   }
 
-  protected async applyPreRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs) {
+  protected async applyPreRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>) {
     const plugins = this._clientSettings.plugins!;
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
@@ -300,11 +300,12 @@ export abstract class ClientRequestMaker {
         url,
         params: requestParams,
         computedParams,
+        requestOptions,
       });
     }
   }
 
-  protected async applyPostRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, response: TwitterResponse<any>) {
+  protected async applyPostRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, response: TwitterResponse<any>) {
     const plugins = this._clientSettings.plugins!;
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
@@ -315,6 +316,7 @@ export abstract class ClientRequestMaker {
         url,
         params: requestParams,
         computedParams,
+        requestOptions,
         response,
       });
     }
