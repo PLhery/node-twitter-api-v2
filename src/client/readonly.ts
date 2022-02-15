@@ -4,7 +4,7 @@ import {
   AccessOAuth2TokenArgs,
   AccessOAuth2TokenResult,
   AccessTokenResult,
-  BearerTokenResult, BuildOAuth2RequestLinkArgs, LoginResult,
+  BearerTokenResult, BuildOAuth2RequestLinkArgs, IOAuth2RequestTokenResult, LoginResult,
   RequestTokenArgs,
   RequestTokenResult,
   TOAuth2Scope,
@@ -105,6 +105,17 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       url += `&screen_name=${encodeURIComponent(screenName)}`;
     }
 
+    if (this._clientSettings.plugins) {
+      for (const plugin of this._clientSettings.plugins) {
+        await plugin.onOAuth1RequestToken?.({
+          client: this,
+          plugin,
+          url,
+          oauthResult,
+        });
+      }
+    }
+
     return {
       url,
       ...oauthResult,
@@ -202,7 +213,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * // Save `state` and `codeVerifier` somewhere, it will be needed for next auth step.
    * ```
    */
-  generateOAuth2AuthLink(redirectUri: string, options: Partial<BuildOAuth2RequestLinkArgs> = {}) {
+  generateOAuth2AuthLink(redirectUri: string, options: Partial<BuildOAuth2RequestLinkArgs> = {}): IOAuth2RequestTokenResult {
     if (!this._clientId) {
       throw new Error(
         'Twitter API instance is not initialized with client ID. You can find your client ID in Twitter Developer Portal. ' +
@@ -225,12 +236,25 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     url.searchParams.set('code_challenge_method', 's256');
     url.searchParams.set('scope', scope);
 
-    return {
+    const result: IOAuth2RequestTokenResult = {
       url: url.toString(),
       state,
       codeVerifier,
       codeChallenge,
     };
+
+    if (this._clientSettings.plugins) {
+      for (const plugin of this._clientSettings.plugins) {
+        plugin.onOAuth2RequestToken?.({
+          client: this,
+          plugin,
+          result,
+          redirectUri,
+        });
+      }
+    }
+
+    return result;
   }
 
   /**
