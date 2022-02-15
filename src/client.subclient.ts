@@ -5,10 +5,10 @@ import TwitterApiBase from './client.base';
  */
 export default abstract class TwitterApiSubClient extends TwitterApiBase {
   constructor(instance: TwitterApiBase) {
-    super();
-
     if (!(instance instanceof TwitterApiBase)) {
       throw new Error('You must instance SubTwitterApi instance from existing TwitterApi instance.');
     }
+
+    super(instance);
   }
 }
