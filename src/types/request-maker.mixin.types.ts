@@ -10,7 +10,7 @@ export type TRequestDebuggerHandler = (event: TRequestDebuggerHandlerEvent, data
  * Request compression level. `true` means `'brotli'`, `false` means `'identity'`.
  * When `brotli` is unavailable (f.e. in streams), it will fallback to `gzip`.
  */
-export type TRequestCompressionLevel = boolean | 'brotli' | 'gzip' | 'defalte' | 'identity';
+export type TRequestCompressionLevel = boolean | 'brotli' | 'gzip' | 'deflate' | 'identity';
 
 export type TRequestFullData = {
   url: URL,

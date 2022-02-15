@@ -314,7 +314,7 @@ export class RequestHandlerHelper<T> {
       headers['accept-encoding'] = 'br;q=1.0, gzip;q=0.8, deflate;q=0.5, *;q=0.1';
     } else if (this.requestData.compression === 'gzip') {
       headers['accept-encoding'] = 'gzip;q=1, deflate;q=0.5, *;q=0.1';
-    } else if (this.requestData.compression === 'defalte') {
+    } else if (this.requestData.compression === 'deflate') {
       headers['accept-encoding'] = 'deflate;q=1, *;q=0.1';
     }
 
