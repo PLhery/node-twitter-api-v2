@@ -46,6 +46,14 @@ export interface IGetHttpRequestArgs {
   disableCompression?: boolean;
 }
 
+export interface IComputedHttpRequestArgs {
+  rawUrl: string;
+  url: URL;
+  method: string;
+  headers: Record<string, string>;
+  body: string | Buffer | undefined;
+}
+
 export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
   autoConnect?: boolean;

@@ -79,6 +79,10 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   ) {
     super();
 
+    if (settings) {
+      this._clientSettings = { ...settings };
+    }
+
     if (typeof token === 'string') {
       this._bearerToken = token;
     }
@@ -94,6 +98,7 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
       this._clientId = token._clientId;
       this._clientSecret = token._clientSecret;
       this._rateLimits = token._rateLimits;
+      this._clientSettings = { ...token._clientSettings };
     }
     else if (typeof token === 'object' && 'appKey' in token) {
       this._consumerToken = token.appKey;
@@ -113,10 +118,6 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     else if (typeof token === 'object' && 'clientId' in token) {
       this._clientId = token.clientId;
       this._clientSecret = token.clientSecret;
-    }
-
-    if (settings) {
-      this._clientSettings = { ...settings };
     }
   }
 
@@ -165,6 +166,10 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
   }
 
   /* Rate limit cache */
+
+  public getActivePlugins() {
+    return this._clientSettings.plugins ?? [];
+  }
 
   /**
    * Tells if you hit the Twitter rate limit for {endpoint}.

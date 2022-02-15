@@ -1,4 +1,5 @@
 import type { Agent } from 'http';
+import type { ITwitterApiClientPlugin } from './plugins';
 
 export enum ETwitterStreamEvent {
   Connected = 'connected',
@@ -67,4 +68,5 @@ export interface IClientSettings {
   /** Used to send HTTPS requests. This is mostly used to make requests work behind a proxy. */
   httpAgent: Agent;
   disableCompression: boolean;
+  plugins: ITwitterApiClientPlugin[];
 }

@@ -16,6 +16,15 @@ export function getUserClient(this: any) {
   });
 }
 
+export function getUserKeys() {
+  return {
+    appKey: process.env.CONSUMER_TOKEN!,
+    appSecret: process.env.CONSUMER_SECRET!,
+    accessToken: process.env.OAUTH_TOKEN!,
+    accessSecret: process.env.OAUTH_SECRET!,
+  };
+}
+
 export async function sleepTest(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
