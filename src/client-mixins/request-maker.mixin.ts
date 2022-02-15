@@ -213,7 +213,7 @@ export abstract class ClientRequestMaker {
 
     const url = this.getUrlObjectFromUrlString(stringUrl);
     // URL without query string to save as endpoint name
-    const rawUrl = method + ' ' + url.origin + url.pathname;
+    const rawUrl = url.origin + url.pathname;
 
     // Apply URL parameters
     if (params) {
