@@ -1,4 +1,4 @@
-import { IClientSettings, RequestAlreadyAvailableInCacheException, TwitterRateLimit, TwitterResponse } from '../types';
+import { IClientSettings, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { ClientRequestArgs } from 'http';
 import { trimUndefinedProperties } from '../helpers';
@@ -39,14 +39,10 @@ export abstract class ClientRequestMaker {
   async send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     // Pre-request config hooks
     if (this._clientSettings.plugins) {
-      try {
-        await this.applyPreRequestConfigHooks(requestParams);
-      } catch (e) {
-        if (e instanceof RequestAlreadyAvailableInCacheException) {
-          return e.response;
-        }
+      const possibleResponse = await this.applyPreRequestConfigHooks(requestParams);
 
-        throw e;
+      if (possibleResponse) {
+        return possibleResponse;
       }
     }
 
@@ -266,13 +262,15 @@ export abstract class ClientRequestMaker {
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
     for (const plugin of plugins) {
-      if (plugin.onBeforeRequestConfig) {
-        await plugin.onBeforeRequestConfig({
-          client: this as any,
-          plugin,
-          url,
-          params: requestParams,
-        });
+      const result = await plugin.onBeforeRequestConfig?.({
+        client: this as any,
+        plugin,
+        url,
+        params: requestParams,
+      });
+
+      if (result) {
+        return result;
       }
     }
   }
@@ -282,14 +280,12 @@ export abstract class ClientRequestMaker {
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
     for (const plugin of plugins) {
-      if (plugin.onBeforeStreamRequestConfig) {
-        plugin.onBeforeStreamRequestConfig({
-          client: this as any,
-          plugin,
-          url,
-          params: requestParams,
-        });
-      }
+      plugin.onBeforeStreamRequestConfig?.({
+        client: this as any,
+        plugin,
+        url,
+        params: requestParams,
+      });
     }
   }
 
@@ -298,15 +294,13 @@ export abstract class ClientRequestMaker {
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
     for (const plugin of plugins) {
-      if (plugin.onBeforeRequest) {
-        await plugin.onBeforeRequest({
-          client: this as any,
-          plugin,
-          url,
-          params: requestParams,
-          computedParams,
-        });
-      }
+      await plugin.onBeforeRequest?.({
+        client: this as any,
+        plugin,
+        url,
+        params: requestParams,
+        computedParams,
+      });
     }
   }
 
@@ -315,16 +309,14 @@ export abstract class ClientRequestMaker {
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
     for (const plugin of plugins) {
-      if (plugin.onAfterRequest) {
-        await plugin.onAfterRequest({
-          client: this as any,
-          plugin,
-          url,
-          params: requestParams,
-          computedParams,
-          response,
-        });
-      }
+      await plugin.onAfterRequest?.({
+        client: this as any,
+        plugin,
+        url,
+        params: requestParams,
+        computedParams,
+        response,
+      });
     }
   }
 }

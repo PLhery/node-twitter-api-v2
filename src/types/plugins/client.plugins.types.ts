@@ -3,6 +3,7 @@ import type { IGetHttpRequestArgs } from '../request-maker.mixin.types';
 import type { TwitterResponse } from '../responses.types';
 import type { IComputedHttpRequestArgs } from '../request-maker.mixin.types';
 import type { IOAuth2RequestTokenResult, RequestTokenResult } from '../auth.types';
+import type { PromiseOrType } from '../shared.types';
 
 export interface ITwitterApiClientPlugin {
   // Classic requests
@@ -33,7 +34,7 @@ export interface ITwitterApiAfterRequestHookArgs extends ITwitterApiBeforeReques
   response: TwitterResponse<any>;
 }
 
-export type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => void | Promise<void>;
+export type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => PromiseOrType<TwitterResponse<any> | void>;
 export type TTwitterApiBeforeRequestHook = (args: ITwitterApiBeforeRequestHookArgs) => void | Promise<void>;
 export type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => void | Promise<void>;
 

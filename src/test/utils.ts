@@ -37,6 +37,13 @@ export function getRequestClient() {
   });
 }
 
+export function getRequestKeys() {
+  return {
+    appKey: process.env.CONSUMER_TOKEN!,
+    appSecret: process.env.CONSUMER_SECRET!,
+  };
+}
+
 // Test auth 1.0a flow
 export function getAuthLink(callback: string) {
   return getRequestClient().generateAuthLink(callback);
