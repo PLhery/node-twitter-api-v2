@@ -4,7 +4,7 @@ import { getUserKeys } from '../src/test/utils';
 import type {
   ITwitterApiClientPlugin,
   TwitterResponse,
-  ITwitterApiBeforeRequestHookArgs,
+  ITwitterApiBeforeRequestConfigHookArgs,
   ITwitterApiAfterRequestHookArgs,
 } from '../src';
 import { RequestAlreadyAvailableInCacheException, TwitterApi } from '../src';
@@ -12,7 +12,7 @@ import { RequestAlreadyAvailableInCacheException, TwitterApi } from '../src';
 class SimpleCacheTestPlugin implements ITwitterApiClientPlugin {
   protected cache: { [urlHash: string]: TwitterResponse<any> } = {};
 
-  onBeforeRequestConfig(args: ITwitterApiBeforeRequestHookArgs) {
+  onBeforeRequestConfig(args: ITwitterApiBeforeRequestConfigHookArgs) {
     const hash = this.getHashFromRequest(args);
 
     if (hash in this.cache) {
@@ -25,7 +25,7 @@ class SimpleCacheTestPlugin implements ITwitterApiClientPlugin {
     this.cache[hash] = args.response;
   }
 
-  protected getHashFromRequest({ url, params }: ITwitterApiBeforeRequestHookArgs) {
+  protected getHashFromRequest({ url, params }: ITwitterApiBeforeRequestConfigHookArgs) {
     const strQuery = JSON.stringify(params.query ?? {});
     const strParams = JSON.stringify(params.params ?? {});
 
