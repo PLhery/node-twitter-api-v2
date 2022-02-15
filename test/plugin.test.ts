@@ -73,7 +73,7 @@ describe('Plugin API', () => {
     const { oauth_token } = await client.generateAuthLink('oob');
 
     // Is oauth token registred in cache?
-    const loginPlugin = client.getPluginOfType(SimpleOAuthStepHelperPlugin);
+    const loginPlugin = client.getPluginOfType(SimpleOAuthStepHelperPlugin)!;
     expect(loginPlugin.isOAuthTokenValid(oauth_token)).to.equal(true);
 
     // Must login through
