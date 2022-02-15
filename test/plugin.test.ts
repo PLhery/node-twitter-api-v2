@@ -68,13 +68,12 @@ describe('Plugin API', () => {
   }).timeout(1000 * 30);
 
   it('Remember OAuth token secret between step 1 and 2 of authentication', async () => {
-    const loginPlugin = new SimpleOAuthStepHelperPlugin();
-
-    const client = new TwitterApi(getRequestKeys(), { plugins: [loginPlugin] });
+    const client = new TwitterApi(getRequestKeys(), { plugins: [new SimpleOAuthStepHelperPlugin()] });
 
     const { oauth_token } = await client.generateAuthLink('oob');
 
     // Is oauth token registred in cache?
+    const loginPlugin = client.getPluginOfType(SimpleOAuthStepHelperPlugin);
     expect(loginPlugin.isOAuthTokenValid(oauth_token)).to.equal(true);
 
     // Must login through

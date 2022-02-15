@@ -1,7 +1,5 @@
-import type { IClientSettings, TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
-import {
-  ClientRequestMaker,
-} from './client-mixins/request-maker.mixin';
+import type { IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
+import { ClientRequestMaker } from './client-mixins/request-maker.mixin';
 import TweetStream from './stream/TweetStream';
 import { sharedPromise, SharedPromise } from './helpers';
 import { API_V1_1_PREFIX, API_V2_PREFIX } from './globals';
@@ -165,10 +163,14 @@ export default abstract class TwitterApiBase extends ClientRequestMaker {
     return { type: 'none' };
   }
 
-  /* Rate limit cache */
+  /* Rate limit cache / Plugins */
 
-  public getActivePlugins() {
+  public getPlugins() {
     return this._clientSettings.plugins ?? [];
+  }
+
+  public getPluginOfType<T extends ITwitterApiClientPlugin>(type: { new(...args: any[]): T }): T | undefined {
+    return this.getPlugins().find(plugin => plugin instanceof type) as T | undefined;
   }
 
   /**
