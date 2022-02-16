@@ -42,15 +42,13 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
-    const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
-
     return new RequestHandlerHelper<T>({
       url: args.url,
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       requestEventDebugHandler: requestParams.requestEventDebugHandler,
-      compression: !isCompressionDisabled,
+      compression: requestParams.compression ?? this._clientSettings.compression ?? true,
     })
       .makeRequest();
   }
@@ -79,15 +77,13 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
-    const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
-
     const requestData: TRequestFullStreamData = {
       url: args.url,
       options,
       body: args.body,
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       payloadIsError: requestParams.payloadIsError,
-      compression: !isCompressionDisabled,
+      compression: requestParams.compression ?? this._clientSettings.compression ?? true,
     };
 
     const stream = new TweetStream<T>(requestData);

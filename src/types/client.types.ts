@@ -1,4 +1,5 @@
 import type { Agent } from 'http';
+import type { TRequestCompressionLevel } from './request-maker.mixin.types';
 
 export enum ETwitterStreamEvent {
   Connected = 'connected',
@@ -66,5 +67,5 @@ export type TClientTokens = IClientTokenNone | IClientTokenBearer | IClientToken
 export interface IClientSettings {
   /** Used to send HTTPS requests. This is mostly used to make requests work behind a proxy. */
   httpAgent: Agent;
-  disableCompression: boolean;
+  compression: TRequestCompressionLevel;
 }

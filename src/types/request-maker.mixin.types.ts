@@ -6,13 +6,19 @@ export type TRequestDebuggerHandlerEvent = 'abort' | 'socket' | 'socket-error' |
   | 'response' | 'response-aborted' | 'response-error' | 'response-close' | 'response-end';
 export type TRequestDebuggerHandler = (event: TRequestDebuggerHandlerEvent, data?: any) => void;
 
+/**
+ * Request compression level. `true` means `'brotli'`, `false` means `'identity'`.
+ * When `brotli` is unavailable (f.e. in streams), it will fallback to `gzip`.
+ */
+export type TRequestCompressionLevel = boolean | 'brotli' | 'gzip' | 'deflate' | 'identity';
+
 export type TRequestFullData = {
   url: URL,
   options: RequestOptions,
   body?: any,
   rateLimitSaver?: (rateLimit: TwitterRateLimit) => any,
   requestEventDebugHandler?: TRequestDebuggerHandler,
-  compression?: boolean,
+  compression?: TRequestCompressionLevel,
 };
 
 export type TRequestFullStreamData = TRequestFullData & { payloadIsError?: (data: any) => boolean };
@@ -43,7 +49,7 @@ export interface IGetHttpRequestArgs {
   enableRateLimitSave?: boolean;
   timeout?: number;
   requestEventDebugHandler?: TRequestDebuggerHandler;
-  disableCompression?: boolean;
+  compression?: TRequestCompressionLevel;
 }
 
 export interface IGetStreamRequestArgs {
@@ -61,5 +67,5 @@ export interface IGetStreamRequestArgsSync {
   autoConnect: false;
 }
 
-export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'disableCompression' | 'timeout' | 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
+export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'compression' | 'timeout' | 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
 
