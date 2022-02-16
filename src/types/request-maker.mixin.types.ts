@@ -1,7 +1,9 @@
 import type { RequestOptions } from 'https';
+import type TwitterApiBase from '../client.base';
+import type { TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens } from './client.types';
 import type { TwitterRateLimit } from './responses.types';
 
-export type TRequestDebuggerHandlerEvent = 'abort' | 'socket' | 'socket-error' | 'socket-connect'
+export type TRequestDebuggerHandlerEvent = 'abort' | 'close' | 'socket' | 'socket-error' | 'socket-connect'
   | 'socket-close' | 'socket-end' | 'socket-lookup' | 'socket-timeout' | 'request-error'
   | 'response' | 'response-aborted' | 'response-error' | 'response-close' | 'response-end';
 export type TRequestDebuggerHandler = (event: TRequestDebuggerHandlerEvent, data?: any) => void;
@@ -52,6 +54,14 @@ export interface IGetHttpRequestArgs {
   compression?: TRequestCompressionLevel;
 }
 
+export interface IComputedHttpRequestArgs {
+  rawUrl: string;
+  url: URL;
+  method: string;
+  headers: Record<string, string>;
+  body: string | Buffer | undefined;
+}
+
 export interface IGetStreamRequestArgs {
   payloadIsError?: (data: any) => boolean;
   autoConnect?: boolean;
@@ -69,3 +79,4 @@ export interface IGetStreamRequestArgsSync {
 
 export type TCustomizableRequestArgs = Pick<IGetHttpRequestArgs, 'compression' | 'timeout' | 'headers' | 'params' | 'forceBodyMode' | 'enableAuth' | 'enableRateLimitSave'>;
 
+export type TAcceptedInitToken = TwitterApiTokens | TwitterApiOAuth2Init | TwitterApiBasicAuth | string;

@@ -40,6 +40,13 @@ export interface RequestTokenResult {
   oauth_callback_confirmed: 'true';
 }
 
+export interface IOAuth2RequestTokenResult {
+  url: string;
+  state: string;
+  codeVerifier: string;
+  codeChallenge: string;
+}
+
 export interface AccessTokenResult {
   oauth_token: string;
   oauth_token_secret: string;

@@ -27,6 +27,7 @@
     "test-list": "npm run mocha test/list.*.test.ts",
     "test-space": "npm run mocha test/space.v2.test.ts",
     "test-account": "npm run mocha test/account.*.test.ts",
+    "test-plugin": "npm run mocha test/plugin.test.ts",
     "prepublish": "npm run build"
   },
   "repository": "github:plhery/node-twitter-api-v2",

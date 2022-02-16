@@ -4,7 +4,7 @@ import {
   AccessOAuth2TokenArgs,
   AccessOAuth2TokenResult,
   AccessTokenResult,
-  BearerTokenResult, BuildOAuth2RequestLinkArgs, LoginResult,
+  BearerTokenResult, BuildOAuth2RequestLinkArgs, IOAuth2RequestTokenResult, LoginResult,
   RequestTokenArgs,
   RequestTokenResult,
   TOAuth2Scope,
@@ -106,6 +106,13 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       url += `&screen_name=${encodeURIComponent(screenName)}`;
     }
 
+    if (this._requestMaker.hasPlugins()) {
+      this._requestMaker.applyPluginMethod('onOAuth1RequestToken', {
+        url,
+        oauthResult,
+      });
+    }
+
     return {
       url,
       ...oauthResult,
@@ -134,17 +141,21 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * ```
    */
   public async login(oauth_verifier: string): Promise<LoginResult> {
+    const tokens = this.getActiveTokens();
+    if (tokens.type !== 'oauth-1.0a')
+      throw new Error('You must setup TwitterApi instance with consumer keys to accept OAuth 1.0 login');
+
     const oauth_result = await this.post<AccessTokenResult>(
       'https://api.twitter.com/oauth/access_token',
-      { oauth_token: this._accessToken, oauth_verifier }
+      { oauth_token: tokens.accessToken, oauth_verifier }
     );
 
     const client = new TwitterApi({
-      appKey: this._consumerToken!,
-      appSecret: this._consumerSecret!,
+      appKey: tokens.appKey,
+      appSecret: tokens.appSecret,
       accessToken: oauth_result.oauth_token,
       accessSecret: oauth_result.oauth_token_secret,
-    }, this._clientSettings);
+    }, this._requestMaker.clientSettings);
 
     return {
       accessToken: oauth_result.oauth_token,
@@ -168,15 +179,16 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * ```
    */
   public async appLogin() {
-    if (!this._consumerToken || !this._consumerSecret)
-      throw new Error('You must setup TwitterApi instance with consumers to enable app-only login');
+    const tokens = this.getActiveTokens();
+    if (tokens.type !== 'oauth-1.0a')
+      throw new Error('You must setup TwitterApi instance with consumer keys to accept app-only login');
 
     // Create a client with Basic authentication
-    const basicClient = new TwitterApi({ username: this._consumerToken, password: this._consumerSecret });
+    const basicClient = new TwitterApi({ username: tokens.appKey, password: tokens.appSecret });
     const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
     // New object with Bearer token
-    return new TwitterApi(res.access_token, this._clientSettings);
+    return new TwitterApi(res.access_token, this._requestMaker.clientSettings);
   }
 
   /* OAuth 2 user authentication */
@@ -203,8 +215,8 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * // Save `state` and `codeVerifier` somewhere, it will be needed for next auth step.
    * ```
    */
-  generateOAuth2AuthLink(redirectUri: string, options: Partial<BuildOAuth2RequestLinkArgs> = {}) {
-    if (!this._clientId) {
+  generateOAuth2AuthLink(redirectUri: string, options: Partial<BuildOAuth2RequestLinkArgs> = {}): IOAuth2RequestTokenResult {
+    if (!this._requestMaker.clientId) {
       throw new Error(
         'Twitter API instance is not initialized with client ID. You can find your client ID in Twitter Developer Portal. ' +
         'Please build an instance with: new TwitterApi({ clientId: \'<yourClientId>\' })',
@@ -220,7 +232,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     const url = new URL('https://twitter.com/i/oauth2/authorize');
     const query = {
       response_type: 'code',
-      client_id: this._clientId,
+      client_id: this._requestMaker.clientId,
       redirect_uri: redirectUri,
       state,
       code_challenge: codeChallenge,
@@ -230,12 +242,21 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     RequestParamHelpers.addQueryParamsToUrl(url, query);
 
-    return {
+    const result: IOAuth2RequestTokenResult = {
       url: url.toString(),
       state,
       codeVerifier,
       codeChallenge,
     };
+
+    if (this._requestMaker.hasPlugins()) {
+      this._requestMaker.applyPluginMethod('onOAuth2RequestToken', {
+        result,
+        redirectUri,
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -263,7 +284,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * ```
    */
   async loginWithOAuth2({ code, codeVerifier, redirectUri }: AccessOAuth2TokenArgs) {
-    if (!this._clientId) {
+    if (!this._requestMaker.clientId) {
       throw new Error(
         'Twitter API instance is not initialized with client ID. ' +
         'Please build an instance with: new TwitterApi({ clientId: \'<yourClientId>\' })',
@@ -275,8 +296,8 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       code_verifier: codeVerifier,
       redirect_uri: redirectUri,
       grant_type: 'authorization_code',
-      client_id: this._clientId,
-      client_secret: this._clientSecret,
+      client_id: this._requestMaker.clientId,
+      client_secret: this._requestMaker.clientSecret,
     });
 
     return this.parseOAuth2AccessTokenResult(accessTokenResult);
@@ -293,7 +314,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * ```
    */
   async refreshOAuth2Token(refreshToken: string) {
-    if (!this._clientId) {
+    if (!this._requestMaker.clientId) {
       throw new Error(
         'Twitter API instance is not initialized with client ID. ' +
         'Please build an instance with: new TwitterApi({ clientId: \'<yourClientId>\' })',
@@ -303,8 +324,8 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     const accessTokenResult = await this.post<AccessOAuth2TokenResult>('https://api.twitter.com/2/oauth2/token', {
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
-      client_id: this._clientId,
-      client_secret: this._clientSecret,
+      client_id: this._requestMaker.clientId,
+      client_secret: this._requestMaker.clientSecret,
     });
 
     return this.parseOAuth2AccessTokenResult(accessTokenResult);
@@ -317,7 +338,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * or refresh token (if you've called `.refreshOAuth2Token` before).
    */
   async revokeOAuth2Token(token: string, tokenType: 'access_token' | 'refresh_token' = 'access_token') {
-    if (!this._clientId) {
+    if (!this._requestMaker.clientId) {
       throw new Error(
         'Twitter API instance is not initialized with client ID. ' +
         'Please build an instance with: new TwitterApi({ clientId: \'<yourClientId>\' })',
@@ -325,15 +346,15 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     }
 
     return await this.post<void>('https://api.twitter.com/2/oauth2/revoke', {
-      client_id: this._clientId,
-      client_secret: this._clientSecret,
+      client_id: this._requestMaker.clientId,
+      client_secret: this._requestMaker.clientSecret,
       token,
       token_type_hint: tokenType,
     });
   }
 
   protected parseOAuth2AccessTokenResult(result: AccessOAuth2TokenResult) {
-    const client = new TwitterApi(result.access_token, this._clientSettings);
+    const client = new TwitterApi(result.access_token, this._requestMaker.clientSettings);
     const scope = result.scope.split(' ').filter(e => e) as TOAuth2Scope[];
 
     return {

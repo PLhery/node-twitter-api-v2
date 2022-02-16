@@ -111,6 +111,7 @@ Learn how to use the full potential of `twitter-api-v2`.
   - [Create a client and make your first request](./doc/basics.md)
   - [Handle Twitter authentication flows](./doc/auth.md)
   - [Explore some examples](./doc/examples.md)
+  - [Use and create plugins](./doc/plugins.md)
 - Use endpoints wrappers — ensure typings of request & response
   - [Available endpoint wrappers for v1.1 API](./doc/v1.md)
   - [Available endpoint wrappers for v2 API](./doc/v2.md)

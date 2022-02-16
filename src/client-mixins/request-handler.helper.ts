@@ -1,3 +1,4 @@
+import type { Socket } from 'net';
 import { request } from 'https';
 import type { IncomingMessage, ClientRequest } from 'http';
 import { TwitterApiV2Settings } from '../settings';
@@ -24,9 +25,12 @@ interface IBuildErrorParams {
 export class RequestHandlerHelper<T> {
   protected req!: ClientRequest;
   protected res!: IncomingMessage;
+  protected requestErrorHandled = false;
   protected responseData = '';
 
   constructor(protected requestData: TRequestFullData | TRequestFullStreamData) {}
+
+  /* Request helpers */
 
   get hrefPathname() {
     const url = this.requestData.url;
@@ -41,23 +45,7 @@ export class RequestHandlerHelper<T> {
     return this.requestData.url.href.startsWith('https://api.twitter.com/oauth/');
   }
 
-  protected getRateLimitFromResponse(res: IncomingMessage) {
-    let rateLimit: TwitterRateLimit | undefined = undefined;
-
-    if (res.headers['x-rate-limit-limit']) {
-      rateLimit = {
-        limit: Number(res.headers['x-rate-limit-limit']),
-        remaining: Number(res.headers['x-rate-limit-remaining']),
-        reset: Number(res.headers['x-rate-limit-reset']),
-      };
-
-      if (this.requestData.rateLimitSaver) {
-        this.requestData.rateLimitSaver(rateLimit);
-      }
-    }
-
-    return rateLimit;
-  }
+  /* Error helpers */
 
   protected createRequestError(error: Error): ApiRequestError {
     if (TwitterApiV2Settings.debug) {
@@ -127,6 +115,8 @@ export class RequestHandlerHelper<T> {
     });
   }
 
+  /* Response helpers */
+
   protected getResponseDataStream(res: IncomingMessage) {
     if (this.isCompressionDisabled()) {
       return res;
@@ -186,16 +176,58 @@ export class RequestHandlerHelper<T> {
     return data;
   }
 
+  protected getRateLimitFromResponse(res: IncomingMessage) {
+    let rateLimit: TwitterRateLimit | undefined = undefined;
+
+    if (res.headers['x-rate-limit-limit']) {
+      rateLimit = {
+        limit: Number(res.headers['x-rate-limit-limit']),
+        remaining: Number(res.headers['x-rate-limit-remaining']),
+        reset: Number(res.headers['x-rate-limit-reset']),
+      };
+
+      if (this.requestData.rateLimitSaver) {
+        this.requestData.rateLimitSaver(rateLimit);
+      }
+    }
+
+    return rateLimit;
+  }
+
+  /* Request event handlers */
+
+  protected onSocketEventHandler(reject: TRequestRejecter, socket: Socket) {
+    socket.on('close', this.onSocketCloseHandler.bind(this, reject));
+  }
+
+  protected onSocketCloseHandler(reject: TRequestRejecter) {
+    this.req.removeAllListeners('timeout');
+    const res = this.res;
+
+    if (res) {
+      // Response ok, res.close/res.end can handle request ending
+      return;
+    }
+    if (!this.requestErrorHandled) {
+      return reject(this.createRequestError(new Error('Socket closed without any information.')));
+    }
+
+    // else: other situation
+  }
+
   protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
     this.requestData.requestEventDebugHandler?.('request-error', { requestError })
 
+    this.requestErrorHandled = true;
     reject(this.createRequestError(requestError));
-    this.req.removeAllListeners('timeout');
   }
 
   protected timeoutErrorHandler() {
+    this.requestErrorHandled = true;
     this.req.destroy(new Error('Request timeout.'));
   }
+
+  /* Response event handlers */
 
   protected classicResponseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter, res: IncomingMessage) {
     this.res = res;
@@ -219,7 +251,6 @@ export class RequestHandlerHelper<T> {
   }
 
   protected onResponseEndHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
-    this.req.removeAllListeners('timeout');
     const rateLimit = this.getRateLimitFromResponse(this.res);
     let data: any;
 
@@ -250,7 +281,6 @@ export class RequestHandlerHelper<T> {
   }
 
   protected onResponseCloseHandler(resolve: TResponseResolver<T>, reject: TResponseRejecter) {
-    this.req.removeAllListeners('timeout');
     const res = this.res;
 
     if (res.aborted) {
@@ -292,6 +322,8 @@ export class RequestHandlerHelper<T> {
       this.classicResponseHandler(() => undefined, reject, res);
     }
   }
+
+  /* Wrappers for request lifecycle */
 
   protected debugRequest() {
     const url = this.requestData.url;
@@ -335,6 +367,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected registerRequestEventDebugHandlers(req: ClientRequest) {
+    req.on('close', () => this.requestData.requestEventDebugHandler!('close'));
     req.on('abort', () => this.requestData.requestEventDebugHandler!('abort'));
 
     req.on('socket', socket => {
@@ -357,6 +390,8 @@ export class RequestHandlerHelper<T> {
 
       // Handle request errors
       req.on('error', this.requestErrorHandler.bind(this, reject));
+
+      req.on('socket', this.onSocketEventHandler.bind(this, reject));
 
       req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
 
