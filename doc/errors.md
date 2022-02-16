@@ -38,7 +38,7 @@ Requests (that aren't used for streaming) natively support `gzip`/`deflate` comp
 If it causes issues, you can force compression to be disabled:
 
 ```ts
-const client = new TwitterApi(tokens, { disableCompression: true });
+const client = new TwitterApi(tokens, { compression: false });
 ```
 
 ## Advanced: Debug a single request

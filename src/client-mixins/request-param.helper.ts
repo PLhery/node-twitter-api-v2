@@ -1,6 +1,7 @@
 import { FormDataHelper } from './form-data.helper';
 import type { RequestOptions } from 'https';
 import type { TBodyMode, TRequestBody, TRequestQuery, TRequestStringQuery } from '../types/request-maker.mixin.types';
+import OAuth1Helper from './oauth1.helper';
 
 /* Helpers functions that are specific to this class but do not depends on instance */
 
@@ -55,13 +56,16 @@ export class RequestParamHelpers {
   }
 
   static addQueryParamsToUrl(url: URL, query: TRequestQuery) {
-    for (const [key, value] of Object.entries(query) as [string, string][]) {
-      url.searchParams.append(key, value);
-    }
+    const queryEntries = Object.entries(query) as [string, string][];
 
-    if (url.search) {
-      // URLSearchParams doesnt encode '*', but Twitter wants it encoded.
-      url.search = url.search.replace(/\*/g, '%2A');
+    if (queryEntries.length) {
+      let search = '';
+
+      for (const [key, value] of queryEntries) {
+        search += (search.length ? '&' : '?') + `${OAuth1Helper.percentEncode(key)}=${OAuth1Helper.percentEncode(value)}`;
+      }
+
+      url.search = search;
     }
   }
 

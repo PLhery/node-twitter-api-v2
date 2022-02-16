@@ -33,6 +33,10 @@ export class RequestHandlerHelper<T> {
     return url.hostname + url.pathname;
   }
 
+  protected isCompressionDisabled() {
+    return !this.requestData.compression || this.requestData.compression === 'identity';
+  }
+
   protected isFormEncodedEndpoint() {
     return this.requestData.url.href.startsWith('https://api.twitter.com/oauth/');
   }
@@ -124,7 +128,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected getResponseDataStream(res: IncomingMessage) {
-    if (!this.requestData.compression) {
+    if (this.isCompressionDisabled()) {
       return res;
     }
 
@@ -306,8 +310,12 @@ export class RequestHandlerHelper<T> {
     const auth = url.username ? `${url.username}:${url.password}` : undefined;
     const headers = this.requestData.options.headers ?? {};
 
-    if (this.requestData.compression) {
+    if (this.requestData.compression === true || this.requestData.compression === 'brotli') {
       headers['accept-encoding'] = 'br;q=1.0, gzip;q=0.8, deflate;q=0.5, *;q=0.1';
+    } else if (this.requestData.compression === 'gzip') {
+      headers['accept-encoding'] = 'gzip;q=1, deflate;q=0.5, *;q=0.1';
+    } else if (this.requestData.compression === 'deflate') {
+      headers['accept-encoding'] = 'deflate;q=1, *;q=0.1';
     }
 
     if (TwitterApiV2Settings.debug) {
