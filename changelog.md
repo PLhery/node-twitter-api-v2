@@ -1,7 +1,7 @@
 1.11.0
 ------
 - Feat: Support plugins (more features coming soon as plugins!)
-- Feat: Compression level can now be specified explicitely
+- Feat: Compression level can now be specified explicitly
 - Refactor: `.v1.uploadMedia()` now accept `options.mimeType` and `options.longVideo` as argument, in replacement of `options.type` (which is now deprecated)
 - Fix: OAuth2 scope incorrectly encoded #184
 

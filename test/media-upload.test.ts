@@ -34,7 +34,7 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a JPG image from numbered file handle', async () => {
     // Upload media (from numbered fileHandle)
-    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(jpgImg, 'r'), { type: EUploadMimeType.Jpeg, maxConcurrentUploads: 1 });
+    const fromNumberFh = await client.v1.uploadMedia(fs.openSync(jpgImg, 'r'), { mimeType: EUploadMimeType.Jpeg, maxConcurrentUploads: 1 });
     expect(fromNumberFh).to.be.an('string');
     expect(fromNumberFh).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
@@ -48,7 +48,7 @@ describe('Media upload for v1.1 API', () => {
 
   it('Upload a GIF image from buffer', async () => {
     // Upload media (from buffer)
-    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { type: EUploadMimeType.Gif });
+    const fromBuffer = await client.v1.uploadMedia(await fs.promises.readFile(gifImg), { mimeType: EUploadMimeType.Gif });
     expect(fromBuffer).to.be.an('string');
     expect(fromBuffer).to.have.length.greaterThan(0);
   }).timeout(maxTimeout);
