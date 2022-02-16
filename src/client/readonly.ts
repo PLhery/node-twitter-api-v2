@@ -13,6 +13,7 @@ import {
 import TwitterApiv1ReadOnly from '../v1/client.v1.read';
 import TwitterApiv2ReadOnly from '../v2/client.v2.read';
 import { OAuth2Helper } from '../client-mixins/oauth2.helper';
+import RequestParamHelpers from '../client-mixins/request-param.helper';
 
 /**
  * Twitter v1.1 and v2 API client.
@@ -229,13 +230,17 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     const scope = Array.isArray(rawScope) ? rawScope.join(' ') : rawScope;
 
     const url = new URL('https://twitter.com/i/oauth2/authorize');
-    url.searchParams.set('response_type', 'code');
-    url.searchParams.set('client_id', this._requestMaker.clientId);
-    url.searchParams.set('redirect_uri', redirectUri);
-    url.searchParams.set('state', state);
-    url.searchParams.set('code_challenge', codeChallenge);
-    url.searchParams.set('code_challenge_method', 's256');
-    url.searchParams.set('scope', scope);
+    const query = {
+      response_type: 'code',
+      client_id: this._requestMaker.clientId,
+      redirect_uri: redirectUri,
+      state,
+      code_challenge: codeChallenge,
+      code_challenge_method: 's256',
+      scope,
+    };
+
+    RequestParamHelpers.addQueryParamsToUrl(url, query);
 
     const result: IOAuth2RequestTokenResult = {
       url: url.toString(),

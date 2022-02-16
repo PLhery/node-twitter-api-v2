@@ -102,13 +102,25 @@ export interface SendTweetV1Params extends AskTweetV1Params {
 
 export type TUploadTypeV1 = 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | 'srt' | 'webp';
 
+export enum EUploadMimeType {
+  Jpeg = 'image/jpeg',
+  Mp4 = 'video/mp4',
+  Gif = 'image/gif',
+  Png = 'image/png',
+  Srt = 'text/plain',
+  Webp = 'image/webp'
+}
+
 export interface UploadMediaV1Params {
+  /** @deprecated Directly use `mimeType` parameter with one of the allowed MIME types in `EUploadMimeType`. */
   type: TUploadTypeV1 | string;
-  chunkLength: number;
-  additionalOwners: string;
-  maxConcurrentUploads: number;
+  mimeType: EUploadMimeType | string;
   target: 'tweet' | 'dm';
-  shared?: boolean;
+  chunkLength: number;
+  shared: boolean;
+  longVideo: boolean;
+  additionalOwners: string | string[];
+  maxConcurrentUploads: number;
 }
 
 export interface MediaMetadataV1Params {
