@@ -1,5 +1,4 @@
 import type { ClientRequestArgs } from 'http';
-import type TwitterApiBase from '../../client.base';
 import type { IGetHttpRequestArgs } from '../request-maker.mixin.types';
 import type { TwitterResponse } from '../responses.types';
 import type { IComputedHttpRequestArgs } from '../request-maker.mixin.types';
@@ -21,8 +20,6 @@ export interface ITwitterApiClientPlugin {
 // - Requests -
 
 export interface ITwitterApiBeforeRequestConfigHookArgs {
-  client: TwitterApiBase;
-  plugin: ITwitterApiClientPlugin;
   url: URL;
   params: IGetHttpRequestArgs;
 }
@@ -46,15 +43,11 @@ export type TTwitterApiBeforeStreamRequestConfigHook = (args: ITwitterApiBeforeR
 // - Auth -
 
 export interface ITwitterApiAfterOAuth1RequestTokenHookArgs {
-  client: TwitterApiBase;
-  plugin: ITwitterApiClientPlugin;
   url: string;
   oauthResult: RequestTokenResult;
 }
 
 export interface ITwitterApiAfterOAuth2RequestTokenHookArgs {
-  client: TwitterApiBase;
-  plugin: ITwitterApiClientPlugin;
   result: IOAuth2RequestTokenResult;
   redirectUri: string;
 }

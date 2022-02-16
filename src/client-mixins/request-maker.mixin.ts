@@ -1,4 +1,4 @@
-import { IClientSettings, TwitterRateLimit, TwitterResponse } from '../types';
+import type { IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { ClientRequestArgs } from 'http';
 import { trimUndefinedProperties } from '../helpers';
@@ -12,33 +12,47 @@ import type {
   IGetStreamRequestArgsAsync,
   IGetStreamRequestArgsSync,
   IWriteAuthHeadersArgs,
+  TAcceptedInitToken,
   TRequestFullStreamData,
 } from '../types/request-maker.mixin.types';
 import { IComputedHttpRequestArgs } from '../types/request-maker.mixin.types';
 
-export abstract class ClientRequestMaker {
-  protected _bearerToken?: string;
-  protected _consumerToken?: string;
-  protected _consumerSecret?: string;
-  protected _accessToken?: string;
-  protected _accessSecret?: string;
-  protected _basicToken?: string;
-  protected _clientId?: string;
-  protected _clientSecret?: string;
+export class ClientRequestMaker {
+  // Public tokens
+  public bearerToken?: string;
+  public consumerToken?: string;
+  public consumerSecret?: string;
+  public accessToken?: string;
+  public accessSecret?: string;
+  public basicToken?: string;
+  public clientId?: string;
+  public clientSecret?: string;
+  public rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
+  public clientSettings: Partial<IClientSettings> = {};
+
+  // Private computed properties
   protected _oauth?: OAuth1Helper;
-  protected _rateLimits: { [endpoint: string]: TwitterRateLimit } = {};
-  protected _clientSettings: Partial<IClientSettings> = {};
 
   protected static readonly BODY_METHODS = new Set(['POST', 'PUT', 'PATCH']);
 
+  constructor(settings?: Partial<IClientSettings>) {
+    if (settings) {
+      this.clientSettings = settings;
+    }
+  }
+
+  public getRateLimits() {
+    return this.rateLimits;
+  }
+
   protected saveRateLimit(originalUrl: string, rateLimit: TwitterRateLimit) {
-    this._rateLimits[originalUrl] = rateLimit;
+    this.rateLimits[originalUrl] = rateLimit;
   }
 
   /** Send a new request and returns a wrapped `Promise<TwitterResponse<T>`. */
-  async send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
+  public async send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     // Pre-request config hooks
-    if (this._clientSettings.plugins) {
+    if (this.clientSettings.plugins) {
       const possibleResponse = await this.applyPreRequestConfigHooks(requestParams);
 
       if (possibleResponse) {
@@ -51,7 +65,7 @@ export abstract class ClientRequestMaker {
       method: args.method,
       headers: args.headers,
       timeout: requestParams.timeout,
-      agent: this._clientSettings.httpAgent,
+      agent: this.clientSettings.httpAgent,
     };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
 
@@ -60,11 +74,11 @@ export abstract class ClientRequestMaker {
     }
 
     // Pre-request hooks
-    if (this._clientSettings.plugins) {
+    if (this.clientSettings.plugins) {
       await this.applyPreRequestHooks(requestParams, args, options);
     }
 
-    const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
+    const isCompressionDisabled = requestParams.disableCompression || this.clientSettings.disableCompression;
 
     const response = await new RequestHandlerHelper<T>({
       url: args.url,
@@ -77,7 +91,7 @@ export abstract class ClientRequestMaker {
       .makeRequest();
 
     // Post-request hooks
-    if (this._clientSettings.plugins) {
+    if (this.clientSettings.plugins) {
       await this.applyPostRequestHooks(requestParams, args, options, response);
     }
 
@@ -90,13 +104,13 @@ export abstract class ClientRequestMaker {
    * Request will be sent only if `autoConnect` is not set or `true`: return type will be `Promise<TweetStream>`.
    * If `autoConnect` is `false`, a `TweetStream` is directly returned and you should call `stream.connect()` by yourself.
    */
-  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgsSync) : TweetStream<T>;
-  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgsAsync) : Promise<TweetStream<T>>;
-  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T>;
+  public sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgsSync) : TweetStream<T>;
+  public sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgsAsync) : Promise<TweetStream<T>>;
+  public sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T>;
 
-  sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T> {
+  public sendStream<T = any>(requestParams: IGetHttpRequestArgs & IGetStreamRequestArgs) : Promise<TweetStream<T>> | TweetStream<T> {
     // Pre-request hooks
-    if (this._clientSettings.plugins) {
+    if (this.clientSettings.plugins) {
       this.applyPreStreamRequestConfigHooks(requestParams);
     }
 
@@ -104,7 +118,7 @@ export abstract class ClientRequestMaker {
     const options: Partial<ClientRequestArgs> = {
       method: args.method,
       headers: args.headers,
-      agent: this._clientSettings.httpAgent,
+      agent: this.clientSettings.httpAgent,
     };
     const enableRateLimitSave = requestParams.enableRateLimitSave !== false;
     const enableAutoConnect = requestParams.autoConnect !== false;
@@ -113,7 +127,7 @@ export abstract class ClientRequestMaker {
       RequestParamHelpers.setBodyLengthHeader(options, args.body);
     }
 
-    const isCompressionDisabled = requestParams.disableCompression || this._clientSettings.disableCompression;
+    const isCompressionDisabled = requestParams.disableCompression || this.clientSettings.disableCompression;
 
     const requestData: TRequestFullStreamData = {
       url: args.url,
@@ -135,23 +149,96 @@ export abstract class ClientRequestMaker {
 
   /* Token helpers */
 
+  public initializeToken(token?: TAcceptedInitToken) {
+    if (typeof token === 'string') {
+      this.bearerToken = token;
+    }
+    else if (typeof token === 'object' && 'appKey' in token) {
+      this.consumerToken = token.appKey;
+      this.consumerSecret = token.appSecret;
+
+      if (token.accessToken && token.accessSecret) {
+        this.accessToken = token.accessToken;
+        this.accessSecret = token.accessSecret;
+      }
+
+      this._oauth = this.buildOAuth();
+    }
+    else if (typeof token === 'object' && 'username' in token) {
+      const key = encodeURIComponent(token.username) + ':' + encodeURIComponent(token.password);
+      this.basicToken = Buffer.from(key).toString('base64');
+    }
+    else if (typeof token === 'object' && 'clientId' in token) {
+      this.clientId = token.clientId;
+      this.clientSecret = token.clientSecret;
+    }
+  }
+
+  public getActiveTokens(): TClientTokens {
+    if (this.bearerToken) {
+      return {
+        type: 'oauth2',
+        bearerToken: this.bearerToken,
+      };
+    }
+    else if (this.basicToken) {
+      return {
+        type: 'basic',
+        token: this.basicToken,
+      };
+    }
+    else if (this.consumerSecret && this._oauth) {
+      return {
+        type: 'oauth-1.0a',
+        appKey: this.consumerToken!,
+        appSecret: this.consumerSecret!,
+        accessToken: this.accessToken,
+        accessSecret: this.accessSecret,
+      };
+    }
+    else if (this.clientId) {
+      return {
+        type: 'oauth2-user',
+        clientId: this.clientId!,
+      };
+    }
+    return { type: 'none' };
+  }
+
   protected buildOAuth() {
-    if (!this._consumerSecret || !this._consumerToken)
+    if (!this.consumerSecret || !this.consumerToken)
       throw new Error('Invalid consumer tokens');
 
     return new OAuth1Helper({
-      consumerKeys: { key: this._consumerToken, secret: this._consumerSecret },
+      consumerKeys: { key: this.consumerToken, secret: this.consumerSecret },
     });
   }
 
   protected getOAuthAccessTokens() {
-    if (!this._accessSecret || !this._accessToken)
+    if (!this.accessSecret || !this.accessToken)
       return;
 
     return {
-      key: this._accessToken,
-      secret: this._accessSecret,
+      key: this.accessToken,
+      secret: this.accessSecret,
     };
+  }
+
+
+  /* Plugin helpers */
+
+  public getPlugins() {
+    return this.clientSettings.plugins ?? [];
+  }
+
+  public hasPlugins() {
+    return !!this.clientSettings.plugins?.length;
+  }
+
+  public async applyPluginMethod<K extends keyof ITwitterApiClientPlugin>(method: K, args: Parameters<Required<ITwitterApiClientPlugin>[K]>[0]) {
+    for (const plugin of this.getPlugins()) {
+      await plugin[method]?.(args as any);
+    }
   }
 
 
@@ -160,18 +247,18 @@ export abstract class ClientRequestMaker {
   protected writeAuthHeaders({ headers, bodyInSignature, url, method, query, body }: IWriteAuthHeadersArgs) {
     headers = { ...headers };
 
-    if (this._bearerToken) {
-      headers.Authorization = 'Bearer ' + this._bearerToken;
+    if (this.bearerToken) {
+      headers.Authorization = 'Bearer ' + this.bearerToken;
     }
-    else if (this._basicToken) {
+    else if (this.basicToken) {
       // Basic auth, to request a bearer token
-      headers.Authorization = 'Basic ' + this._basicToken;
+      headers.Authorization = 'Basic ' + this.basicToken;
     }
-    else if (this._clientId && this._clientSecret) {
+    else if (this.clientId && this.clientSecret) {
       // Basic auth with clientId + clientSecret
-      headers.Authorization = 'Basic ' + OAuth2Helper.getAuthHeader(this._clientId, this._clientSecret);
+      headers.Authorization = 'Basic ' + OAuth2Helper.getAuthHeader(this.clientId, this.clientSecret);
     }
-    else if (this._consumerSecret && this._oauth) {
+    else if (this.consumerSecret && this._oauth) {
       // Merge query and body
       const data = bodyInSignature ? RequestParamHelpers.mergeQueryAndBodyForOAuth(query, body) : query;
 
@@ -258,13 +345,10 @@ export abstract class ClientRequestMaker {
   /* Plugin helpers */
 
   protected async applyPreRequestConfigHooks(requestParams: IGetHttpRequestArgs) {
-    const plugins = this._clientSettings.plugins!;
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
-    for (const plugin of plugins) {
+    for (const plugin of this.getPlugins()) {
       const result = await plugin.onBeforeRequestConfig?.({
-        client: this as any,
-        plugin,
         url,
         params: requestParams,
       });
@@ -276,13 +360,10 @@ export abstract class ClientRequestMaker {
   }
 
   protected applyPreStreamRequestConfigHooks(requestParams: IGetHttpRequestArgs) {
-    const plugins = this._clientSettings.plugins!;
     const url = this.getUrlObjectFromUrlString(requestParams.url);
 
-    for (const plugin of plugins) {
+    for (const plugin of this.getPlugins()) {
       plugin.onBeforeStreamRequestConfig?.({
-        client: this as any,
-        plugin,
         url,
         params: requestParams,
       });
@@ -290,35 +371,21 @@ export abstract class ClientRequestMaker {
   }
 
   protected async applyPreRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>) {
-    const plugins = this._clientSettings.plugins!;
-    const url = this.getUrlObjectFromUrlString(requestParams.url);
-
-    for (const plugin of plugins) {
-      await plugin.onBeforeRequest?.({
-        client: this as any,
-        plugin,
-        url,
-        params: requestParams,
-        computedParams,
-        requestOptions,
-      });
-    }
+    await this.applyPluginMethod('onBeforeRequest', {
+      url: this.getUrlObjectFromUrlString(requestParams.url),
+      params: requestParams,
+      computedParams,
+      requestOptions,
+    });
   }
 
   protected async applyPostRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, response: TwitterResponse<any>) {
-    const plugins = this._clientSettings.plugins!;
-    const url = this.getUrlObjectFromUrlString(requestParams.url);
-
-    for (const plugin of plugins) {
-      await plugin.onAfterRequest?.({
-        client: this as any,
-        plugin,
-        url,
-        params: requestParams,
+    await this.applyPluginMethod('onAfterRequest', {
+      url: this.getUrlObjectFromUrlString(requestParams.url),
+      params: requestParams,
         computedParams,
         requestOptions,
         response,
-      });
-    }
+    });
   }
 }
