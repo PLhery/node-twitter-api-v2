@@ -37,6 +37,15 @@ export class OAuth1Helper {
     this.consumerKeys = options.consumerKeys;
   }
 
+  static percentEncode(str: string) {
+    return encodeURIComponent(str)
+      .replace(/!/g, '%21')
+      .replace(/\*/g, '%2A')
+      .replace(/'/g, '%27')
+      .replace(/\(/g, '%28')
+      .replace(/\)/g, '%29');
+  }
+
   protected hash(base: string, key: string) {
     return crypto
       .createHmac('sha1', key)
@@ -75,7 +84,7 @@ export class OAuth1Helper {
         continue;
       }
 
-      header_value += percentEncode(element.key) + '="' + percentEncode(element.value as string) + '",';
+      header_value += OAuth1Helper.percentEncode(element.key) + '="' + OAuth1Helper.percentEncode(element.value as string) + '",';
     }
 
     return {
@@ -107,13 +116,13 @@ export class OAuth1Helper {
   }
 
   protected getSigningKey(tokenSecret: string | undefined) {
-    return percentEncode(this.consumerKeys.secret) + '&' + percentEncode(tokenSecret || '');
+    return OAuth1Helper.percentEncode(this.consumerKeys.secret) + '&' + OAuth1Helper.percentEncode(tokenSecret || '');
   }
 
   protected getBaseString(request: OAuth1RequestOptions, oauthInfo: OAuth1AuthInfo) {
     return request.method.toUpperCase() + '&'
-      + percentEncode(this.getBaseUrl(request.url)) + '&'
-      + percentEncode(this.getParameterString(request, oauthInfo));
+      + OAuth1Helper.percentEncode(this.getBaseUrl(request.url)) + '&'
+      + OAuth1Helper.percentEncode(this.getParameterString(request, oauthInfo));
   }
 
   protected getParameterString(request: OAuth1RequestOptions, oauthInfo: OAuth1AuthInfo) {
@@ -211,15 +220,6 @@ function deParamUrl(url: string) {
   return deParam(tmp[1]);
 }
 
-function percentEncode(str: string) {
-  return encodeURIComponent(str)
-    .replace(/!/g, '%21')
-    .replace(/\*/g, '%2A')
-    .replace(/'/g, '%27')
-    .replace(/\(/g, '%28')
-    .replace(/\)/g, '%29');
-}
-
 function percentEncodeData<T>(data: T): T {
   const result: any = {};
 
@@ -228,12 +228,12 @@ function percentEncodeData<T>(data: T): T {
 
     // check if the value is an array
     if (value && Array.isArray(value)){
-      value = value.map(v => percentEncode(v));
+      value = value.map(v => OAuth1Helper.percentEncode(v));
     } else {
-      value = percentEncode(value);
+      value = OAuth1Helper.percentEncode(value);
     }
 
-    result[percentEncode(key)] = value;
+    result[OAuth1Helper.percentEncode(key)] = value;
   }
 
   return result;
