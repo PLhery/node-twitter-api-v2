@@ -1,36 +1,27 @@
 # Rate limiting
 
-## Get last rate limit info
+## Extract rate limit information with plugins
 
-### Using endpoint wrappers
-
-You can obtain lastly collected information of rate limit for each already used endpoint.
-
-First, you need to know **which endpoint URL is concerned by the used endpoint wrapper**, for example,
-for `.v1.tweets`, it is `statuses/lookup.json`. The endpoint is always specified in the lib documentation.
-
-Use the endpoint URL to know:
-- The last received status of rate limiting with `.getLastRateLimitStatus`
-- If the stored rate limit information has expired with `.isRateLimitStatusObsolete`
-- If you hit the rate limit the last time you called this endpoint, with `.hasHitRateLimit`
+Plugin `@twitter-api-v2/plugin-rate-limit` can help you to store/get rate limit information.
+It stores automatically rate limits sent by Twitter at each request and gives you an API to get them when you need to.
 
 ```ts
-// Usage of statuses/lookup.json
-const tweets = await client.v1.tweets(['20', '30']);
+import { TwitterApi } from 'twitter-api-v2'
+import { TwitterApiRateLimitPlugin } from '@twitter-api-v2/plugin-rate-limit'
 
-// Don't forget to add .v1, otherwise you need to prefix
-// your endpoint URL with https://api.twitter.com/... :)
-console.log(client.v1.getLastRateLimitStatus('statuses/lookup.json'));
-// => { limit: 900, remaining: 899, reset: 1631015719 }
+const rateLimitPlugin = new TwitterApiRateLimitPlugin()
+const client = new TwitterApi(yourKeys, { plugins: [rateLimitPlugin] })
 
-console.log(client.v1.isRateLimitStatusObsolete('statuses/lookup.json'));
-// => false if 'reset' property mentions a timestamp in the future
+// ...make requests...
+await client.v2.me()
+// ...
 
-console.log(client.v1.hasHitRateLimit('statuses/lookup.json'));
-// => false if 'remaining' property is > 0
+const currentRateLimitForMe = await rateLimitPlugin.v2.getRateLimit('users/me')
+console.log(currentRateLimitForMe.limit) // 75
+console.log(currentRateLimitForMe.remaining) // 74
 ```
 
-### Special case of HTTP methods helpers
+## With HTTP methods helpers
 
 If you use a HTTP method helper (`.get`, `.post`, ...), you can get a **full response** object that directly contains the rate limit information,
 even if the request didn't fail!

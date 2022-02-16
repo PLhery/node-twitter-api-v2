@@ -41,6 +41,7 @@ export class ClientRequestMaker {
     }
   }
 
+  /** @deprecated - Switch to `@twitter-api-v2/plugin-rate-limit` */
   public getRateLimits() {
     return this.rateLimits;
   }

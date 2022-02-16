@@ -1,4 +1,4 @@
-import type { IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
+import type { IClientSettings, ITwitterApiClientPlugin, TwitterApiBasicAuth, TwitterApiOAuth2Init, TwitterApiTokens, TwitterRateLimit, TwitterResponse, UserV1, UserV2Result } from './types';
 import { ClientRequestMaker } from './client-mixins/request-maker.mixin';
 import TweetStream from './stream/TweetStream';
 import { sharedPromise, SharedPromise } from './helpers';
