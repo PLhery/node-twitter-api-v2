@@ -247,8 +247,8 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
   // Part: Images
 
   /**
-   * Marks a message as read in the recipient’s Direct Message conversation view with the sender.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-read-receipt
+   * Get a single image attached to a direct message. TwitterApi client must be logged with OAuth 1.0a.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/message-attachments/guides/retrieving-media
    */
   public downloadDmImage(urlOrDm: string | DirectMessageCreateV1) {
     if (typeof urlOrDm !== 'string') {
