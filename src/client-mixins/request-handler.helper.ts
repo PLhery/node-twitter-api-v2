@@ -5,7 +5,7 @@ import { TwitterApiV2Settings } from '../settings';
 import TweetStream from '../stream/TweetStream';
 import { ApiPartialResponseError, ApiRequestError, ApiResponseError } from '../types';
 import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../types';
-import type { TRequestFullData, TRequestFullStreamData } from '../types/request-maker.mixin.types';
+import type { TRequestFullData, TRequestFullStreamData, TResponseParseMode } from '../types/request-maker.mixin.types';
 import * as zlib from 'zlib';
 import { Readable } from 'stream';
 
@@ -26,7 +26,7 @@ export class RequestHandlerHelper<T> {
   protected req!: ClientRequest;
   protected res!: IncomingMessage;
   protected requestErrorHandled = false;
-  protected responseData = '';
+  protected responseData: Buffer[] = [];
 
   constructor(protected requestData: TRequestFullData | TRequestFullStreamData) {}
 
@@ -72,7 +72,7 @@ export class RequestHandlerHelper<T> {
       request: this.req,
       response: this.res,
       responseError: error,
-      rawContent: this.responseData,
+      rawContent: Buffer.concat(this.responseData).toString(),
     });
   }
 
@@ -155,25 +155,43 @@ export class RequestHandlerHelper<T> {
     return res;
   }
 
-  protected getParsedResponse(res: IncomingMessage) {
-    let data: any = this.responseData;
-
+  protected detectResponseType(res: IncomingMessage): TResponseParseMode {
     // Auto parse if server responds with JSON body
-    if (data.length && res.headers['content-type']?.includes('application/json')) {
-      data = JSON.parse(data);
+    if (res.headers['content-type']?.includes('application/json') || res.headers['content-type']?.includes('application/problem+json')) {
+      return 'json';
     }
     // f-e oauth token endpoints
     else if (this.isFormEncodedEndpoint()) {
+      return 'url';
+    }
+
+    return 'text';
+  }
+
+  protected getParsedResponse(res: IncomingMessage) {
+    const data = this.responseData;
+    const mode = this.requestData.forceParseMode || this.detectResponseType(res);
+
+    if (mode === 'buffer') {
+      return Buffer.concat(data);
+    } else if (mode === 'text') {
+      return Buffer.concat(data).toString();
+    } else if (mode === 'json') {
+      const asText = Buffer.concat(data).toString();
+      return asText.length ? JSON.parse(asText) : undefined;
+    } else if (mode === 'url') {
+      const asText = Buffer.concat(data).toString();
       const formEntries: any = {};
 
-      for (const [item, value] of new URLSearchParams(data)) {
+      for (const [item, value] of new URLSearchParams(asText)) {
         formEntries[item] = value;
       }
 
-      data = formEntries;
+      return formEntries;
+    } else {
+      // mode === 'none'
+      return undefined;
     }
-
-    return data;
   }
 
   protected getRateLimitFromResponse(res: IncomingMessage) {
@@ -235,7 +253,7 @@ export class RequestHandlerHelper<T> {
     const dataStream = this.getResponseDataStream(res);
 
     // Register the response data
-    dataStream.on('data', chunk => this.responseData += chunk);
+    dataStream.on('data', chunk => this.responseData.push(chunk));
     dataStream.on('end', this.onResponseEndHandler.bind(this, resolve, reject));
     dataStream.on('close', this.onResponseCloseHandler.bind(this, resolve, reject));
 

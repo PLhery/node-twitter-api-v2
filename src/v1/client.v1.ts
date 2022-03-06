@@ -14,6 +14,7 @@ import {
   WelcomeDirectMessageListV1Result,
   WelcomeDmRuleV1Result,
   WelcomeDmRuleListV1Result,
+  DirectMessageCreateV1,
 } from '../types';
 import TwitterApiv1ReadWrite from './client.v1.write';
 
@@ -241,6 +242,26 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
     return this.post<void>('direct_messages/indicate_typing.json', {
       recipient_id: recipientId,
     }, { forceBodyMode: 'url' });
+  }
+
+  // Part: Images
+
+  /**
+   * Marks a message as read in the recipient’s Direct Message conversation view with the sender.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-read-receipt
+   */
+  public downloadDmImage(urlOrDm: string | DirectMessageCreateV1) {
+    if (typeof urlOrDm !== 'string') {
+      const attachment = urlOrDm[EDirectMessageEventTypeV1.Create].message_data.attachment;
+
+      if (!attachment) {
+        throw new Error('Given direct message doesnt contain attachment');
+      }
+
+      urlOrDm = attachment.media_url_https;
+    }
+
+    return this.get<Buffer>(urlOrDm, undefined, { forceParseMode: 'buffer', prefix: '' });
   }
 }
 
