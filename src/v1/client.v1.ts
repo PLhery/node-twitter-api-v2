@@ -250,7 +250,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Get a single image attached to a direct message. TwitterApi client must be logged with OAuth 1.0a.
    * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/message-attachments/guides/retrieving-media
    */
-  public downloadDmImage(urlOrDm: string | DirectMessageCreateV1) {
+  public async downloadDmImage(urlOrDm: string | DirectMessageCreateV1) {
     if (typeof urlOrDm !== 'string') {
       const attachment = urlOrDm[EDirectMessageEventTypeV1.Create].message_data.attachment;
 
@@ -261,7 +261,12 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
       urlOrDm = attachment.media_url_https;
     }
 
-    return this.get<Buffer>(urlOrDm, undefined, { forceParseMode: 'buffer', prefix: '' });
+    const data = await this.get<Buffer>(urlOrDm, undefined, { forceParseMode: 'buffer', prefix: '' });
+    if (!data.length) {
+      throw new Error('Image not found. Make sure you are logged with credentials able to access direct messages, and check the URL.');
+    }
+
+    return data;
   }
 }
 
