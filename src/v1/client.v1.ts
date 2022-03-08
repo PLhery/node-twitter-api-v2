@@ -255,7 +255,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
       const attachment = urlOrDm[EDirectMessageEventTypeV1.Create].message_data.attachment;
 
       if (!attachment) {
-        throw new Error('Given direct message doesnt contain attachment');
+        throw new Error('The given direct message doesn\'t contain any attachment');
       }
 
       urlOrDm = attachment.media_url_https;
