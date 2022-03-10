@@ -86,6 +86,7 @@ export class ClientRequestMaker {
       rateLimitSaver: enableRateLimitSave ? this.saveRateLimit.bind(this, args.rawUrl) : undefined,
       requestEventDebugHandler: requestParams.requestEventDebugHandler,
       compression: requestParams.compression ?? this.clientSettings.compression ?? true,
+      forceParseMode: requestParams.forceParseMode,
     })
       .makeRequest();
 
