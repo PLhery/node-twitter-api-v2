@@ -229,7 +229,7 @@ app.get('/callback', (req, res) => {
   const client = new TwitterApi({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
 
   client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
-    .then(({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
+    .then(async({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
       // {loggedClient} is an authenticated client in behalf of some user
       // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
       // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
