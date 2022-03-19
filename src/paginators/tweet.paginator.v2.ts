@@ -51,6 +51,16 @@ abstract class TweetTimelineV2Paginator<
     if (this._realData.meta.next_token) {
       params.next_token = this._realData.meta.next_token;
     } else {
+      if (params.start_time) {
+        // until_id and start_time are forbidden together for some reason, so convert start_time to a since_id.
+        params.since_id = this.dateStringToSnowflakeId(params.start_time as string);
+        delete params.start_time;
+      }
+      if (params.end_time) {
+        // until_id overrides end_time, so delete it
+        delete params.end_time;
+      }
+
       params.until_id = this._realData.meta.oldest_id;
     }
 
@@ -80,6 +90,18 @@ abstract class TweetTimelineV2Paginator<
 
   protected getItemArray() {
     return this.tweets;
+  }
+
+  protected dateStringToSnowflakeId(dateStr: string) {
+    const TWITTER_START_EPOCH = BigInt('1288834974657');
+    const date = new Date(dateStr);
+
+    if (isNaN(date.valueOf())) {
+      throw new Error('Unable to convert start_time/end_time to a valid date. A ISO 8601 DateTime is excepted, please check your input.');
+    }
+
+    const dateTimestamp = BigInt(date.valueOf());
+    return ((dateTimestamp - TWITTER_START_EPOCH) << BigInt('22')).toString();
   }
 
   /**
