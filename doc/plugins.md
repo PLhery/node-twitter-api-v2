@@ -28,6 +28,11 @@ interface ITwitterApiClientPlugin {
   onBeforeRequest?: TTwitterApiBeforeRequestHook
   /* Executed when a request succeeds (failed requests don't trigger this hook). */
   onAfterRequest?: TTwitterApiAfterRequestHook
+  // Error handling in classic requests
+  /* Executed when Twitter doesn't reply (network error, server disconnect). */
+  onRequestError?: TTwitterApiRequestErrorHook
+  /* Executed when Twitter reply but with an error? */
+  onResponseError?: TTwitterApiResponseErrorHook
   // Stream requests
   /* Executed when a stream request is about to be prepared. This method **can't** return a `Promise`. */
   onBeforeStreamRequestConfig?: TTwitterApiBeforeStreamRequestConfigHook
@@ -46,6 +51,8 @@ Method types:
 type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => PromiseOrType<TwitterResponse<any> | void>
 type TTwitterApiBeforeRequestHook = (args: ITwitterApiBeforeRequestHookArgs) => void | Promise<void>
 type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => void | Promise<void>
+type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => void | Promise<void>
+type TTwitterApiResponseErrorHook = (args: ITwitterApiResponseErrorHookArgs) => void | Promise<void>
 type TTwitterApiBeforeStreamRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => void
 type TTwitterApiAfterOAuth1RequestTokenHook = (args: ITwitterApiAfterOAuth1RequestTokenHookArgs) => void | Promise<void>
 type TTwitterApiAfterOAuth2RequestTokenHook = (args: ITwitterApiAfterOAuth2RequestTokenHookArgs) => void | Promise<void>

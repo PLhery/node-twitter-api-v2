@@ -1,3 +1,9 @@
+1.11.1
+------
+- Feat: Support error hooks in plugins #226 #227
+- Fix: Bypass Twitter v2 incoherence by converting `start_time` to a valid `since_id` when `until_id` is used in paginators #197 #228
+- Feat: Getter for DM images `.v1.downloadDmImage` to download images hosted on `ton.twitter.com` protected by OAuth 1.0a
+
 1.11.0
 ------
 - Feat: Support plugins (more features coming soon as plugins!)
