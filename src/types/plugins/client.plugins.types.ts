@@ -4,12 +4,16 @@ import type { TwitterResponse } from '../responses.types';
 import type { IComputedHttpRequestArgs } from '../request-maker.mixin.types';
 import type { IOAuth2RequestTokenResult, RequestTokenResult } from '../auth.types';
 import type { PromiseOrType } from '../shared.types';
+import type { ApiResponseError, ApiRequestError, ApiPartialResponseError } from '../errors.types';
 
 export interface ITwitterApiClientPlugin {
   // Classic requests
   onBeforeRequestConfig?: TTwitterApiBeforeRequestConfigHook;
   onBeforeRequest?: TTwitterApiBeforeRequestHook;
   onAfterRequest?: TTwitterApiAfterRequestHook;
+  // Request errors
+  onRequestError?: TTwitterApiRequestErrorHook;
+  onResponseError?: TTwitterApiResponseErrorHook;
   // Stream requests
   onBeforeStreamRequestConfig?: TTwitterApiBeforeStreamRequestConfigHook;
   // Request token
@@ -33,9 +37,20 @@ export interface ITwitterApiAfterRequestHookArgs extends ITwitterApiBeforeReques
   response: TwitterResponse<any>;
 }
 
+export interface ITwitterApiRequestErrorHookArgs extends ITwitterApiBeforeRequestHookArgs {
+  error: ApiRequestError | ApiPartialResponseError;
+}
+
+export interface ITwitterApiResponseErrorHookArgs extends ITwitterApiBeforeRequestHookArgs {
+  error: ApiResponseError;
+}
+
 export type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => PromiseOrType<TwitterResponse<any> | void>;
 export type TTwitterApiBeforeRequestHook = (args: ITwitterApiBeforeRequestHookArgs) => void | Promise<void>;
 export type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => void | Promise<void>;
+
+export type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => void | Promise<void>;
+export type TTwitterApiResponseErrorHook = (args: ITwitterApiResponseErrorHookArgs) => void | Promise<void>;
 
 export type TTwitterApiBeforeStreamRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => void;
 
