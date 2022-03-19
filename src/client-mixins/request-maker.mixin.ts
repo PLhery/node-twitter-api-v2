@@ -1,4 +1,4 @@
-import type { IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterRateLimit, TwitterResponse } from '../types';
+import { ApiPartialResponseError, ApiRequestError, ApiResponseError, IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { ClientRequestArgs } from 'http';
 import { trimUndefinedProperties } from '../helpers';
@@ -53,7 +53,7 @@ export class ClientRequestMaker {
   /** Send a new request and returns a wrapped `Promise<TwitterResponse<T>`. */
   public async send<T = any>(requestParams: IGetHttpRequestArgs) : Promise<TwitterResponse<T>> {
     // Pre-request config hooks
-    if (this.clientSettings.plugins) {
+    if (this.clientSettings.plugins?.length) {
       const possibleResponse = await this.applyPreRequestConfigHooks(requestParams);
 
       if (possibleResponse) {
@@ -75,11 +75,11 @@ export class ClientRequestMaker {
     }
 
     // Pre-request hooks
-    if (this.clientSettings.plugins) {
+    if (this.clientSettings.plugins?.length) {
       await this.applyPreRequestHooks(requestParams, args, options);
     }
 
-    const response = await new RequestHandlerHelper<T>({
+    const request = new RequestHandlerHelper<T>({
       url: args.url,
       options,
       body: args.body,
@@ -90,8 +90,14 @@ export class ClientRequestMaker {
     })
       .makeRequest();
 
+    if (this.clientSettings.plugins?.length) {
+      this.applyResponseErrorHooks(requestParams, args, options, request);
+    }
+
+    const response = await request;
+
     // Post-request hooks
-    if (this.clientSettings.plugins) {
+    if (this.clientSettings.plugins?.length) {
       await this.applyPostRequestHooks(requestParams, args, options, response);
     }
 
@@ -381,9 +387,33 @@ export class ClientRequestMaker {
     await this.applyPluginMethod('onAfterRequest', {
       url: this.getUrlObjectFromUrlString(requestParams.url),
       params: requestParams,
-        computedParams,
-        requestOptions,
-        response,
+      computedParams,
+      requestOptions,
+      response,
+    });
+  }
+
+  protected applyResponseErrorHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, promise: Promise<TwitterResponse<any>>) {
+    promise.catch((error: any) => {
+      if (error instanceof ApiRequestError || error instanceof ApiPartialResponseError) {
+        this.applyPluginMethod('onRequestError', {
+          url: this.getUrlObjectFromUrlString(requestParams.url),
+          params: requestParams,
+          computedParams,
+          requestOptions,
+          error,
+        });
+      } else if (error instanceof ApiResponseError) {
+        this.applyPluginMethod('onResponseError', {
+          url: this.getUrlObjectFromUrlString(requestParams.url),
+          params: requestParams,
+          computedParams,
+          requestOptions,
+          error,
+        });
+      }
+
+      return Promise.reject(error);
     });
   }
 }
