@@ -110,6 +110,10 @@ abstract class TweetTimelineV2Paginator<
   get tweets() {
     return this._realData.data ?? [];
   }
+
+  get meta() {
+    return super.meta as TResult['meta'];
+  }
 }
 
 /** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with pagination_tokens. */
@@ -140,6 +144,10 @@ abstract class TweetPaginableTimelineV2Paginator<
    */
   get tweets() {
     return this._realData.data ?? [];
+  }
+
+  get meta() {
+    return super.meta as TResult['meta'];
   }
 }
 
@@ -188,6 +196,10 @@ abstract class TweetListV2Paginator<
    */
   get tweets() {
     return this._realData.data ?? [];
+  }
+
+  get meta() {
+    return super.meta as TResult['meta'];
   }
 
   protected getItemArray() {

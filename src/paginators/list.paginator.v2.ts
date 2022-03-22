@@ -16,6 +16,10 @@ abstract class ListTimelineV2Paginator<
   get lists() {
     return this._realData.data ?? [];
   }
+
+  get meta() {
+    return super.meta as TResult['meta'];
+  }
 }
 
 export class UserOwnedListsV2Paginator extends ListTimelineV2Paginator<ListTimelineV2Result, GetListTimelineV2Params, { id: string }> {

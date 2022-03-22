@@ -17,6 +17,10 @@ abstract class UserTimelineV2Paginator<
   get users() {
     return this._realData.data ?? [];
   }
+
+  get meta() {
+    return super.meta as TResult['meta'];
+  }
 }
 
 export class UserBlockingUsersV2Paginator extends UserTimelineV2Paginator<UserV2TimelineResult, UserV2TimelineParams, { id: string }> {
