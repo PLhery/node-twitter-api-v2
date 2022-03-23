@@ -1,3 +1,8 @@
+1.11.2
+------
+- Fix: .meta is not correctly typed in paginators #231
+- Fix: Catched promise is rejected without ability of catching it later when a request fails and a plugin is used #229
+
 1.11.1
 ------
 - Feat: Support error hooks in plugins #226 #227
