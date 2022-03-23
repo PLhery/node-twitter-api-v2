@@ -1,7 +1,7 @@
 import { ApiPartialResponseError, ApiRequestError, ApiResponseError, IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { ClientRequestArgs } from 'http';
-import { trimUndefinedProperties } from '../helpers';
+import { applyResponseHooks, trimUndefinedProperties } from '../helpers';
 import OAuth1Helper from './oauth1.helper';
 import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
@@ -394,26 +394,6 @@ export class ClientRequestMaker {
   }
 
   protected applyResponseErrorHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, promise: Promise<TwitterResponse<any>>) {
-    promise.catch((error: any) => {
-      if (error instanceof ApiRequestError || error instanceof ApiPartialResponseError) {
-        this.applyPluginMethod('onRequestError', {
-          url: this.getUrlObjectFromUrlString(requestParams.url),
-          params: requestParams,
-          computedParams,
-          requestOptions,
-          error,
-        });
-      } else if (error instanceof ApiResponseError) {
-        this.applyPluginMethod('onResponseError', {
-          url: this.getUrlObjectFromUrlString(requestParams.url),
-          params: requestParams,
-          computedParams,
-          requestOptions,
-          error,
-        });
-      }
-
-      return Promise.reject(error);
-    });
+    promise.catch(applyResponseHooks.bind(this, requestParams, computedParams, requestOptions));
   }
 }
