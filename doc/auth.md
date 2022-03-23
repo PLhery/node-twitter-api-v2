@@ -259,7 +259,7 @@ const client = new TwitterApi({ clientId: '<YOUR-CLIENT-ID>', clientSecret: '<YO
 // Obtain the {refreshToken} from your DB/store
 const { client: refreshedClient, accessToken, refreshToken: newRefreshToken } = await client.refreshOAuth2Token(refreshToken);
 
-// Store refreshed {accessToken} and {newRefreshToken} to remplace the old ones
+// Store refreshed {accessToken} and {newRefreshToken} to replace the old ones
 
 // Example request
 await refreshedClient.v2.me();
