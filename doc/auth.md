@@ -73,7 +73,7 @@ An example flow will be written here using the **express** framework, feel free 
 
 ```ts
 app.get('/callback', (req, res) => {
-  // Exact tokens from query string
+  // Extract tokens from query string
   const { oauth_token, oauth_verifier } = req.query;
   // Get the saved oauth_token_secret from session
   const { oauth_token_secret } = req.session;
@@ -213,7 +213,7 @@ An example flow will be written here using the **express** framework, feel free 
 
 ```ts
 app.get('/callback', (req, res) => {
-  // Exact state and code from query string
+  // Extract state and code from query string
   const { state, code } = req.query;
   // Get the saved oauth_token_secret from session
   const { codeVerifier, state: sessionState } = req.session;
