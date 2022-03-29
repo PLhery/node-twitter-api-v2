@@ -368,19 +368,26 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       fullMediaData = await this.mediaInfo(fullMediaData.media_id_string);
+      const { processing_info } = fullMediaData;
 
-      if (!fullMediaData.processing_info || fullMediaData.processing_info.state === 'succeeded') {
+      if (!processing_info || processing_info.state === 'succeeded') {
         // Ok, completed!
         return;
       }
 
-      if (fullMediaData.processing_info.state === 'failed') {
+      if (processing_info.state === 'failed') {
+
+        if(processing_info.error){
+          const { name, message } = processing_info.error;
+          throw new Error(`Failed to process media: ${name} - ${message}.`);
+        }
+
         throw new Error('Failed to process the media.');
       }
 
-      if (fullMediaData.processing_info.check_after_secs) {
+      if (processing_info.check_after_secs) {
         // Await for given seconds
-        await sleepSecs(fullMediaData.processing_info.check_after_secs);
+        await sleepSecs(processing_info.check_after_secs);
       }
       else {
         // No info; Await for 5 seconds
