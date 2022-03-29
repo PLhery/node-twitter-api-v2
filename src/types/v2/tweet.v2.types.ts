@@ -23,7 +23,6 @@ export interface Tweetv2SearchParams extends TweetV2TimelineParams {
   previous_token?: string;
   query: string;
   sort_order?: 'recency' | 'relevancy';
-  max_results?: number;
 }
 
 export interface TweetV2PaginableTimelineParams extends TweetV2TimelineParams {
