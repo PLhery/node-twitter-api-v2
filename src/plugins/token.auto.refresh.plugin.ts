@@ -78,7 +78,7 @@ export class TwitterApiAutoTokenRefresher implements ITwitterApiClientPlugin {
 
     // Unset promise within 20 seconds of safety
     // No promise will cause requests to ask a new token if needed
-    this.nextTokenExpireTimeout = setTimeout(() => this.currentRefreshPromise = null, expiresIn - (20 * 1000));
+    this.nextTokenExpireTimeout = setTimeout(() => this.currentRefreshPromise = null, (expiresIn - 20) * 1000);
     this.nextTokenExpireTimeout.unref();
   }
 }
