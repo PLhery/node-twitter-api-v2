@@ -64,6 +64,7 @@ import {
   UserListFollowedV2Paginator,
   TweetV2ListTweetsPaginator,
   TweetBookmarksTimelineV2Paginator,
+  QuotedTweetsTimelineV2Paginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { TweetLikingUsersV2Paginator, TweetRetweetersUsersV2Paginator, UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
@@ -258,6 +259,27 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       instance: this,
       queryParams: options,
       sharedParams: { id: userId },
+    });
+  }
+
+  /**
+   * Returns Quote Tweets for a Tweet specified by the requested Tweet ID.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/quote-tweets/api-reference/get-tweets-id-quote_tweets
+   *
+   * OAuth2 scopes: `users.read` `tweet.read`
+   */
+  public async quotes(tweetId: string, options: Partial<TweetV2PaginableTimelineParams> = {}) {
+    const initialRq = await this.get<TweetV2PaginableTimelineResult>('tweets/:id/quote_tweets', options, {
+      fullResponse: true,
+      params: { id: tweetId },
+    });
+
+    return new QuotedTweetsTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { id: tweetId },
     });
   }
 

@@ -163,6 +163,12 @@ export class TweetSearchAllV2Paginator extends TweetTimelineV2Paginator<Tweetv2S
   protected _endpoint = 'tweets/search/all';
 }
 
+export class QuotedTweetsTimelineV2Paginator
+  extends TweetPaginableTimelineV2Paginator<TweetV2PaginableTimelineResult, TweetV2PaginableTimelineParams, { id: string }>
+{
+  protected _endpoint = 'tweets/:id/quote_tweets';
+}
+
 // -----------------
 // - User timeline -
 // -----------------
