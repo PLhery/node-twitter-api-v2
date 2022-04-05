@@ -1,8 +1,4 @@
 import { TwitterApiV2Settings } from './settings';
-import { ApiPartialResponseError, ApiRequestError, ApiResponseError, IGetHttpRequestArgs } from './types';
-import type { ClientRequestArgs } from 'http';
-import type { ClientRequestMaker } from './client-mixins/request-maker.mixin';
-import type { IComputedHttpRequestArgs } from './types/request-maker.mixin.types';
 
 export interface SharedPromise<T> {
   value: T | undefined;
@@ -48,34 +44,6 @@ export function hasMultipleItems(item: string | string[]) {
     return true;
   }
   return item.toString().includes(',');
-}
-
-/* Response helpers */
-
-export function applyResponseHooks(
-  this: ClientRequestMaker,
-  requestParams: IGetHttpRequestArgs,
-  computedParams: IComputedHttpRequestArgs,
-  requestOptions: Partial<ClientRequestArgs>,
-  error: any,
-) {
-  if (error instanceof ApiRequestError || error instanceof ApiPartialResponseError) {
-    this.applyPluginMethod('onRequestError', {
-      url: this.getUrlObjectFromUrlString(requestParams.url),
-      params: requestParams,
-      computedParams,
-      requestOptions,
-      error,
-    });
-  } else if (error instanceof ApiResponseError) {
-    this.applyPluginMethod('onResponseError', {
-      url: this.getUrlObjectFromUrlString(requestParams.url),
-      params: requestParams,
-      computedParams,
-      requestOptions,
-      error,
-    });
-  }
 }
 
 /* Deprecation warnings */

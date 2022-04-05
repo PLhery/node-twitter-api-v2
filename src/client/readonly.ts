@@ -108,6 +108,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     if (this._requestMaker.hasPlugins()) {
       this._requestMaker.applyPluginMethod('onOAuth1RequestToken', {
+        client: this._requestMaker,
         url,
         oauthResult,
       });
@@ -251,6 +252,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     if (this._requestMaker.hasPlugins()) {
       this._requestMaker.applyPluginMethod('onOAuth2RequestToken', {
+        client: this._requestMaker,
         result,
         redirectUri,
       });

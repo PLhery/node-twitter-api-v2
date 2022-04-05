@@ -1,7 +1,8 @@
-import { ApiPartialResponseError, ApiRequestError, ApiResponseError, IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterRateLimit, TwitterResponse } from '../types';
+import { IClientSettings, ITwitterApiClientPlugin, TClientTokens, TwitterApiPluginResponseOverride, TwitterRateLimit, TwitterResponse } from '../types';
 import TweetStream from '../stream/TweetStream';
 import type { ClientRequestArgs } from 'http';
-import { applyResponseHooks, trimUndefinedProperties } from '../helpers';
+import { applyResponseHooks, hasRequestErrorPlugins } from '../plugins/helpers';
+import { trimUndefinedProperties } from '../helpers';
 import OAuth1Helper from './oauth1.helper';
 import RequestHandlerHelper from './request-handler.helper';
 import RequestParamHelpers from './request-param.helper';
@@ -79,7 +80,7 @@ export class ClientRequestMaker {
       await this.applyPreRequestHooks(requestParams, args, options);
     }
 
-    const request = new RequestHandlerHelper<T>({
+    let request = new RequestHandlerHelper<T>({
       url: args.url,
       options,
       body: args.body,
@@ -90,8 +91,8 @@ export class ClientRequestMaker {
     })
       .makeRequest();
 
-    if (this.clientSettings.plugins?.length) {
-      this.applyResponseErrorHooks(requestParams, args, options, request);
+    if (hasRequestErrorPlugins(this)) {
+      request = this.applyResponseErrorHooks(requestParams, args, options, request);
     }
 
     const response = await request;
@@ -241,7 +242,11 @@ export class ClientRequestMaker {
 
   public async applyPluginMethod<K extends keyof ITwitterApiClientPlugin>(method: K, args: Parameters<Required<ITwitterApiClientPlugin>[K]>[0]) {
     for (const plugin of this.getPlugins()) {
-      await plugin[method]?.(args as any);
+      const value = await plugin[method]?.(args as any);
+
+      if (value && value instanceof TwitterApiPluginResponseOverride) {
+        return value;
+      }
     }
   }
 
@@ -353,6 +358,7 @@ export class ClientRequestMaker {
 
     for (const plugin of this.getPlugins()) {
       const result = await plugin.onBeforeRequestConfig?.({
+        client: this,
         url,
         params: requestParams,
       });
@@ -368,6 +374,7 @@ export class ClientRequestMaker {
 
     for (const plugin of this.getPlugins()) {
       plugin.onBeforeStreamRequestConfig?.({
+        client: this,
         url,
         params: requestParams,
       });
@@ -376,6 +383,7 @@ export class ClientRequestMaker {
 
   protected async applyPreRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>) {
     await this.applyPluginMethod('onBeforeRequest', {
+      client: this,
       url: this.getUrlObjectFromUrlString(requestParams.url),
       params: requestParams,
       computedParams,
@@ -385,6 +393,7 @@ export class ClientRequestMaker {
 
   protected async applyPostRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, response: TwitterResponse<any>) {
     await this.applyPluginMethod('onAfterRequest', {
+      client: this,
       url: this.getUrlObjectFromUrlString(requestParams.url),
       params: requestParams,
       computedParams,
@@ -394,6 +403,6 @@ export class ClientRequestMaker {
   }
 
   protected applyResponseErrorHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, promise: Promise<TwitterResponse<any>>) {
-    promise.catch(applyResponseHooks.bind(this, requestParams, computedParams, requestOptions));
+    return promise.catch(applyResponseHooks.bind(this, requestParams, computedParams, requestOptions)) as Promise<TwitterResponse<any>>;
   }
 }
