@@ -96,8 +96,13 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * The recent search endpoint returns Tweets from the last seven days that match a search query.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
    */
-  public async search(query: string, options: Partial<Tweetv2SearchParams> = {}) {
-    const queryParams = { ...options, query };
+  public async search(options: Partial<Tweetv2SearchParams>): Promise<TweetSearchRecentV2Paginator>;
+  public async search(query: string, options?: Partial<Tweetv2SearchParams>): Promise<TweetSearchRecentV2Paginator>;
+  public async search(queryOrOptions: string | Partial<Tweetv2SearchParams>, options: Partial<Tweetv2SearchParams> = {}) {
+    const query = typeof queryOrOptions === 'string' ? queryOrOptions : undefined;
+    const realOptions = typeof queryOrOptions === 'object' && queryOrOptions !== null ? queryOrOptions : options;
+
+    const queryParams = { ...realOptions, query };
     const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
 
     return new TweetSearchRecentV2Paginator({
