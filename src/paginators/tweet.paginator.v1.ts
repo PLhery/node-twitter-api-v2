@@ -14,12 +14,16 @@ abstract class TweetTimelineV1Paginator<
   TParams extends TweetV1TimelineParams,
   TShared = any,
 > extends TwitterPaginator<TResult, TParams, TweetV1, TShared> {
+  protected hasFinishedFetch = false;
+
   protected refreshInstanceFromResult(response: TwitterResponse<TResult>, isNextPage: true) {
     const result = response.data;
     this._rateLimit = response.rateLimit!;
 
     if (isNextPage) {
       this._realData.push(...result);
+      // HINT: This is an approximation, as "end" of pagination cannot be safely determined without cursors.
+      this.hasFinishedFetch = result.length === 0;
     }
   }
 
@@ -53,6 +57,10 @@ abstract class TweetTimelineV1Paginator<
    */
   get tweets() {
     return this._realData;
+  }
+
+  get done() {
+    return super.done || this.hasFinishedFetch;
   }
 }
 
