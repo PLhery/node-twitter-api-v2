@@ -21,6 +21,12 @@ export class TwitterApiAutoTokenRefresher implements ITwitterApiClientPlugin {
     this.currentRefreshToken = options.refreshToken;
   }
 
+  public async onBeforeRequestConfig() {
+    if (this.currentRefreshPromise) {
+      await this.currentRefreshPromise;
+    }
+  }
+
   public async onResponseError(args: ITwitterApiResponseErrorHookArgs) {
     const error = args.error;
 
@@ -36,9 +42,6 @@ export class TwitterApiAutoTokenRefresher implements ITwitterApiClientPlugin {
 
       // Will throw if request fails
       const response = await this.errorRecusivityPreventer.run({ active: true }, () => args.client.send(args.params));
-
-      // Remove promise ref, in case of token being invalidated later
-      this.currentRefreshPromise = null;
 
       return new TwitterApiPluginResponseOverride(response);
     }
