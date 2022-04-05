@@ -189,7 +189,7 @@ export interface MediaStatusV1Result {
       code: number;
       name: string;
       message: string;
-    }
+    };
   };
 }
 
