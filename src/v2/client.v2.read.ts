@@ -51,6 +51,7 @@ import {
   TweetRetweetedOrLikedByV2ParamsWithoutPaginator,
   SpaceV2BuyersParams,
   SpaceV2BuyersResult,
+  TweetV2PaginableTimelineResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -62,6 +63,7 @@ import {
   UserListMembershipsV2Paginator,
   UserListFollowedV2Paginator,
   TweetV2ListTweetsPaginator,
+  TweetBookmarksTimelineV2Paginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { TweetLikingUsersV2Paginator, TweetRetweetersUsersV2Paginator, UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
@@ -256,6 +258,30 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       instance: this,
       queryParams: options,
       sharedParams: { id: userId },
+    });
+  }
+
+  /* Bookmarks */
+
+  /**
+   * Allows you to get information about a authenticated user’s 800 most recent bookmarked Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/get-users-id-bookmarks
+   *
+   * OAuth2 scopes: `users.read` `tweet.read` `bookmark.read`
+   */
+  public async bookmarks(options: Partial<TweetV2PaginableTimelineParams> = {}) {
+    const user = await this.getCurrentUserV2Object();
+    const initialRq = await this.get<TweetV2PaginableTimelineResult>('users/:id/bookmarks', options, {
+      fullResponse: true,
+      params: { id: user.data.id },
+    });
+
+    return new TweetBookmarksTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { id: user.data.id },
     });
   }
 

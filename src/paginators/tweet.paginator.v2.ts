@@ -5,7 +5,7 @@ import {
   TweetV2,
   Tweetv2TimelineResult,
   TweetV2TimelineParams,
-  TweetV2UserTimelineResult,
+  TweetV2PaginableTimelineResult,
   TweetV2UserTimelineParams,
   Tweetv2ListResult,
   TweetV2PaginableListParams,
@@ -118,7 +118,7 @@ abstract class TweetTimelineV2Paginator<
 
 /** A generic PreviousableTwitterPaginator able to consume TweetV2 timelines with pagination_tokens. */
 abstract class TweetPaginableTimelineV2Paginator<
-  TResult extends TweetV2UserTimelineResult,
+  TResult extends TweetV2PaginableTimelineResult,
   TParams extends TweetV2PaginableTimelineParams,
   TShared = any,
 > extends TimelineV2Paginator<TResult, TParams, TweetV2, TShared> {
@@ -170,15 +170,25 @@ export class TweetSearchAllV2Paginator extends TweetTimelineV2Paginator<Tweetv2S
 type TUserTimelinePaginatorShared = { id: string };
 
 export class TweetUserTimelineV2Paginator
-  extends TweetPaginableTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
+  extends TweetPaginableTimelineV2Paginator<TweetV2PaginableTimelineResult, TweetV2UserTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/tweets';
 }
 
 export class TweetUserMentionTimelineV2Paginator
-  extends TweetPaginableTimelineV2Paginator<TweetV2UserTimelineResult, TweetV2PaginableTimelineParams, TUserTimelinePaginatorShared>
+  extends TweetPaginableTimelineV2Paginator<TweetV2PaginableTimelineResult, TweetV2PaginableTimelineParams, TUserTimelinePaginatorShared>
 {
   protected _endpoint = 'users/:id/mentions';
+}
+
+// -------------
+// - Bookmarks -
+// -------------
+
+export class TweetBookmarksTimelineV2Paginator
+  extends TweetPaginableTimelineV2Paginator<TweetV2PaginableTimelineResult, TweetV2PaginableTimelineParams, { id: string }>
+{
+  protected _endpoint = 'users/:id/bookmarks';
 }
 
 // ---------------------------------------------------------------------------------
