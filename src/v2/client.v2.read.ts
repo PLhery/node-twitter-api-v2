@@ -49,6 +49,8 @@ import {
   TweetRetweetedOrLikedByV2Params,
   TweetRetweetedOrLikedByV2ParamsWithPaginator,
   TweetRetweetedOrLikedByV2ParamsWithoutPaginator,
+  SpaceV2BuyersParams,
+  SpaceV2BuyersResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -558,6 +560,20 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public searchSpaces(options: SpaceV2SearchParams) {
     return this.get<SpaceV2LookupResult>('spaces/search', options as Partial<SpaceV2SearchParams>);
+  }
+
+   /**
+   * Returns a list of user who purchased a ticket to the requested Space.
+   * You must authenticate the request using the Access Token of the creator of the requested Space.
+   *
+   * **OAuth 2.0 Access Token required**
+   *
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-buyers
+   *
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
+   */
+  public spaceBuyers(spaceId: string, options: Partial<SpaceV2BuyersParams> = {}) {
+    return this.get<SpaceV2BuyersResult>('spaces/:id/buyers', options, { params: { id: spaceId } });
   }
 
   /* Streaming API */

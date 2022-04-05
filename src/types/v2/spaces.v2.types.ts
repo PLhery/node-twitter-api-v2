@@ -1,7 +1,7 @@
 import type { TypeOrArrayOf } from '../shared.types';
 import type { DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
 import type { TTweetv2UserField } from './tweet.v2.types';
-import type { UserV2 } from './user.v2.types';
+import type { UsersV2Params, UsersV2Result, UserV2 } from './user.v2.types';
 
 export interface SpaceV2FieldsParams {
   expansions: TypeOrArrayOf<TSpaceV2Expansion> | string;
@@ -27,12 +27,15 @@ export interface SpaceV2SearchParams extends Partial<SpaceV2FieldsParams> {
   max_results?: number;
 }
 
+export interface SpaceV2BuyersParams extends Partial<UsersV2Params> {}
+
 // - Responses -
 
 type SpaceV2Includes = { users?: UserV2[] };
 
 export type SpaceV2SingleResult = DataV2<SpaceV2>;
 export type SpaceV2LookupResult = DataMetaAndIncludeV2<SpaceV2[], { result_count: number }, SpaceV2Includes>;
+export type SpaceV2BuyersResult = UsersV2Result;
 
 // - Entities -
 
