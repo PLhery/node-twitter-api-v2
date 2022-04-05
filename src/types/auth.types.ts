@@ -66,3 +66,11 @@ export interface LoginResult {
   accessSecret: string;
   client: TwitterApi;
 }
+
+export interface IParsedOAuth2TokenResult {
+  client: TwitterApi;
+  expiresIn: number;
+  accessToken: string;
+  scope: TOAuth2Scope[];
+  refreshToken?: string;
+}
