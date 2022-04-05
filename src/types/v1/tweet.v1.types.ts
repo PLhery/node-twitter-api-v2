@@ -185,6 +185,11 @@ export interface MediaStatusV1Result {
     state: 'pending' | 'failed' | 'succeeded' | 'in_progress';
     check_after_secs?: number;
     progress_percent?: number;
+    error?: {
+      code: number;
+      name: string;
+      message: string;
+    };
   };
 }
 
