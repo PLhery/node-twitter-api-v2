@@ -26,8 +26,10 @@ export async function applyResponseHooks(
   requestOptions: Partial<ClientRequestArgs>,
   error: any,
 ) {
+  let override: TwitterApiPluginResponseOverride | undefined;
+
   if (error instanceof ApiRequestError || error instanceof ApiPartialResponseError) {
-    await this.applyPluginMethod('onRequestError', {
+    override = await this.applyPluginMethod('onRequestError', {
       client: this,
       url: this.getUrlObjectFromUrlString(requestParams.url),
       params: requestParams,
@@ -36,7 +38,7 @@ export async function applyResponseHooks(
       error,
     });
   } else if (error instanceof ApiResponseError) {
-    const override = await this.applyPluginMethod('onResponseError', {
+    override = await this.applyPluginMethod('onResponseError', {
       client: this,
       url: this.getUrlObjectFromUrlString(requestParams.url),
       params: requestParams,
@@ -44,10 +46,10 @@ export async function applyResponseHooks(
       requestOptions,
       error,
     });
+  }
 
-    if (override && override instanceof TwitterApiPluginResponseOverride) {
-      return override.value;
-    }
+  if (override && override instanceof TwitterApiPluginResponseOverride) {
+    return override.value;
   }
 
   return Promise.reject(error);

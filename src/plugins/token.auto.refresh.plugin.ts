@@ -1,7 +1,14 @@
 import { TwitterApi } from '../index';
-import { AsyncLocalStorage } from 'async_hooks';
-import type { ITwitterApiClientPlugin, ITwitterApiResponseErrorHookArgs, TwitterApiOAuth2Init, IParsedOAuth2TokenResult } from '../index';
+import type { ITwitterApiClientPlugin, ITwitterApiResponseErrorHookArgs, ITwitterApiBeforeRequestConfigHookArgs, TwitterApiOAuth2Init, IParsedOAuth2TokenResult } from '../index';
 import { TwitterApiPluginResponseOverride } from '../types';
+
+const triedSymbol = Symbol();
+
+declare module '../types' {
+  interface IGetHttpRequestArgs {
+    [triedSymbol]?: boolean;
+  }
+}
 
 export interface IAutoTokenRefresherArgs {
   refreshToken: string;
@@ -12,36 +19,42 @@ export interface IAutoTokenRefresherArgs {
 export class TwitterApiAutoTokenRefresher implements ITwitterApiClientPlugin {
   protected credentials: TwitterApiOAuth2Init;
   protected currentRefreshToken: string;
+  protected tokenExpired = false;
   protected nextTokenExpireTimeout: NodeJS.Timeout | null = null;
   protected currentRefreshPromise: Promise<IParsedOAuth2TokenResult> | null = null;
-  protected errorRecusivityPreventer: AsyncLocalStorage<{ active: true }> = new AsyncLocalStorage();
 
   public constructor(protected options: IAutoTokenRefresherArgs) {
     this.credentials = { ...options.credentials };
     this.currentRefreshToken = options.refreshToken;
   }
 
-  public async onBeforeRequestConfig() {
+  public async onBeforeRequestConfig(args: ITwitterApiBeforeRequestConfigHookArgs) {
     if (this.currentRefreshPromise) {
       await this.currentRefreshPromise;
+    } else if (this.tokenExpired) {
+      // If we know that token is expired, don't let request fail,
+      // just that right now the token update!
+      const token = await this.getRefreshTokenPromise();
+      // Set access token manually in client [THIS MUTATE THE INSTANCE]
+      args.client.bearerToken = token.accessToken;
     }
   }
 
   public async onResponseError(args: ITwitterApiResponseErrorHookArgs) {
     const error = args.error;
 
-    const possibleRecursiveCall = this.errorRecusivityPreventer.getStore();
-    const isRecursiveCall = possibleRecursiveCall?.active === true;
-
-    if (error.code === 401 && !isRecursiveCall) {
+    // If error is unauthorized and recursive symbol does not exists
+    if (error.code === 401 && !args.params[triedSymbol]) {
       // [THIS MEANS ORIGINAL ERROR WILL BE SKIPPED IF REFRESH TOKEN FAILS]
       // Share every possibile concurrent refresh token call
       const token = await this.getRefreshTokenPromise();
       // Set access token manually in client [THIS MUTATE THE INSTANCE]
       args.client.bearerToken = token.accessToken;
 
+      // Prevent recursivity
+      args.params[triedSymbol] = true;
       // Will throw if request fails
-      const response = await this.errorRecusivityPreventer.run({ active: true }, () => args.client.send(args.params));
+      const response = await args.client.send(args.params);
 
       return new TwitterApiPluginResponseOverride(response);
     }
@@ -65,6 +78,7 @@ export class TwitterApiAutoTokenRefresher implements ITwitterApiClientPlugin {
 
     // refreshToken is necesserly defined, as we just have refreshed a token
     this.currentRefreshToken = token.refreshToken!;
+    this.tokenExpired = false;
     await this.options.onTokenUpdate?.(token);
 
     return token;
@@ -78,7 +92,10 @@ export class TwitterApiAutoTokenRefresher implements ITwitterApiClientPlugin {
 
     // Unset promise within 20 seconds of safety
     // No promise will cause requests to ask a new token if needed
-    this.nextTokenExpireTimeout = setTimeout(() => this.currentRefreshPromise = null, (expiresIn - 20) * 1000);
+    this.nextTokenExpireTimeout = setTimeout(() => {
+      this.currentRefreshPromise = null;
+      this.tokenExpired = true;
+    }, (expiresIn - 20) * 1000);
     this.nextTokenExpireTimeout.unref();
   }
 }

@@ -55,7 +55,7 @@ export type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequest
 export type TTwitterApiBeforeRequestHook = (args: ITwitterApiBeforeRequestHookArgs) => void | Promise<void>;
 export type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => void | Promise<void>;
 
-export type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => void | Promise<void>;
+export type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>;
 export type TTwitterApiResponseErrorHook = (args: ITwitterApiResponseErrorHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>;
 
 export type TTwitterApiBeforeStreamRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => void;
