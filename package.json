@@ -39,18 +39,22 @@
   "devDependencies": {
     "@types/chai": "^4.2.16",
     "@types/mocha": "^8.2.2",
-    "@types/node": "^14.14.37",
+    "@types/node": "^14.18.12",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "chai": "^4.3.4",
     "dotenv": "^8.2.0",
     "eslint": "^7.31.0",
     "mocha": "^8.3.2",
+    "nock": "^13.2.4",
     "ts-node": "^9.1.1",
     "typedoc": "^0.20.35",
     "typescript": "^4.2.4"
   },
   "bugs": {
     "url": "https://github.com/plhery/node-twitter-api/issues"
+  },
+  "dependencies": {
+    "limiter": "^2.1.0"
   }
 }
