@@ -109,7 +109,8 @@ export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], {
 }, ApiV2Includes>;
 
 export type Tweetv2SearchResult = Tweetv2TimelineResult;
-export type TweetV2UserTimelineResult = Tweetv2TimelineResult & MetaV2<{ previous_token?: string }>;
+export type TweetV2PaginableTimelineResult = Tweetv2TimelineResult & MetaV2<{ previous_token?: string }>;;
+export type TweetV2UserTimelineResult = TweetV2PaginableTimelineResult;
 
 export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
 export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;
@@ -142,6 +143,10 @@ export type TweetV2LikedByResult = DataMetaAndIncludeV2<UserV2[], {
 export type TweetV2RetweetResult = DataV2<{ retweeted: boolean }>;
 
 export type TweetV2RetweetedByResult = TweetV2LikedByResult;
+
+// -- Bookmarks
+
+export type TweetV2BookmarkResult = DataV2<{ bookmarked: boolean }>;
 
 /// Tweets
 

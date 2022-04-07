@@ -49,6 +49,9 @@ import {
   TweetRetweetedOrLikedByV2Params,
   TweetRetweetedOrLikedByV2ParamsWithPaginator,
   TweetRetweetedOrLikedByV2ParamsWithoutPaginator,
+  SpaceV2BuyersParams,
+  SpaceV2BuyersResult,
+  TweetV2PaginableTimelineResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -60,6 +63,8 @@ import {
   UserListMembershipsV2Paginator,
   UserListFollowedV2Paginator,
   TweetV2ListTweetsPaginator,
+  TweetBookmarksTimelineV2Paginator,
+  QuotedTweetsTimelineV2Paginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { TweetLikingUsersV2Paginator, TweetRetweetersUsersV2Paginator, UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
@@ -91,8 +96,13 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * The recent search endpoint returns Tweets from the last seven days that match a search query.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
    */
-  public async search(query: string, options: Partial<Tweetv2SearchParams> = {}) {
-    const queryParams = { ...options, query };
+  public async search(options: Partial<Tweetv2SearchParams>): Promise<TweetSearchRecentV2Paginator>;
+  public async search(query: string, options?: Partial<Tweetv2SearchParams>): Promise<TweetSearchRecentV2Paginator>;
+  public async search(queryOrOptions: string | Partial<Tweetv2SearchParams>, options: Partial<Tweetv2SearchParams> = {}) {
+    const query = typeof queryOrOptions === 'string' ? queryOrOptions : undefined;
+    const realOptions = typeof queryOrOptions === 'object' && queryOrOptions !== null ? queryOrOptions : options;
+
+    const queryParams = { ...realOptions, query };
     const initialRq = await this.get<Tweetv2SearchResult>('tweets/search/recent', queryParams, { fullResponse: true });
 
     return new TweetSearchRecentV2Paginator({
@@ -254,6 +264,51 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       instance: this,
       queryParams: options,
       sharedParams: { id: userId },
+    });
+  }
+
+  /**
+   * Returns Quote Tweets for a Tweet specified by the requested Tweet ID.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/quote-tweets/api-reference/get-tweets-id-quote_tweets
+   *
+   * OAuth2 scopes: `users.read` `tweet.read`
+   */
+  public async quotes(tweetId: string, options: Partial<TweetV2PaginableTimelineParams> = {}) {
+    const initialRq = await this.get<TweetV2PaginableTimelineResult>('tweets/:id/quote_tweets', options, {
+      fullResponse: true,
+      params: { id: tweetId },
+    });
+
+    return new QuotedTweetsTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { id: tweetId },
+    });
+  }
+
+  /* Bookmarks */
+
+  /**
+   * Allows you to get information about a authenticated user’s 800 most recent bookmarked Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/get-users-id-bookmarks
+   *
+   * OAuth2 scopes: `users.read` `tweet.read` `bookmark.read`
+   */
+  public async bookmarks(options: Partial<TweetV2PaginableTimelineParams> = {}) {
+    const user = await this.getCurrentUserV2Object();
+    const initialRq = await this.get<TweetV2PaginableTimelineResult>('users/:id/bookmarks', options, {
+      fullResponse: true,
+      params: { id: user.data.id },
+    });
+
+    return new TweetBookmarksTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { id: user.data.id },
     });
   }
 
@@ -558,6 +613,20 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    */
   public searchSpaces(options: SpaceV2SearchParams) {
     return this.get<SpaceV2LookupResult>('spaces/search', options as Partial<SpaceV2SearchParams>);
+  }
+
+   /**
+   * Returns a list of user who purchased a ticket to the requested Space.
+   * You must authenticate the request using the Access Token of the creator of the requested Space.
+   *
+   * **OAuth 2.0 Access Token required**
+   *
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-buyers
+   *
+   * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
+   */
+  public spaceBuyers(spaceId: string, options: Partial<SpaceV2BuyersParams> = {}) {
+    return this.get<SpaceV2BuyersResult>('spaces/:id/buyers', options, { params: { id: spaceId } });
   }
 
   /* Streaming API */

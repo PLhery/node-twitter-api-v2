@@ -19,6 +19,7 @@ import type {
   UserV2FollowResult,
   UserV2MuteResult,
   UserV2UnfollowResult,
+  TweetV2BookmarkResult,
 } from '../types';
 import TwitterApiv2LabsReadWrite from '../v2-labs/client.v2.labs.write';
 
@@ -165,6 +166,30 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
         id: tweetId,
       },
     });
+  }
+
+  /* Bookmarks */
+
+  /**
+   * Causes the user ID of an authenticated user identified in the path parameter to Bookmark the target Tweet provided in the request body.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/post-users-id-bookmarks
+   *
+   * OAuth2 scopes: `users.read` `tweet.read` `bookmark.write`
+   */
+  public async bookmark(tweetId: string) {
+    const user = await this.getCurrentUserV2Object();
+    return this.post<TweetV2BookmarkResult>('users/:id/bookmarks', { tweet_id: tweetId }, { params: { id: user.data.id } });
+  }
+
+  /**
+   * Allows a user or authenticated user ID to remove a Bookmark of a Tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/delete-users-id-bookmarks-tweet_id
+   *
+   * OAuth2 scopes: `users.read` `tweet.read` `bookmark.write`
+   */
+  public async deleteBookmark(tweetId: string) {
+    const user = await this.getCurrentUserV2Object();
+    return this.delete<TweetV2BookmarkResult>('users/:id/bookmarks/:tweet_id', undefined, { params: { id: user.data.id, tweet_id: tweetId } });
   }
 
   /* Users */
