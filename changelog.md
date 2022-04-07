@@ -1,3 +1,12 @@
+1.11.3
+------
+- Feat: New spaces features: `topic_ids` and `ended_at` on space object, `/spaces/:id/buyers` endpoint #237
+- Feat: New bookmarks API #237
+- Feat: New Quoted tweets endpoint #237
+- Feat: Allow v2.search to be used without query parameter #252
+- Fix: Usertimeline v1 endpoint .done property value is false #238
+- Feat: `sort_order` parameter #246 (@nolbuzanis)
+
 1.11.2
 ------
 - Fix: .meta is not correctly typed in paginators #231
