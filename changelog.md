@@ -6,6 +6,7 @@
 - Feat: Allow v2.search to be used without query parameter #252
 - Fix: Usertimeline v1 endpoint .done property value is false #238
 - Feat: `sort_order` parameter #246 (@nolbuzanis)
+- Fix: Better error message for failed media uploads #244 (@nolbuzanis)
 
 1.11.2
 ------
