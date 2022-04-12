@@ -61,6 +61,15 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   /**
+   * Quote an existing tweet.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
+   */
+  public async quote(status: string, quotingStatusId: string, payload: Partial<SendTweetV1Params> = {}) {
+    const url = 'https://twitter.com/i/statuses/' + quotingStatusId;
+    return this.tweet(status, { ...payload, attachment_url: url });
+  }
+
+  /**
    * Post a series of tweets.
    * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */

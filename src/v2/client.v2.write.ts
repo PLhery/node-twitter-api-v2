@@ -131,6 +131,14 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   }
 
   /**
+   * Quote an existing Tweet on behalf of an authenticated user.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   */
+  public quote(status: string, quotedTweetId: string, payload: Partial<SendTweetV2Params> = {}) {
+    return this.tweet(status, { ...payload, quote_tweet_id: quotedTweetId });
+  }
+
+  /**
    * Post a series of tweets.
    * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
    */
