@@ -4,7 +4,7 @@ import {
   AccessOAuth2TokenArgs,
   AccessOAuth2TokenResult,
   AccessTokenResult,
-  BearerTokenResult, BuildOAuth2RequestLinkArgs, IOAuth2RequestTokenResult, LoginResult,
+  BearerTokenResult, BuildOAuth2RequestLinkArgs, IOAuth2RequestTokenResult, IParsedOAuth2TokenResult, LoginResult,
   RequestTokenArgs,
   RequestTokenResult,
   TOAuth2Scope,
@@ -108,6 +108,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     if (this._requestMaker.hasPlugins()) {
       this._requestMaker.applyPluginMethod('onOAuth1RequestToken', {
+        client: this._requestMaker,
         url,
         oauthResult,
       });
@@ -251,6 +252,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     if (this._requestMaker.hasPlugins()) {
       this._requestMaker.applyPluginMethod('onOAuth2RequestToken', {
+        client: this._requestMaker,
         result,
         redirectUri,
       });
@@ -353,7 +355,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     });
   }
 
-  protected parseOAuth2AccessTokenResult(result: AccessOAuth2TokenResult) {
+  protected parseOAuth2AccessTokenResult(result: AccessOAuth2TokenResult): IParsedOAuth2TokenResult {
     const client = new TwitterApi(result.access_token, this._requestMaker.clientSettings);
     const scope = result.scope.split(' ').filter(e => e) as TOAuth2Scope[];
 
