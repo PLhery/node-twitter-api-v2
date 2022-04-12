@@ -99,7 +99,11 @@ export class ClientRequestMaker {
 
     // Post-request hooks
     if (this.clientSettings.plugins?.length) {
-      await this.applyPostRequestHooks(requestParams, args, options, response);
+      const responseOverride = await this.applyPostRequestHooks(requestParams, args, options, response);
+
+      if (responseOverride) {
+        return responseOverride.value as TwitterResponse<T>;
+      }
     }
 
     return response;
@@ -241,13 +245,17 @@ export class ClientRequestMaker {
   }
 
   public async applyPluginMethod<K extends keyof ITwitterApiClientPlugin>(method: K, args: Parameters<Required<ITwitterApiClientPlugin>[K]>[0]) {
+    let returnValue: TwitterApiPluginResponseOverride | undefined;
+
     for (const plugin of this.getPlugins()) {
       const value = await plugin[method]?.(args as any);
 
       if (value && value instanceof TwitterApiPluginResponseOverride) {
-        return value;
+        returnValue = value;
       }
     }
+
+    return returnValue;
   }
 
 
@@ -392,7 +400,7 @@ export class ClientRequestMaker {
   }
 
   protected async applyPostRequestHooks(requestParams: IGetHttpRequestArgs, computedParams: IComputedHttpRequestArgs, requestOptions: Partial<ClientRequestArgs>, response: TwitterResponse<any>) {
-    await this.applyPluginMethod('onAfterRequest', {
+    return await this.applyPluginMethod('onAfterRequest', {
       client: this,
       url: this.getUrlObjectFromUrlString(requestParams.url),
       params: requestParams,

@@ -50,9 +50,9 @@ Method types:
 ```ts
 type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => PromiseOrType<TwitterResponse<any> | void>
 type TTwitterApiBeforeRequestHook = (args: ITwitterApiBeforeRequestHookArgs) => void | Promise<void>
-type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => void | Promise<void>
-type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => void | Promise<void>
-type TTwitterApiResponseErrorHook = (args: ITwitterApiResponseErrorHookArgs) => void | Promise<void>
+type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>
+type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>
+type TTwitterApiResponseErrorHook = (args: ITwitterApiResponseErrorHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>
 type TTwitterApiBeforeStreamRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => void
 type TTwitterApiAfterOAuth1RequestTokenHook = (args: ITwitterApiAfterOAuth1RequestTokenHookArgs) => void | Promise<void>
 type TTwitterApiAfterOAuth2RequestTokenHook = (args: ITwitterApiAfterOAuth2RequestTokenHookArgs) => void | Promise<void>

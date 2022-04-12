@@ -53,7 +53,7 @@ export interface ITwitterApiResponseErrorHookArgs extends ITwitterApiBeforeReque
 
 export type TTwitterApiBeforeRequestConfigHook = (args: ITwitterApiBeforeRequestConfigHookArgs) => PromiseOrType<TwitterResponse<any> | void>;
 export type TTwitterApiBeforeRequestHook = (args: ITwitterApiBeforeRequestHookArgs) => void | Promise<void>;
-export type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => void | Promise<void>;
+export type TTwitterApiAfterRequestHook = (args: ITwitterApiAfterRequestHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>;
 
 export type TTwitterApiRequestErrorHook = (args: ITwitterApiRequestErrorHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>;
 export type TTwitterApiResponseErrorHook = (args: ITwitterApiResponseErrorHookArgs) => PromiseOrType<TwitterApiPluginResponseOverride | void>;
