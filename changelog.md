@@ -1,3 +1,8 @@
+1.12.0
+------
+- Feat: Update plugin API to support response overloading on error #248
+- Feat: `.quote` method to create a retweet with comment (quoted tweet) in `v1` and `v2` #260 (@jonah-saltzman)
+
 1.11.3
 ------
 - Feat: New spaces features: `topic_ids` and `ended_at` on space object, `/spaces/:id/buyers` endpoint #237

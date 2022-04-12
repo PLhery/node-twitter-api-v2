@@ -187,8 +187,8 @@ If you've declared app as "public" app, you only need your **client ID**, if you
 const client = new TwitterApi({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
 ```
 
-To create the authentication link, use `client.generateAuthLink()` method.
-**If you choose to redirect users to your website after authentication, you need to provide a callback URL here.**
+To create the authentication link, use `client.generateOAuth2AuthLink()` method.
+**You need to provide a callback URL here.**
 ```ts
 // Don't forget to specify 'offline.access' in scope list if you want to refresh your token later
 const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', ...] });
@@ -215,7 +215,7 @@ An example flow will be written here using the **express** framework, feel free 
 app.get('/callback', (req, res) => {
   // Extract state and code from query string
   const { state, code } = req.query;
-  // Get the saved oauth_token_secret from session
+  // Get the saved codeVerifier from session
   const { codeVerifier, state: sessionState } = req.session;
 
   if (!codeVerifier || !state || !sessionState || !code) {
@@ -229,7 +229,7 @@ app.get('/callback', (req, res) => {
   const client = new TwitterApi({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET });
 
   client.loginWithOAuth2({ code, codeVerifier, redirectUri: CALLBACK_URL })
-    .then(async({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
+    .then(async ({ client: loggedClient, accessToken, refreshToken, expiresIn }) => {
       // {loggedClient} is an authenticated client in behalf of some user
       // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
       // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)

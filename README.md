@@ -15,7 +15,7 @@ Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.b
 
 ✅ **Ready for v2 and good ol' v1.1 Twitter API**
 
-✅ **Light: No dependencies, 20kb minified+gzipped**
+✅ **Light: No dependencies, 23kb minified+gzipped**
 
 ✅ **Bundled types for request parameters and responses**
 
@@ -67,17 +67,15 @@ A small feature comparaison with other libs:
 
 | Package        | API version(s) | Response typings | Media helpers | Pagination | Subdeps |  Size (gzip)  | Install size  |
 | -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|  -------------:|
-| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~20 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
+| twitter-api-v2 | v1.1, v2, labs | ✅               | ✅             | ✅         | 0               | ~23 kB      | [![twitter-api-v2 install size badge](https://badgen.net/packagephobia/install/twitter-api-v2)](https://packagephobia.com/result?p=twitter-api-v2) |
 | twit           | v1.1           | ❌               | ✅             | ❌         | 51              | ~214.5 kB     | [![twit install size badge](https://badgen.net/packagephobia/install/twit)](https://packagephobia.com/result?p=twit) |
 | twitter        | v1.1           | ❌               | ❌             | ❌         | 50              | ~182.1 kB     | [![twitter install size badge](https://badgen.net/packagephobia/install/twitter)](https://packagephobia.com/result?p=twitter) |
-| twitter-lite   | v1.1, v2       | ❌               | ❌*            | ❌         | 4               | ~5.3 kB       | [![twitter-lite install size badge](https://badgen.net/packagephobia/install/twitter-lite)](https://packagephobia.com/result?p=twitter-lite) |
+| twitter-lite   | v1.1, v2       | ❌               | ❌             | ❌         | 4               | ~5.3 kB       | [![twitter-lite install size badge](https://badgen.net/packagephobia/install/twitter-lite)](https://packagephobia.com/result?p=twitter-lite) |
 | twitter-v2     | v2             | ❌               | ❌             | ❌         | 7               | ~4.5 kB       | [![twitter-v2 install size badge](https://badgen.net/packagephobia/install/twitter-v2)](https://packagephobia.com/result?p=twitter-v2) |
-
-\**No support for `media/upload`, cannot send a `multipart/form-data` encoded-body without tricks*
 
 ## Features
 
-Here's the detailed feature list of `twitter-api-v2`:
+Here's everything `twitter-api-v2` can do:
 
 ### Basics:
 - Support for v1.1 and **v2 of Twitter API**
@@ -89,11 +87,10 @@ Here's the detailed feature list of `twitter-api-v2`:
 ### Request helpers:
 - Automatic paginator for endpoints like user and tweet timelines,
   allowing payload consumption with modern asynchronous iterators until your rate-limit is hit
-- Convenient methods for authentication - generate auth links and ask for tokens to your users will be a breeze
+- Convenient methods for authentication - generate auth links and ask for tokens to your users
 - Media upload with API v1.1, including **long video & subtitles support**, automatic media type detection,
   **chunked upload** and support for **concurrent uploads**
 - Dedicated methods that wraps API v1.1 & v2 endpoints, with **typed arguments** and fully **typed responses**
-- Bundled parsing of rate limit headers
 - Typed errors, meaningful error messages, error enumerations for both v1.1 and v2
 
 ### Type-safe first:
@@ -122,3 +119,12 @@ Learn how to use the full potential of `twitter-api-v2`.
   - [Handle errors](./doc/errors.md)
   - [Master `twitter-api-v2` paginators](./doc/paginators.md)
   - [Discover available helpers](./doc/helpers.md)
+
+## Plugins
+
+Official plugins for `twitter-api-v2`:
+- [`@twitter-api-v2/plugin-token-refresher`](https://www.npmjs.com/package/@twitter-api-v2/plugin-token-refresher): Handle OAuth 2.0 (user-context) token refreshing for you
+- [`@twitter-api-v2/plugin-rate-limit`](https://www.npmjs.com/package/@twitter-api-v2/plugin-rate-limit): Access and store automatically rate limit data
+- [`@twitter-api-v2/plugin-cache-redis`](https://www.npmjs.com/package/@twitter-api-v2/plugin-cache-redis): Store responses in a Redis store and serve cached responses
+
+See [how to use plugins here](./doc/plugins.md).
