@@ -33,7 +33,7 @@ export interface SpaceV2BuyersParams extends Partial<UsersV2Params> {}
 
 type SpaceV2Includes = { users?: UserV2[] };
 
-export type SpaceV2SingleResult = DataV2<SpaceV2>;
+export type SpaceV2SingleResult = DataV2AndIncludeV2<SpaceV2, SpaceV2Includes>;
 export type SpaceV2LookupResult = DataMetaAndIncludeV2<SpaceV2[], { result_count: number }, SpaceV2Includes>;
 export type SpaceV2BuyersResult = UsersV2Result;
 
