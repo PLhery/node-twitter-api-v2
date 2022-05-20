@@ -117,6 +117,7 @@ export interface TweetEntityMentionV2 {
   start: number;
   end: number;
   username: string;
+  id: string;
 }
 
 export interface TweetEntitiesV2 {

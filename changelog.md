@@ -1,3 +1,8 @@
+1.12.1
+------
+- Fix: missing id prop of TweetEntityMentionV2 #274 (@lima-eduardo)
+- Fix: add place_id to SendTweetV1Params #287 (@viniciuskneves)
+
 1.12.0
 ------
 - Feat: Update plugin API to support response overloading on error #248

@@ -98,6 +98,7 @@ export interface SendTweetV1Params extends AskTweetV1Params {
   enable_dmcommands?: BooleanString;
   fail_dmcommands?: BooleanString;
   card_uri?: string;
+  place_id?: string;
 }
 
 export type TUploadTypeV1 = 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | 'srt' | 'webp';
