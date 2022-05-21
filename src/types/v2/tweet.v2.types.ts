@@ -38,6 +38,8 @@ export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParam
   exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
 }
 
+export interface TweetV2HomeTimelineParams extends TweetV2UserTimelineParams {}
+
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
   | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id'
   | 'geo.place_id' | 'entities.mentions.username' | 'referenced_tweets.id.author_id';
@@ -111,6 +113,7 @@ export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], {
 export type Tweetv2SearchResult = Tweetv2TimelineResult;
 export type TweetV2PaginableTimelineResult = Tweetv2TimelineResult & MetaV2<{ previous_token?: string }>;;
 export type TweetV2UserTimelineResult = TweetV2PaginableTimelineResult;
+export type TweetV2HomeTimelineResult = TweetV2PaginableTimelineResult;
 
 export type TweetV2LookupResult = DataAndIncludeV2<TweetV2[], ApiV2Includes>;
 export type TweetV2SingleResult = DataAndIncludeV2<TweetV2, ApiV2Includes>;

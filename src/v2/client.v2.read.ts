@@ -52,6 +52,8 @@ import {
   SpaceV2BuyersParams,
   SpaceV2BuyersResult,
   TweetV2PaginableTimelineResult,
+  TweetV2HomeTimelineParams,
+  TweetV2HomeTimelineResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -65,6 +67,7 @@ import {
   TweetV2ListTweetsPaginator,
   TweetBookmarksTimelineV2Paginator,
   QuotedTweetsTimelineV2Paginator,
+  TweetHomeTimelineV2Paginator,
 } from '../paginators';
 import TwitterApiv2LabsReadOnly from '../v2-labs/client.v2.labs.read';
 import { TweetLikingUsersV2Paginator, TweetRetweetersUsersV2Paginator, UserBlockingUsersV2Paginator, UserFollowersV2Paginator, UserFollowingV2Paginator, UserListFollowersV2Paginator, UserListMembersV2Paginator, UserMutingUsersV2Paginator } from '../paginators/user.paginator.v2';
@@ -222,6 +225,30 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       instance: this,
       queryParams: parameters,
       sharedParams: { id: tweetId },
+    });
+  }
+
+  /**
+   * Allows you to retrieve a collection of the most recent Tweets and Retweets posted by you and users you follow, also known as home timeline.
+   * This endpoint returns up to the last 3200 Tweets.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-reverse-chronological
+   *
+   * OAuth 2 scopes: `tweet.read` `users.read`
+   */
+  public async homeTimeline(options: Partial<TweetV2HomeTimelineParams> = {}) {
+    const meUser = await this.getCurrentUserV2Object();
+
+    const initialRq = await this.get<TweetV2HomeTimelineResult>('users/:id/timelines/reverse_chronological', options, {
+      fullResponse: true,
+      params: { id: meUser.data.id },
+    });
+
+    return new TweetHomeTimelineV2Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams: options,
+      sharedParams: { id: meUser.data.id },
     });
   }
 

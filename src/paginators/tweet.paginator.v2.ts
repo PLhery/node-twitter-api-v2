@@ -10,6 +10,7 @@ import {
   Tweetv2ListResult,
   TweetV2PaginableListParams,
   TweetV2PaginableTimelineParams,
+  TweetV2HomeTimelineParams,
 } from '../types';
 import { TimelineV2Paginator, TwitterV2Paginator } from './v2.paginator';
 
@@ -167,6 +168,16 @@ export class QuotedTweetsTimelineV2Paginator
   extends TweetPaginableTimelineV2Paginator<TweetV2PaginableTimelineResult, TweetV2PaginableTimelineParams, { id: string }>
 {
   protected _endpoint = 'tweets/:id/quote_tweets';
+}
+
+// -----------------
+// - Home timeline -
+// -----------------
+
+export class TweetHomeTimelineV2Paginator
+  extends TweetPaginableTimelineV2Paginator<TweetV2PaginableTimelineResult, TweetV2HomeTimelineParams, { id: string }>
+{
+  protected _endpoint = 'users/:id/timelines/reverse_chronological';
 }
 
 // -----------------
