@@ -1,3 +1,7 @@
+1.12.2
+------
+- Feat: .homeTimeline for API v2 #288
+
 1.12.1
 ------
 - Fix: missing id prop of TweetEntityMentionV2 #274 (@lima-eduardo)
