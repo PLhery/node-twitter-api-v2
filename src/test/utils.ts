@@ -5,10 +5,7 @@ dotenv.config({ path: __dirname + '/../../.env' });
 
 /** User OAuth 1.0a client */
 export function getUserClient(this: any) {
-  if (this.__client) {
-    return this.__client as TwitterApi;
-  }
-  return this.__client = new TwitterApi({
+  return new TwitterApi({
     appKey: process.env.CONSUMER_TOKEN!,
     appSecret: process.env.CONSUMER_SECRET!,
     accessToken: process.env.OAUTH_TOKEN!,
