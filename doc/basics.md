@@ -25,7 +25,7 @@ import { TwitterApi } from 'twitter-api-v2';
 const { TwitterApi } = require('twitter-api-v2');
 ```
 
-Instanciate with your wanted authentication method.
+Instantiate with your wanted authentication method.
 
 ```ts
 // OAuth 1.0a (User context)
@@ -65,7 +65,7 @@ Please see [Authentication part](./auth.md) of the doc.
 
 #### v1 API
 
-If you want to access currently logged user inside v1 API (= you're logged with OAuth 1.0a/OAuth2 user-context),
+If you want to access currently the logged user inside v1 API (= you're logged with OAuth 1.0a/OAuth2 user-context),
 you can use the method `.currentUser()`.
 
 This a shortcut to `.v1.verifyCredentials()` with a **cache that store user to avoid multiple API calls**.
@@ -73,15 +73,15 @@ Its returns a `UserV1` object.
 
 #### v2 API
 
-If you want to access currently logged user inside v2 API,
+If you want to access the currently logged user inside v2 API,
 you can use the method `.currentUserV2()`.
 
 This a shortcut to `.v2.me()` with a **cache that store user to avoid multiple API calls**.
 Its returns a `UserV2Result` object.
 
-## Use the versionned API clients - URL prefixes
+## Use the versioned API clients - URL prefixes
 
-By default, `twitter-api-v2` don't know which version of API you want to use (because it supports both!).
+By default, `twitter-api-v2` doesn't know which version of the API you want to use (because it supports both!).
 
 For this reason, we allow you to choose which version you want to use: `v1` or `v2`!
 ```ts
@@ -92,10 +92,10 @@ const v2Client = client.v2;
 const v2LabsClient = client.v2.labs;
 ```
 
-Using the versionned client **auto-prefix requests** with default prefixes
+Using the versioned client **auto-prefix requests** with default prefixes
 (for v1: `https://api.twitter.com/1.1/`, for v2: `https://api.twitter.com/2/`,
 for labs v2: `https://api.twitter.com/labs/2/`)
-and gives you access to endpoint-wrapper methods!
+and this gives you access to endpoint-wrapper methods!
 
 ## Use the endpoint-wrapper methods
 
