@@ -57,9 +57,9 @@ This authentification method requires to use a couple of 4 keys, 2 are your app 
 ```ts
 const client = new TwitterApi({
   appKey: '<YOUR-TWITTER-APP-TOKEN>',
-  appSecret: '<YOUR-TWITTER-APP-SECERT>',
-  accessToken: '<YOUR-TWITTER-ACCESS-TOKEN>',
-  accessSecret: '<YOUR-TWITTER-ACCESS-SECERT>',
+  appSecret: '<YOUR-TWITTER-APP-SECRET>',
+  accessToken: '<YOUR-TWITTER-ACCESS-SECRET>',
+  accessSecret: '<YOUR-TWITTER-ACCESS-SECRET>',
 });
 // NOTE: accessToken and accessSecret are not required if you want to generate OAuth login links.
 ```
@@ -282,7 +282,7 @@ See also [authentication documentation](./auth.md) for examples and explaination
 
 ```ts
 // Create a partial client for auth links
-const client = new TwitterApi({ appKey: '<YOUR-TWITTER-APP-TOKEN>', appSecret: '<YOUR-TWITTER-APP-SECERT>' });
+const client = new TwitterApi({ appKey: '<YOUR-TWITTER-APP-TOKEN>', appSecret: '<YOUR-TWITTER-APP-SECRET>' });
 const authLink = await client.generateAuthLink('oob');
 // Redirect your client to authLink.url
 console.log('Please go to', authLink.url);
@@ -291,7 +291,7 @@ console.log('Please go to', authLink.url);
 // Create a temporary client with previous-step tokens
 const connecterClient = new TwitterApi({
   appKey: '<YOUR-TWITTER-APP-TOKEN>',
-  appSecret: '<YOUR-TWITTER-APP-SECERT>',
+  appSecret: '<YOUR-TWITTER-APP-SECRET>',
   accessToken: authLink.oauth_token,
   accessSecret: authLink.oauth_token_secret,
 });
