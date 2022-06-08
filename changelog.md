@@ -1,3 +1,8 @@
+PENDING
+-------
+- Feat: .favoriteTimeline for API v1 #296 (thanks to @AuroraDysis)
+- Feat: `duration_millis` property for v1 medias (thanks to @RyoshiKayo)
+
 1.12.2
 ------
 - Feat: .homeTimeline for API v2 #288

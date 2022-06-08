@@ -85,3 +85,8 @@ export class UserTimelineV1Paginator extends TweetTimelineV1Paginator<TweetV1Tim
 export class ListTimelineV1Paginator extends TweetTimelineV1Paginator<TweetV1TimelineResult, ListStatusesV1Params> {
   protected _endpoint = 'lists/statuses.json';
 }
+
+// Favorites
+export class UserFavoritesV1Paginator extends TweetTimelineV1Paginator<TweetV1TimelineResult, TweetV1UserTimelineParams> {
+  protected _endpoint = 'favorites/list.json';
+}

@@ -58,7 +58,7 @@ import {
   ListStatusesV1Params,
   ListSubscriptionsV1Params,
 } from '../types';
-import { HomeTimelineV1Paginator, ListTimelineV1Paginator, MentionTimelineV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
+import { HomeTimelineV1Paginator, ListTimelineV1Paginator, MentionTimelineV1Paginator, UserFavoritesV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
 import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 import { ListMembershipsV1Paginator, ListMembersV1Paginator, ListOwnershipsV1Paginator, ListSubscribersV1Paginator, ListSubscriptionsV1Paginator } from '../paginators/list.paginator.v1';
@@ -184,6 +184,48 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     const initialRq = await this.get<TweetV1TimelineResult>('statuses/user_timeline.json', queryParams, { fullResponse: true });
 
     return new UserTimelineV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns the most recent Tweets liked by the authenticating or specified user, 20 tweets by default.
+   * Note: favorites are now known as likes.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-favorites-list
+   */
+  public async favoriteTimeline(userId: string, options: Partial<TweetV1UserTimelineParams> = {}) {
+    const queryParams: Partial<TweetV1UserTimelineParams> = {
+      tweet_mode: 'extended',
+      user_id: userId,
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('favorites/list.json', queryParams, { fullResponse: true });
+
+    return new UserFavoritesV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns the most recent Tweets liked by the authenticating or specified user, 20 tweets by default.
+   * Note: favorites are now known as likes.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-favorites-list
+   */
+  public async favoriteTimelineByUsername(username: string, options: Partial<TweetV1UserTimelineParams> = {}) {
+    const queryParams: Partial<TweetV1UserTimelineParams> = {
+      tweet_mode: 'extended',
+      screen_name: username,
+      ...options,
+    };
+    const initialRq = await this.get<TweetV1TimelineResult>('favorites/list.json', queryParams, { fullResponse: true });
+
+    return new UserFavoritesV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,
