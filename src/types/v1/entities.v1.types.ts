@@ -49,6 +49,7 @@ export interface MediaEntityV1 {
 
 export interface MediaVideoInfoV1 {
   aspect_ratio: [number, number];
+  duration_millis: number;
   variants: {
     bitrate: number;
     content_type: string;
