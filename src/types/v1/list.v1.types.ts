@@ -66,6 +66,15 @@ export interface ListStatusesV1Params extends TweetV1TimelineParams, GetListV1Pa
   include_rts?: boolean;
 }
 
+export interface ListFavoritesV1Params {
+  user_id?: string;
+  screen_name?: string;
+  count?: number;
+  since_id?: string;
+  max_id?: string;
+  include_entities?: boolean;
+}
+
 export interface ListCreateV1Params {
   name: string;
   mode?: 'public' | 'private';

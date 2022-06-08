@@ -46,6 +46,7 @@ import {
   TweetLookupNoMapV1Params,
   TweetLookupMapV1Params,
   TweetLookupMapV1Result,
+  ListFavoritesV1Params,
   ListListsV1Params,
   ListV1,
   ListMembersV1Params,
@@ -512,6 +513,15 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
       instance: this,
       queryParams,
     });
+  }
+
+  /**
+   * Returns the most recent Tweets liked by the authenticating or specified user, 20 tweets by default.
+   * Note: favorites are now known as likes.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/get-favorites-list
+   */
+  public async listFavorites(options: Partial<ListFavoritesV1Params> = {}) {
+    return this.get<TweetV1[]>('favorites/list.json', { tweet_mode: 'extended', ...options });
   }
 
   /* Media upload API */
