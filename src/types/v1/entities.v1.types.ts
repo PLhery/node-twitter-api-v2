@@ -41,6 +41,8 @@ export interface MediaEntityV1 {
   sizes: MediaSizesV1;
   source_status_id: number;
   source_status_id_str: string;
+  source_user_id: number;
+  source_user_id_str: string;
   type: 'photo' | 'video' | 'animated_gif';
   video_info?: MediaVideoInfoV1;
   additional_media_info?: AdditionalMediaInfoV1;
