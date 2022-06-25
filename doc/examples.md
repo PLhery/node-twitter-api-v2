@@ -81,7 +81,7 @@ const { client: refreshedClient, accessToken, refreshToken } = await client.refr
 
 ### <a name='Withapp-onlycredentials'></a>With app-only credentials
 
-This kind of auth is accepted on Twitter endpoints with `"OAuth 2.0 Bearer token"` (or Application context) mentionned in documentation.
+This kind of auth is accepted on Twitter endpoints with `"OAuth 2.0 Bearer token"` (or Application context) mentioned in documentation.
 
 ```ts
 const client = new TwitterApi('<YOUR-TWITTER-BEARER-TOKEN>');
