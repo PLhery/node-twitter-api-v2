@@ -234,6 +234,9 @@ app.get('/callback', (req, res) => {
       // Store {accessToken} somewhere, it will be valid until {expiresIn} is hit.
       // If you want to refresh your token later, store {refreshToken} (it is present if 'offline.access' has been given as scope)
 
+      // If you want to extract Bearer token for use later, you can extract it from {loggedClient}:
+      // const { bearerToken } = loggedClient
+
       // Example request
       const { data: userObject } = await loggedClient.v2.me();
     })
@@ -243,7 +246,7 @@ app.get('/callback', (req, res) => {
 
 ### Use your access token
 
-The `.loginWithOAuth2()` method already returns a logged client, but if you want to create an instance by yourself with an access token (for example to make a request from a saved access token), use it as a **Bearer token**.
+The `.loginWithOAuth2()` method already returns a logged client, but if you want to create an instance by yourself with an access token (for example to make a request from a saved access token), use it as a **Bearer token**
 
 ```ts
 const client = new TwitterApi('<YOUR-ACCESS-TOKEN>');
