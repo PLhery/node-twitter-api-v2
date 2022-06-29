@@ -1,7 +1,8 @@
-PENDING
+1.12.3
 -------
 - Feat: .favoriteTimeline for API v1 #296 (thanks to @AuroraDysis)
-- Feat: `duration_millis` property for v1 medias (thanks to @RyoshiKayo)
+- Feat: duration_millis property for v1 medias (thanks to @RyoshiKayo)
+- Feat: source_user_id and source_user_id_str missing properties in MediaEntityV1 (thanks to @AuroraDysis)
 
 1.12.2
 ------
