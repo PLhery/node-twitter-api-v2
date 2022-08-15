@@ -1,3 +1,7 @@
+Pending
+-------
+- Fix: Better check for error presence in `ApiResponseError` instanciation
+
 1.12.4
 ------
 - Fix: Ignore rate limit data for endpoints without rate limit headers in paginators #341
