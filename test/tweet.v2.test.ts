@@ -105,6 +105,11 @@ describe('Tweets endpoints for v2 API', () => {
     expect(tweet.data.text).to.equal('just setting up my twttr');
   }).timeout(60 * 1000);
 
+  it('.tweetWithMedia - Get a tweet with media variants', async () => {
+    const tweet = await client.v2.singleTweet('870042717589340160', { 'tweet.fields': ['attachments'], 'expansions': ['attachments.media_keys'], 'media.fields': ['variants'] });
+    expect(tweet.includes && tweet.includes.media && tweet.includes.media[0].variants && tweet.includes.media[0].variants[0].content_type).to.equal('video/mp4');
+  }).timeout(60 * 1000);
+
   it('.tweets - Fetch a bunch of tweets', async () => {
     const tweets = await client.v2.tweets(['20', '1257577057862610951'], {
       'tweet.fields': ['author_id', 'source'],
