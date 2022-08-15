@@ -32,6 +32,10 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   }
 
   protected get _isRateLimitOk() {
+    if (!this._rateLimit) {
+      return true;
+    }
+
     const resetDate = this._rateLimit.reset * 1000;
 
     if (resetDate < Date.now()) {
@@ -137,7 +141,7 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   }
 
   get rateLimit() {
-    return { ...this._rateLimit };
+    return { ...this._rateLimit ?? {} };
   }
 
   /** Get raw data returned by Twitter API. */
