@@ -1,5 +1,5 @@
-Pending
--------
+1.12.5
+------
 - Fix: Better check for error presence in `ApiResponseError` instanciation
 
 1.12.4
