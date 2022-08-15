@@ -1,5 +1,11 @@
+1.12.4
+------
+- Fix: Ignore rate limit data for endpoints without rate limit headers in paginators #341
+- Fix: Patch for unifiying endpoints with various error payload in v1 API #342
+- Feat: `variants` property for `media.fields`, add `MediaVariantsV2` interface (thanks to @roncli) #347
+
 1.12.3
--------
+------
 - Feat: .favoriteTimeline for API v1 #296 (thanks to @AuroraDysis)
 - Feat: duration_millis property for v1 medias (thanks to @RyoshiKayo)
 - Feat: source_user_id and source_user_id_str missing properties in MediaEntityV1 (thanks to @AuroraDysis)
