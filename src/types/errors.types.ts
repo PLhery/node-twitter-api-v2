@@ -187,7 +187,7 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
     this.rateLimit = options.rateLimit;
 
     // Fix bad error data payload on some v1 endpoints (see https://github.com/PLhery/node-twitter-api-v2/issues/342)
-    if ('error' in options.data) {
+    if (options.data && 'error' in options.data && !options.data.errors) {
       const data = { ...options.data };
 
       data.errors = [{
