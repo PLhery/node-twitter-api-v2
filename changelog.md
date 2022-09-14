@@ -1,3 +1,7 @@
+1.12.6
+------
+- Feat: add follow and unfollow api V1 methods (thanks to @Abdullah-Malik)
+  
 1.12.5
 ------
 - Fix: Better check for error presence in `ApiResponseError` instanciation

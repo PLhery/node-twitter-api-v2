@@ -18,6 +18,9 @@ import {
   AccountProfileV1Params,
   FriendshipV1,
   FriendshipUpdateV1Params,
+  FriendshipCreateV1Params,
+  FriendshipDestroyV1Params,
+  FriendshipCreateOrDestroyV1,
   ListV1,
   ListCreateV1Params,
   GetListV1Params,
@@ -132,6 +135,22 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    */
   public updateFriendship(options: Partial<FriendshipUpdateV1Params>) {
     return this.post<FriendshipV1>('friendships/update.json', options);
+  }
+
+  /**
+   * Follow the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-create
+   */
+   public createFriendship(options: Partial<FriendshipCreateV1Params>) {
+    return this.post<FriendshipCreateOrDestroyV1>('friendships/create.json', options);
+  }
+
+  /**
+   * Unfollow the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy
+   */
+   public destroyFriendship(options: Partial<FriendshipDestroyV1Params>) {
+    return this.post<FriendshipCreateOrDestroyV1>('friendships/destroy.json', options);
   }
 
   /* Account API */
