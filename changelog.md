@@ -1,7 +1,13 @@
+1.12.7
+------
+- Fix: Fix Exception throw when response data is truthy but not an object (for example, a raw HTML page) #354
+- Fix: Typing issue with `TwitterApiErrorData.errors` that can be `undefined` in some cases #357
+- Feat: Add `include_rts` parameters for `.userTimeline` #349
+
 1.12.6
 ------
 - Feat: add follow and unfollow api V1 methods (thanks to @Abdullah-Malik)
-  
+
 1.12.5
 ------
 - Fix: Better check for error presence in `ApiResponseError` instanciation
