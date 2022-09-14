@@ -82,6 +82,7 @@ export interface TweetV1TimelineParams extends AskTweetV1Params {
 export interface TweetV1UserTimelineParams extends TweetV1TimelineParams {
   user_id?: string;
   screen_name?: string;
+  include_rts?: boolean;
 }
 
 export interface SendTweetV1Params extends AskTweetV1Params {
