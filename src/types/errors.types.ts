@@ -39,7 +39,7 @@ export interface TwitterErrorPayload<T = any> {
 }
 
 export interface TwitterApiErrorData {
-  errors: (ErrorV1 | ErrorV2)[];
+  errors?: (ErrorV1 | ErrorV2)[];
   error?: string;
   title?: string;
   detail?: string;
@@ -187,7 +187,7 @@ export class ApiResponseError extends ApiError implements TwitterApiError, IBuil
     this.rateLimit = options.rateLimit;
 
     // Fix bad error data payload on some v1 endpoints (see https://github.com/PLhery/node-twitter-api-v2/issues/342)
-    if (options.data && 'error' in options.data && !options.data.errors) {
+    if (options.data && typeof options.data === 'object' && 'error' in options.data && !options.data.errors) {
       const data = { ...options.data };
 
       data.errors = [{
