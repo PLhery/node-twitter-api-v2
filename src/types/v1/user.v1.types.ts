@@ -54,6 +54,18 @@ export interface DoubleEndedIdCursorV1Params {
   cursor?: string;
 }
 
+export interface UserFriendsIdsV1Params extends DoubleEndedIdCursorV1Params {
+  screen_name?: string;
+  user_id?: string;
+  count?: number;
+}
+
+export interface UserFollowerIdsV1Params extends DoubleEndedIdCursorV1Params {
+  screen_name?: string;
+  user_id?: string;
+  count?: number;
+}
+
 export interface VerifyCredentialsV1Params {
   include_entities?: boolean;
   skip_status?: boolean;
@@ -173,6 +185,10 @@ export interface MuteUserListV1Result {
 
 // GET mutes/users/ids
 export type MuteUserIdsV1Result = DoubleEndedIdCursorV1Result;
+
+export type UserFollowerIdsV1Result = DoubleEndedIdCursorV1Result;
+
+export type UserFriendIdsV1Result = DoubleEndedIdCursorV1Result;
 
 // GET users/profile_banner
 export interface BannerSizeV1 {
