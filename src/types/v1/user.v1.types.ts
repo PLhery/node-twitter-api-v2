@@ -54,7 +54,7 @@ export interface DoubleEndedIdCursorV1Params {
   cursor?: string;
 }
 
-export interface UserFriendsIdsV1Params extends DoubleEndedIdCursorV1Params {
+export interface UserFollowingsIdsV1Params extends DoubleEndedIdCursorV1Params {
   screen_name?: string;
   user_id?: string;
   count?: number;
@@ -188,7 +188,7 @@ export type MuteUserIdsV1Result = DoubleEndedIdCursorV1Result;
 
 export type UserFollowerIdsV1Result = DoubleEndedIdCursorV1Result;
 
-export type UserFriendIdsV1Result = DoubleEndedIdCursorV1Result;
+export type UserFollowingIdsV1Result = DoubleEndedIdCursorV1Result;
 
 // GET users/profile_banner
 export interface BannerSizeV1 {

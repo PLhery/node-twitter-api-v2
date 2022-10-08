@@ -31,8 +31,8 @@ import {
   MuteUserIdsV1Params,
   UserFollowerIdsV1Params,
   UserFollowerIdsV1Result,
-  UserFriendsIdsV1Params,
-  UserFriendIdsV1Result,
+  UserFollowingsIdsV1Params,
+  UserFollowingIdsV1Result,
   UserSearchV1Params,
   AccountSettingsV1,
   ProfileBannerSizeV1,
@@ -65,7 +65,7 @@ import {
 import { HomeTimelineV1Paginator, ListTimelineV1Paginator, MentionTimelineV1Paginator, UserFavoritesV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
 import { UserFollowerIdsV1Paginator } from '../paginators/followers.paginator.v1';
-import { UserFriendIdsV1Paginator } from '../paginators/friends.paginator.v1';
+import { UserFollowersIdsV1Paginator } from '../paginators/friends.paginator.v1';
 import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 import { ListMembershipsV1Paginator, ListMembersV1Paginator, ListOwnershipsV1Paginator, ListSubscribersV1Paginator, ListSubscriptionsV1Paginator } from '../paginators/list.paginator.v1';
 import TweetStream from '../stream/TweetStream';
@@ -311,7 +311,7 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * Returns an array of numeric user ids of followers of the specified user.
    * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids
    */
-   public async userFollowerIds(options: Partial<UserFollowerIdsV1Params> = {}) {
+  public async userFollowerIds(options: Partial<UserFollowerIdsV1Params> = {}) {
     const queryParams: Partial<UserFollowerIdsV1Params> = {
       stringify_ids: true,
       ...options,
@@ -330,14 +330,14 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
    * Returns an array of numeric user ids of friends of the specified user.
    * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
    */
-   public async userFriendIds(options: Partial<UserFriendsIdsV1Params> = {}) {
-    const queryParams: Partial<UserFriendsIdsV1Params> = {
+  public async userFollowingIds(options: Partial<UserFollowingsIdsV1Params> = {}) {
+    const queryParams: Partial<UserFollowingsIdsV1Params> = {
       stringify_ids: true,
       ...options,
     };
-    const initialRq = await this.get<UserFriendIdsV1Result>('friends/ids.json', queryParams, { fullResponse: true });
+    const initialRq = await this.get<UserFollowingIdsV1Result>('friends/ids.json', queryParams, { fullResponse: true });
 
-    return new UserFriendIdsV1Paginator({
+    return new UserFollowersIdsV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,

@@ -1,11 +1,11 @@
 import { CursoredV1Paginator } from './paginator.v1';
-import type { UserFriendsIdsV1Params, UserFriendIdsV1Result, TwitterResponse } from '../types';
+import type { UserFollowerIdsV1Params, UserFollowerIdsV1Result, TwitterResponse } from '../types';
 
-export class UserFriendIdsV1Paginator extends CursoredV1Paginator<UserFriendIdsV1Result, UserFriendsIdsV1Params, string> {
+export class UserFollowersIdsV1Paginator extends CursoredV1Paginator<UserFollowerIdsV1Result, UserFollowerIdsV1Params, string> {
   protected _endpoint = 'friends/ids.json';
   protected _maxResultsWhenFetchLast = 5000;
 
-  protected refreshInstanceFromResult(response: TwitterResponse<UserFriendIdsV1Result>, isNextPage: true) {
+  protected refreshInstanceFromResult(response: TwitterResponse<UserFollowerIdsV1Result>, isNextPage: true) {
     const result = response.data;
     this._rateLimit = response.rateLimit!;
 
@@ -15,7 +15,7 @@ export class UserFriendIdsV1Paginator extends CursoredV1Paginator<UserFriendIdsV
     }
   }
 
-  protected getPageLengthFromRequest(result: TwitterResponse<UserFriendIdsV1Result>) {
+  protected getPageLengthFromRequest(result: TwitterResponse<UserFollowerIdsV1Result>) {
     return result.data.ids.length;
   }
 
