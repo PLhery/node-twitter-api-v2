@@ -193,6 +193,7 @@ export interface SendTweetV2Params {
 export interface TweetV2 {
   id: string;
   text: string;
+  edit_history_tweet_ids: string[];
   created_at?: string;
   author_id?: string;
   conversation_id?: string;
