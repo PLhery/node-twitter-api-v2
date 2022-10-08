@@ -1,3 +1,8 @@
+1.12.8
+------
+- Feat: Add `edit_history_tweet_ids` to `TweetV2`
+- Feat: Add v1 friends/followers paginators (thanks to @Abdullah-Malik) #380
+
 1.12.7
 ------
 - Fix: Fix Exception throw when response data is truthy but not an object (for example, a raw HTML page) #354
