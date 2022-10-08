@@ -7,3 +7,5 @@ export * from './user.paginator.v1';
 export * from './user.paginator.v2';
 export * from './list.paginator.v1';
 export * from './list.paginator.v2';
+export * from './friends.paginator.v1';
+export * from './followers.paginator.v1';
