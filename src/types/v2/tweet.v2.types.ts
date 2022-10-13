@@ -20,7 +20,7 @@ export interface TweetV2TimelineParams extends Partial<Tweetv2FieldsParams> {
 }
 
 export interface Tweetv2SearchParams extends TweetV2TimelineParams {
-  previous_token?: string;
+  pagination_token?: string;
   query: string;
   sort_order?: 'recency' | 'relevancy';
 }
