@@ -33,6 +33,10 @@ import {
   UserFollowerIdsV1Result,
   UserFollowingsIdsV1Params,
   UserFollowingIdsV1Result,
+  UserFriendListV1Params,
+  UserFriendListV1Result,
+  UserFollowerListV1Params,
+  UserFollowerListV1Result,
   UserSearchV1Params,
   AccountSettingsV1,
   ProfileBannerSizeV1,
@@ -64,8 +68,8 @@ import {
 } from '../types';
 import { HomeTimelineV1Paginator, ListTimelineV1Paginator, MentionTimelineV1Paginator, UserFavoritesV1Paginator, UserTimelineV1Paginator } from '../paginators/tweet.paginator.v1';
 import { MuteUserIdsV1Paginator, MuteUserListV1Paginator } from '../paginators/mutes.paginator.v1';
-import { UserFollowerIdsV1Paginator } from '../paginators/followers.paginator.v1';
-import { UserFollowersIdsV1Paginator } from '../paginators/friends.paginator.v1';
+import { UserFollowerIdsV1Paginator, UserFollowerListV1Paginator } from '../paginators/followers.paginator.v1';
+import { UserFollowersIdsV1Paginator, UserFriendListV1Paginator } from '../paginators/friends.paginator.v1';
 import { FriendshipsIncomingV1Paginator, FriendshipsOutgoingV1Paginator, UserSearchV1Paginator } from '../paginators/user.paginator.v1';
 import { ListMembershipsV1Paginator, ListMembersV1Paginator, ListOwnershipsV1Paginator, ListSubscribersV1Paginator, ListSubscriptionsV1Paginator } from '../paginators/list.paginator.v1';
 import TweetStream from '../stream/TweetStream';
@@ -300,6 +304,42 @@ export default class TwitterApiv1ReadOnly extends TwitterApiSubClient {
     const initialRq = await this.get<MuteUserIdsV1Result>('mutes/users/ids.json', queryParams, { fullResponse: true });
 
     return new MuteUserIdsV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns an array of user objects of friends of the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list
+   */
+   public async userFriendList(options: Partial<UserFriendListV1Params> = {}) {
+    const queryParams: Partial<UserFriendListV1Params> = {
+      ...options,
+    };
+    const initialRq = await this.get<UserFriendListV1Result>('friends/list.json', queryParams, { fullResponse: true });
+
+    return new UserFriendListV1Paginator({
+      realData: initialRq.data,
+      rateLimit: initialRq.rateLimit!,
+      instance: this,
+      queryParams,
+    });
+  }
+
+  /**
+   * Returns an array of user objects of followers of the specified user.
+   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-followers-list
+   */
+   public async userFollowerList(options: Partial<UserFollowerListV1Params> = {}) {
+    const queryParams: Partial<UserFollowerListV1Params> = {
+      ...options,
+    };
+    const initialRq = await this.get<UserFollowerListV1Result>('followers/list.json', queryParams, { fullResponse: true });
+
+    return new UserFollowerListV1Paginator({
       realData: initialRq.data,
       rateLimit: initialRq.rateLimit!,
       instance: this,

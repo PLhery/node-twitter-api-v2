@@ -1,5 +1,34 @@
 import { CursoredV1Paginator } from './paginator.v1';
-import type { UserFollowerIdsV1Params, UserFollowerIdsV1Result, TwitterResponse } from '../types';
+import type { UserFollowerIdsV1Params, UserFollowerIdsV1Result, UserFollowerListV1Params, UserFollowerListV1Result, TwitterResponse, UserV1 } from '../types';
+
+export class UserFollowerListV1Paginator extends CursoredV1Paginator<UserFollowerListV1Result, UserFollowerListV1Params, UserV1> {
+  protected _endpoint = 'followers/list.json';
+
+  protected refreshInstanceFromResult(response: TwitterResponse<UserFollowerListV1Result>, isNextPage: true) {
+    const result = response.data;
+    this._rateLimit = response.rateLimit!;
+
+    if (isNextPage) {
+      this._realData.users.push(...result.users);
+      this._realData.next_cursor = result.next_cursor;
+    }
+  }
+
+  protected getPageLengthFromRequest(result: TwitterResponse<UserFollowerListV1Result>) {
+    return result.data.users.length;
+  }
+
+  protected getItemArray() {
+    return this.users;
+  }
+
+  /**
+   * Users returned by paginator.
+   */
+  get users() {
+    return this._realData.users;
+  }
+}
 
 export class UserFollowerIdsV1Paginator extends CursoredV1Paginator<UserFollowerIdsV1Result, UserFollowerIdsV1Params, string> {
   protected _endpoint = 'followers/ids.json';

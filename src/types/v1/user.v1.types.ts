@@ -66,6 +66,19 @@ export interface UserFollowerIdsV1Params extends DoubleEndedIdCursorV1Params {
   count?: number;
 }
 
+interface UserListV1Params {
+  screen_name?: string;
+  user_id?: string;
+  count?: number;
+  cursor?: string;
+  skip_status?: boolean;
+  include_user_entities: boolean;
+}
+
+export type UserFollowerListV1Params = UserListV1Params;
+
+export type UserFriendListV1Params = UserListV1Params;
+
 export interface VerifyCredentialsV1Params {
   include_entities?: boolean;
   skip_status?: boolean;
@@ -189,6 +202,18 @@ export type MuteUserIdsV1Result = DoubleEndedIdCursorV1Result;
 export type UserFollowerIdsV1Result = DoubleEndedIdCursorV1Result;
 
 export type UserFollowingIdsV1Result = DoubleEndedIdCursorV1Result;
+
+interface UserListV1Result {
+  next_cursor?: string;
+  next_cursor_str?: string;
+  previous_cursor?: string;
+  previous_cursor_str?: string;
+  users: UserV1[];
+}
+
+export type UserFollowerListV1Result = UserListV1Result;
+
+export type UserFriendListV1Result = UserListV1Result;
 
 // GET users/profile_banner
 export interface BannerSizeV1 {
