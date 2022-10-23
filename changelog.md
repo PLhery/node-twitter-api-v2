@@ -1,3 +1,8 @@
+1.12.9
+------
+- Fix: Add missing expansions/'tweet.fields' item for tweet edition #392
+- friends/followers objects list V1 #391 (@Abdullah-Malik)
+
 1.12.8
 ------
 - Feat: Add `edit_history_tweet_ids` to `TweetV2`
