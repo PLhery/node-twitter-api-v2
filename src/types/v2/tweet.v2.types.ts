@@ -41,7 +41,7 @@ export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParam
 export interface TweetV2HomeTimelineParams extends TweetV2UserTimelineParams {}
 
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
-  | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id'
+  | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id' | 'edit_history_tweet_ids'
   | 'geo.place_id' | 'entities.mentions.username' | 'referenced_tweets.id.author_id';
 export type TTweetv2MediaField = 'duration_ms' | 'height' | 'media_key' | 'preview_image_url' | 'type'
   | 'url' | 'width' | 'public_metrics' | 'non_public_metrics' | 'organic_metrics' | 'alt_text' | 'variants';
@@ -49,7 +49,7 @@ export type TTweetv2PlaceField = 'contained_within' | 'country' | 'country_code'
 export type TTweetv2PollField = 'duration_minutes' | 'end_datetime' | 'id' | 'options' | 'voting_status';
 export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotations' | 'conversation_id'
   | 'created_at' | 'entities' | 'geo' | 'id' | 'in_reply_to_user_id' | 'lang'
-  | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics'
+  | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics' | 'edit_controls'
   | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld';
 export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id' | 'location'
   | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'protected' | 'public_metrics'
