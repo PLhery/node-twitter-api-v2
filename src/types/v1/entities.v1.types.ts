@@ -30,23 +30,26 @@ export interface UrlEntityV1 {
 }
 
 export interface MediaEntityV1 {
-  display_url: string;
-  expanded_url: string;
-  url: string;
-  id: number;
-  id_str: string;
-  indices: [number, number];
-  media_url: string;
-  media_url_https: string;
-  sizes: MediaSizesV1;
-  source_status_id: number;
-  source_status_id_str: string;
-  source_user_id: number;
-  source_user_id_str: string;
-  type: 'photo' | 'video' | 'animated_gif';
-  video_info?: MediaVideoInfoV1;
-  additional_media_info?: AdditionalMediaInfoV1;
-  ext_alt_text?: string;
+  type: 'media',
+  media: {
+    display_url: string;
+    expanded_url: string;
+    url: string;
+    id: number;
+    id_str: string;
+    indices: [number, number];
+    media_url: string;
+    media_url_https: string;
+    sizes: MediaSizesV1;
+    source_status_id: number;
+    source_status_id_str: string;
+    source_user_id: number;
+    source_user_id_str: string;
+    type: 'photo' | 'video' | 'animated_gif';
+    video_info?: MediaVideoInfoV1;
+    additional_media_info?: AdditionalMediaInfoV1;
+    ext_alt_text?: string;
+  }
 }
 
 export interface MediaVideoInfoV1 {
