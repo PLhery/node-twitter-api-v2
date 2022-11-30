@@ -2,8 +2,9 @@
   "name": "twitter-api-v2",
   "version": "1.12.9",
   "description": "Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "keywords": [
     "twitter",
     "api",
@@ -13,7 +14,9 @@
     "v1.1"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -b tsconfig.cjs.json",
+    "build:esm": "tsc -b tsconfig.esm.json",
     "build-doc": "typedoc src/index.ts --out tsdocs",
     "lint": "eslint --ext \".ts\" --ignore-path .gitignore .",
     "mocha": "mocha -r ts-node/register --timeout 10000",
