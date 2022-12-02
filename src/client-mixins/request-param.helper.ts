@@ -79,11 +79,15 @@ export class RequestParamHelpers {
     }
 
     if (mode === 'json') {
-      headers['content-type'] = 'application/json;charset=UTF-8';
+      if (!headers['content-type']) {
+        headers['content-type'] = 'application/json;charset=UTF-8';
+      }
       return JSON.stringify(body);
     }
     else if (mode === 'url') {
-      headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+      if (!headers['content-type']) {
+        headers['content-type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+      }
 
       if (Object.keys(body).length) {
         return new URLSearchParams(body)
