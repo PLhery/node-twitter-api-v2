@@ -107,8 +107,10 @@ export class RequestParamHelpers {
         form.append(parameter, body[parameter]);
       }
 
-      const formHeaders = form.getHeaders();
-      headers['content-type'] = formHeaders['content-type'];
+      if (!headers['content-type']) {
+        const formHeaders = form.getHeaders();
+        headers['content-type'] = formHeaders['content-type'];
+      }
 
       return form.getBuffer();
     }
