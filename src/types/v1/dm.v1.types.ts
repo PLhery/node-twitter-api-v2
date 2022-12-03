@@ -115,7 +115,7 @@ export interface ReceivedMessageCreateDataV1 {
   text: string;
   entities: TweetEntitiesV1;
   quick_reply_response?: { type: 'options', metadata?: string };
-  attachment?: MediaEntityV1;
+  attachment?: { type: 'media', media: MediaEntityV1 };
   quick_reply?: MessageCreateQuickReplyV1;
   ctas?: MessageCreateCtaV1[];
 }

@@ -258,7 +258,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
         throw new Error('The given direct message doesn\'t contain any attachment');
       }
 
-      urlOrDm = attachment.media_url_https;
+      urlOrDm = attachment.media.media_url_https;
     }
 
     const data = await this.get<Buffer>(urlOrDm, undefined, { forceParseMode: 'buffer', prefix: '' });
