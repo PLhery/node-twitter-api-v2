@@ -63,7 +63,7 @@ provide wrappers around HTTP methods, and some of them are bloated with many dep
 `twitter-api-v2` is meant to provide full endpoint wrapping, from method name to response data,
 using descriptive typings for read/write/DMs rights, request parameters and response payload.
 
-A small feature comparaison with other libs:
+A small feature comparison with other libs:
 
 | Package        | API version(s) | Response typings | Media helpers | Pagination | Subdeps |  Size (gzip)  | Install size  |
 | -------------- | -------------- | ---------------- | ------------- | ---------- | --------------- | -------------:|  -------------:|
