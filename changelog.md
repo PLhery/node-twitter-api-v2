@@ -1,3 +1,9 @@
+1.12.10
+------
+- fix: Typing issue in v1 DM medias - ReceivedMessageCreateDataV1 #407 (@secchanu)
+- fix: Allow overriding the content-type header #413 (@alessandrovisentini)
+- fix: readme typo #414 (@vrrdnt)
+
 1.12.9
 ------
 - Fix: Add missing expansions/'tweet.fields' item for tweet edition #392
