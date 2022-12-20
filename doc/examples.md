@@ -58,7 +58,7 @@ This authentification method requires to use a couple of 4 keys, 2 are your app 
 const client = new TwitterApi({
   appKey: '<YOUR-TWITTER-APP-TOKEN>',
   appSecret: '<YOUR-TWITTER-APP-SECRET>',
-  accessToken: '<YOUR-TWITTER-ACCESS-SECRET>',
+  accessToken: '<YOUR-TWITTER-ACCESS-TOKEN>',
   accessSecret: '<YOUR-TWITTER-ACCESS-SECRET>',
 });
 // NOTE: accessToken and accessSecret are not required if you want to generate OAuth login links.
