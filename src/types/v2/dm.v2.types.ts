@@ -22,6 +22,26 @@ export interface GetDMEventV2Params {
 
 export type GetDMEventV2Result = DataMetaAndIncludeV2<DMEventV2[], PaginableCountMetaV2, ApiV2Includes>;
 
+// POST dm_conversations/:dm_conversation_id/messages
+
+export interface PostDMInConversationParams {
+    attachments?: [{ media_id: string }];
+    text?: string;
+}
+
+// POST dm_conversations
+
+export interface CreateDMConversationParams {
+    conversation_type: 'Group';
+    participant_ids: string[];
+    message: PostDMInConversationParams;
+}
+
+export interface PostDMInConversationResult {
+    dm_conversation_id: string;
+    dm_event_id: string;
+}
+
 // Types
 
 export interface BaseDMEventV2 {
