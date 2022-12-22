@@ -4,6 +4,7 @@ import type { ApiV2Includes } from './tweet.definition.v2';
 import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
 import type { TTweetv2MediaField, TTweetv2PlaceField, TTweetv2PollField, TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
 import type { TypeOrArrayOf } from '../shared.types';
+import { PaginableCountMetaV2 } from './shared.v2.types';
 
 export type TUserV2Expansion = 'pinned_tweet_id';
 
@@ -76,11 +77,7 @@ export type UserV2MuteResult = DataV2<{
   muting: boolean;
 }>;
 
-export type UserV2TimelineResult = DataMetaAndIncludeV2<UserV2[], {
-  result_count: number;
-  previous_token?: string;
-  next_token?: string;
-}, ApiV2Includes>;
+export type UserV2TimelineResult = DataMetaAndIncludeV2<UserV2[], PaginableCountMetaV2, ApiV2Includes>;
 
 /** @deprecated Use {UserV2TimelineResult} instead. */
 export type FollowersV2Result = UserV2TimelineResult;

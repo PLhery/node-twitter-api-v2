@@ -3,6 +3,7 @@ import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
 import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, MetaV2 } from './shared.v2.types';
 import { UserV2 } from './user.v2.types';
+import { PaginableCountMetaV2 } from './shared.v2.types';
 
 /// -- Timelines --
 
@@ -104,14 +105,10 @@ export type Tweetv2TimelineResult = DataMetaAndIncludeV2<TweetV2[], {
   next_token?: string;
 }, ApiV2Includes>;
 
-export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], {
-  result_count: number;
-  next_token?: string;
-  previous_token?: string;
-}, ApiV2Includes>;
+export type Tweetv2ListResult = DataMetaAndIncludeV2<TweetV2[], PaginableCountMetaV2, ApiV2Includes>;
 
 export type Tweetv2SearchResult = Tweetv2TimelineResult;
-export type TweetV2PaginableTimelineResult = Tweetv2TimelineResult & MetaV2<{ previous_token?: string }>;;
+export type TweetV2PaginableTimelineResult = Tweetv2TimelineResult & MetaV2<{ previous_token?: string }>;
 export type TweetV2UserTimelineResult = TweetV2PaginableTimelineResult;
 export type TweetV2HomeTimelineResult = TweetV2PaginableTimelineResult;
 
@@ -135,11 +132,7 @@ export type TweetV2LikeResult = DataV2<{
   liked: boolean;
 }>;
 
-export type TweetV2LikedByResult = DataMetaAndIncludeV2<UserV2[], {
-  result_count: number;
-  next_token?: string;
-  previous_token?: string;
-}, ApiV2Includes>;
+export type TweetV2LikedByResult = DataMetaAndIncludeV2<UserV2[], PaginableCountMetaV2, ApiV2Includes>;
 
 /// -- Retweets
 

@@ -1,5 +1,5 @@
 import type { TypeOrArrayOf } from '../shared.types';
-import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
+import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2, PaginableCountMetaV2 } from './shared.v2.types';
 import type { TTweetv2UserField } from './tweet.v2.types';
 import type { UserV2 } from './user.v2.types';
 
@@ -37,11 +37,7 @@ export interface GetListTimelineV2Params extends Partial<GetListV2Params> {
 
 export type ListGetV2Result = DataAndIncludeV2<ListV2, TListV2Includes>;
 
-export type ListTimelineV2Result = DataMetaAndIncludeV2<ListV2[], {
-  result_count: number;
-  previous_token?: string;
-  next_token?: string;
-}, TListV2Includes>
+export type ListTimelineV2Result = DataMetaAndIncludeV2<ListV2[], PaginableCountMetaV2, TListV2Includes>
 
 export type ListCreateV2Result = DataV2<{ id: string, name: string }>;
 

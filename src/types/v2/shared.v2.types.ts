@@ -12,3 +12,9 @@ export interface SentMeta {
   /** The time when the request body was returned. */
   sent: string;
 }
+
+export interface PaginableCountMetaV2 {
+  result_count: number;
+  next_token?: string;
+  previous_token?: string;
+}
