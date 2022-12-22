@@ -7,7 +7,7 @@ import { TRequestFullStreamData } from '../types/request-maker.mixin.types';
 import TweetStreamEventCombiner from './TweetStreamEventCombiner';
 import TweetStreamParser, { EStreamParserEvent } from './TweetStreamParser';
 
-interface ITweetStreamError {
+export interface ITweetStreamError {
   type: ETwitterStreamEvent.ConnectionError | ETwitterStreamEvent.TweetParseError
     | ETwitterStreamEvent.ReconnectError | ETwitterStreamEvent.DataError | ETwitterStreamEvent.ConnectError;
   error: any;
