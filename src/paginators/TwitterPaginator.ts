@@ -17,7 +17,7 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   protected _instance: TwitterApiSubClient;
   protected _queryParams: Partial<TApiParams>;
   protected _maxResultsWhenFetchLast = 100;
-  /** informations unrelated to response data/query params that will be shared between paginator instances */
+  /** information unrelated to response data/query params that will be shared between paginator instances */
   protected _sharedParams: TParams;
 
   protected abstract _endpoint: string;
