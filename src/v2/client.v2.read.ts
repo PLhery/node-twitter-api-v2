@@ -706,6 +706,18 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
     return this.getStream<TweetV2SingleResult>('tweets/sample/stream', options as any, { payloadIsError: isTweetStreamV2ErrorPayload, autoConnect });
   }
 
+  /**
+   * Streams about 10% of all Tweets in real-time.
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample10-stream
+   */
+  public sample10Stream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleResult>>;
+  public sample10Stream(options: Partial<Tweetv2FieldsParams> & { autoConnect: false }): TweetStream<TweetV2SingleResult>;
+  public sample10Stream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: boolean }): PromiseOrType<TweetStream<TweetV2SingleResult>>;
+
+  public sample10Stream({ autoConnect, ...options }: Partial<Tweetv2FieldsParams> & { autoConnect?: boolean } = {}) {
+    return this.getStream<TweetV2SingleResult>('tweets/sample10/stream', options as any, { payloadIsError: isTweetStreamV2ErrorPayload, autoConnect });
+  }
+
   /* Batch compliance */
 
   /**
