@@ -1,5 +1,10 @@
-1.12.10
+1.13.0
 ------
+- feat: Add DM events endpoints
+- feat: Add space tweet endpoint
+
+1.12.10
+-------
 - fix: Typing issue in v1 DM medias - ReceivedMessageCreateDataV1 #407 (@secchanu)
 - fix: Allow overriding the content-type header #413 (@alessandrovisentini)
 - fix: readme typo #414 (@vrrdnt)
