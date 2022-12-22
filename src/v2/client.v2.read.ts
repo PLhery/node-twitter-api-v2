@@ -722,6 +722,16 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
     return this.get<SpaceV2BuyersResult>('spaces/:id/buyers', options, { params: { id: spaceId } });
   }
 
+  /**
+   * Returns Tweets shared in the requested Spaces.
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-tweets
+   *
+   * OAuth2 scope: `users.read`, `tweet.read`, `space.read`
+   */
+  public spaceTweets(spaceId: string, options: Partial<Tweetv2FieldsParams> = {}) {
+    return this.get<TweetV2LookupResult>('spaces/:id/tweets', options, { params: { id: spaceId } });
+  }
+
   /* Streaming API */
 
   /**
