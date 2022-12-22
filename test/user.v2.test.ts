@@ -17,7 +17,7 @@ describe('Users endpoints for v2 API', () => {
   it('.user/.users - Get users by ID', async () => {
     const jack = await roClient.v2.user('12', {
       'expansions': ['pinned_tweet_id'],
-      'tweet.fields': ['source', 'lang'],
+      'tweet.fields': ['lang'],
       'user.fields': 'username',
     });
 
@@ -28,7 +28,6 @@ describe('Users endpoints for v2 API', () => {
     if (jack.data.pinned_tweet_id) {
       expect(jack.includes!).to.be.a('object');
       expect(jack.includes!.tweets).to.have.length.greaterThan(0);
-      expect(jack.includes!.tweets![0]).to.haveOwnProperty('source');
       expect(jack.includes!.tweets![0]).to.haveOwnProperty('lang');
     }
 
@@ -39,7 +38,7 @@ describe('Users endpoints for v2 API', () => {
   it('.userByUsername/.usersByUsernames - Get users by screen names', async () => {
     const jack = await roClient.v2.userByUsername('jack', {
       'expansions': ['pinned_tweet_id'],
-      'tweet.fields': ['source', 'lang'],
+      'tweet.fields': ['lang'],
       'user.fields': 'username',
     });
 
@@ -50,7 +49,6 @@ describe('Users endpoints for v2 API', () => {
     if (jack.data.pinned_tweet_id) {
       expect(jack.includes!).to.be.a('object');
       expect(jack.includes!.tweets).to.have.length.greaterThan(0);
-      expect(jack.includes!.tweets![0]).to.haveOwnProperty('source');
       expect(jack.includes!.tweets![0]).to.haveOwnProperty('lang');
     }
 
@@ -61,7 +59,7 @@ describe('Users endpoints for v2 API', () => {
   it('.followers/.following - Get relationships of user', async () => {
     const followersOfJack = await roClient.v2.followers('12', {
       'expansions': ['pinned_tweet_id'],
-      'tweet.fields': ['source', 'lang'],
+      'tweet.fields': ['lang'],
       'user.fields': 'username',
     });
 
@@ -70,13 +68,12 @@ describe('Users endpoints for v2 API', () => {
 
     if (followersOfJack.includes?.tweets?.length) {
       expect(followersOfJack.includes.tweets).to.have.length.greaterThan(0);
-      expect(followersOfJack.includes.tweets[0]).to.haveOwnProperty('source');
       expect(followersOfJack.includes.tweets[0]).to.haveOwnProperty('lang');
     }
 
     const followingsOfJack = await roClient.v2.following('12', {
       'expansions': ['pinned_tweet_id'],
-      'tweet.fields': ['source', 'lang'],
+      'tweet.fields': ['lang'],
       'user.fields': 'username',
     });
 
@@ -85,7 +82,6 @@ describe('Users endpoints for v2 API', () => {
 
     if (followingsOfJack.includes?.tweets?.length) {
       expect(followingsOfJack.includes.tweets).to.have.length.greaterThan(0);
-      expect(followingsOfJack.includes.tweets[0]).to.haveOwnProperty('source');
       expect(followingsOfJack.includes.tweets[0]).to.haveOwnProperty('lang');
     }
   }).timeout(60 * 1000);
@@ -144,11 +140,10 @@ describe('Users endpoints for v2 API', () => {
   it('.userLikedTweets - Last tweets liked by a user', async () => {
     const { readOnly } = userClient;
 
-    const jackLikedTweets = await readOnly.v2.userLikedTweets('12', { 'tweet.fields': ['created_at', 'source'] });
+    const jackLikedTweets = await readOnly.v2.userLikedTweets('12', { 'tweet.fields': ['created_at'] });
     expect(jackLikedTweets.tweets).to.have.length.greaterThan(0);
 
     expect(jackLikedTweets.tweets[0].created_at).to.be.a('string');
-    expect(jackLikedTweets.tweets[0].source).to.be.a('string');
     expect(jackLikedTweets.meta.next_token).to.be.a('string');
   }).timeout(60 * 1000);
 });

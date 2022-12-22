@@ -112,13 +112,12 @@ describe('Tweets endpoints for v2 API', () => {
 
   it('.tweets - Fetch a bunch of tweets', async () => {
     const tweets = await client.v2.tweets(['20', '1257577057862610951'], {
-      'tweet.fields': ['author_id', 'source'],
+      'tweet.fields': ['author_id'],
     });
     expect(tweets.data).to.have.length(2);
 
     const first = tweets.data[0];
     expect(first.author_id).to.be.a('string');
-    expect(first.source).to.be.a('string');
   }).timeout(60 * 1000);
 
   it('.like/.unlike - Like / unlike a single tweet', async () => {
