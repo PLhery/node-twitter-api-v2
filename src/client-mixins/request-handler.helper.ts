@@ -234,7 +234,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected requestErrorHandler(reject: TRequestRejecter, requestError: Error) {
-    this.requestData.requestEventDebugHandler?.('request-error', { requestError })
+    this.requestData.requestEventDebugHandler?.('request-error', { requestError });
 
     this.requestErrorHandled = true;
     reject(this.createRequestError(requestError));

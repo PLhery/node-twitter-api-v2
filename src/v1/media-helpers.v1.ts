@@ -83,8 +83,8 @@ function getMimeByName(name: string) {
   safeDeprecationWarning({
     instance: 'TwitterApiv1ReadWrite',
     method: 'uploadMedia',
-    problem: `options.mimeType is missing and filename couldn't help to resolve MIME type, so it will fallback to image/jpeg`,
-    resolution: `If you except to give filenames without extensions, please specify explicitlty the MIME type using options.mimeType`,
+    problem: 'options.mimeType is missing and filename couldn\'t help to resolve MIME type, so it will fallback to image/jpeg',
+    resolution: 'If you except to give filenames without extensions, please specify explicitlty the MIME type using options.mimeType',
   });
 
   return EUploadMimeType.Jpeg;
@@ -94,9 +94,9 @@ function getMimeByType(type: TUploadTypeV1 | string) {
   safeDeprecationWarning({
     instance: 'TwitterApiv1ReadWrite',
     method: 'uploadMedia',
-    problem: `you're using options.type`,
-    resolution: `Remove options.type argument and migrate to options.mimeType which takes the real MIME type. ` +
-      `If you're using type=longmp4, add options.longVideo alongside of mimeType=EUploadMimeType.Mp4`,
+    problem: 'you\'re using options.type',
+    resolution: 'Remove options.type argument and migrate to options.mimeType which takes the real MIME type. ' +
+      'If you\'re using type=longmp4, add options.longVideo alongside of mimeType=EUploadMimeType.Mp4',
   });
 
   if (type === 'gif') return EUploadMimeType.Gif;

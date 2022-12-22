@@ -39,6 +39,7 @@ export interface TweetV2UserTimelineParams extends TweetV2PaginableTimelineParam
   exclude?: TypeOrArrayOf<'retweets' | 'replies'>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TweetV2HomeTimelineParams extends TweetV2UserTimelineParams {}
 
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'

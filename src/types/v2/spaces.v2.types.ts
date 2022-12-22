@@ -27,6 +27,7 @@ export interface SpaceV2SearchParams extends Partial<SpaceV2FieldsParams> {
   max_results?: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SpaceV2BuyersParams extends Partial<UsersV2Params> {}
 
 // - Responses -
