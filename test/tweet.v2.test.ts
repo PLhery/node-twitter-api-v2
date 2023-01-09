@@ -38,29 +38,33 @@ describe('Tweets endpoints for v2 API', () => {
   }).timeout(60 * 1000);
 
   it('.search - Search and fetch tweets using tweet searcher and consume 200 tweets', async () => {
-    const nodeJs = await client.v2.search('nodeJS');
+    // Using string for query
+    const response1 = await client.v2.search('nodeJS');
+    // Using object with query key
+    const response2 = await client.v2.search({ query: 'nodeJS' });
 
-    const originalLength = nodeJs.tweets.length;
-    expect(nodeJs.tweets.length).to.be.greaterThan(0);
+    for (const response of [response1, response2]) {
+      const originalLength = response.tweets.length;
+      expect(response.tweets.length).to.be.greaterThan(0);
 
-    await nodeJs.fetchNext();
-    expect(nodeJs.tweets.length).to.be.greaterThan(originalLength);
+      await response.fetchNext();
+      expect(response.tweets.length).to.be.greaterThan(originalLength);
 
-    // Test if iterator correctly fetch tweets (silent)
-    let i = 0;
-    const ids = [];
+      // Test if iterator correctly fetch tweets (silent)
+      let i = 0;
+      const ids = [];
 
-    for await (const tweet of nodeJs) {
-      ids.push(tweet.id);
-      if (i > 200) {
-        break;
+      for await (const tweet of response) {
+        ids.push(tweet.id);
+        if (i > 200) {
+          break;
+        }
+
+        i++;
       }
-
-      i++;
+      // Check for duplicates
+      expect(ids).to.have.length(new Set(ids).size);
     }
-
-    // Check for duplicates
-    expect(ids).to.have.length(new Set(ids).size);
   }).timeout(60 * 1000);
 
   it('.userTimeline/.userMentionTimeline - Fetch user & mention timeline and consume 150 tweets', async () => {
