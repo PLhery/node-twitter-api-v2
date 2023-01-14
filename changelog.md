@@ -1,3 +1,8 @@
+1.14.0
+------
+- feat: improve search query params #431
+- breaking change: DM Ids should be strings #436
+
 1.13.0
 ------
 - feat: Add DM events endpoints
