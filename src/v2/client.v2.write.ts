@@ -356,7 +356,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * Creates a Direct Message on behalf of an authenticated user, and adds it to the specified conversation.
    * https://developer.twitter.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations-dm_conversation_id-messages
    */
-  public sendDmInConversation(conversationId: number, message: PostDMInConversationParams) {
+  public sendDmInConversation(conversationId: string, message: PostDMInConversationParams) {
     return this.post<PostDMInConversationResult>('dm_conversations/:dm_conversation_id/messages', message, { params: { dm_conversation_id: conversationId } });
   }
 
@@ -365,7 +365,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * This method either creates a new one-to-one conversation or retrieves the current conversation and adds the Direct Message to it.
    * https://developer.twitter.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations-with-participant_id-messages
    */
-  public sendDmToParticipant(participantId: number, message: PostDMInConversationParams) {
+  public sendDmToParticipant(participantId: string, message: PostDMInConversationParams) {
     return this.post<PostDMInConversationResult>('dm_conversations/with/:participant_id/messages', message, { params: { participant_id: participantId } });
   }
 
