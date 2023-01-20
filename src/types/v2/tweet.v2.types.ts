@@ -55,7 +55,7 @@ export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotati
   | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld';
 export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id' | 'location'
   | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'protected' | 'public_metrics'
-  | 'url' | 'username' | 'verified' | 'withheld';
+  | 'url' | 'username' | 'verified' | 'verified_type' | 'withheld';
 
 export interface Tweetv2FieldsParams {
   expansions: TypeOrArrayOf<TTweetv2Expansion> | string;
