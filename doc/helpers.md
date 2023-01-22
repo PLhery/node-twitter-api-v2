@@ -3,19 +3,20 @@
 This is a comprehensive guide of all helpers available for the Twitter API on both versions v1.1 and v2.
 
 <!-- vscode-markdown-toc -->
-* [Helpers for includes of v2 API responses](#Helpersforincludesofv2APIresponses)
-	* [Simple usage](#Simpleusage)
-	* [Available helper methods](#Availablehelpermethods)
-		* [Tweets](#Tweets)
-		* [Users](#Users)
-		* [Medias](#Medias)
-		* [Polls](#Polls)
-		* [Places](#Places)
-		* [Lists](#Lists)
-		* [Spaces](#Spaces)
-	* [Usage without instanciation](#Usagewithoutinstanciation)
-* [Extract errors in an array](#Extracterrorsinanarray)
-* [Change image size of a profile picture](#Changeimagesizeofaprofilepicture)
+* [Helpers for includes of v2 API responses](#helpers-for-includes-of-v2-API-responses)
+	* [Simple usage](#simple-usage)
+	* [Available helper methods](#available-helper-methods)
+		* [Tweets](#tweets)
+		* [Users](#users)
+		* [Medias](#medias)
+		* [Polls](#polls)
+		* [Places](#places)
+		* [Lists](#lists)
+		* [Spaces](#spaces)
+    * [Sample usage of helper methods](#sample-usage-of-helper-methods)
+	* [Usage without instantiation](#usage-without-instantiation)
+* [Extract errors in an array](#extract-errors-in-an-array)
+* [Change image size of a profile picture](#change-image-size-of-a-profile-picture)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -23,7 +24,7 @@ This is a comprehensive guide of all helpers available for the Twitter API on bo
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-## <a name='Helpersforincludesofv2APIresponses'></a>Helpers for includes of v2 API responses
+## Helpers for includes of v2 API responses
 
 In v2 API of Twitter, for sake of efficiency, "linked" metadata can be returned outside the data object.
 
@@ -41,10 +42,10 @@ const pinnedTweet = pinnedTweetId ? response.includes?.tweets?.find(t => t.id ==
 
 This could be quite a pain if you handle multiple metas in once bunch of code.
 
-### <a name='Simpleusage'></a>Simple usage
+### Simple usage
 
 **This library includes an helper class for includes result** named `TwitterV2IncludesHelper`.
-You can instanciate it by importing it from the package:
+You can instantiate it by importing it from the package:
 
 ```ts
 import { TwitterV2IncludesHelper } from 'twitter-api-v2';
@@ -65,11 +66,11 @@ includes.media
 // etc.
 ```
 
-### <a name='Availablehelpermethods'></a>Available helper methods
+### Available helper methods
 
 Needed expansions for a method to work are specified (*`like this`*).
 
-#### <a name='Tweets'></a>Tweets
+#### Tweets
 
 - `(getter) .tweets: TweetV2[]`: Access tweets stored into the includes
 - `.tweetById(id: string): TweetV2`: Get a tweet by ID
@@ -79,32 +80,32 @@ Needed expansions for a method to work are specified (*`like this`*).
 - `.author(tweet: TweetV2): UserV2`: Tweet author user object of the given tweet (*`author_id`* or *`referenced_tweets.id.author_id`*)
 - `.repliedToAuthor(tweet: TweetV2): UserV2`: Tweet author user object of the tweet answered by the given tweet (*`in_reply_to_user_id`*)
 
-#### <a name='Users'></a>Users
+#### Users
 
 - `(getter) .users: UserV2[]`: Access users stored into the includes
 - `.userById(id: string): UserV2`: Get a user by ID
 - `.pinnedTweet(user: UserV2): TweetV2`: Pinned tweet of the given user (*`pinned_tweet_id`*)
 
-#### <a name='Medias'></a>Medias
+#### Medias
 
 - `(getter) .media: MediaObjectV2[]`: Access medias stored into the includes
 - `.medias(tweet: TweetV2): MediaObjectV2[]`: Get medias associated with the given tweet (*`attachments.media_keys`*)
 
-#### <a name='Polls'></a>Polls
+#### Polls
 
 - `(getter) .polls: PollV2[]`: Access medias stored into the includes
 - `.poll(tweet: TweetV2): PollV2`: Get poll associated with the given tweet (*`attachments.poll_ids`*)
 
-#### <a name='Places'></a>Places
+#### Places
 
 - `(getter) .places: PlaceV2[]`: Access medias stored into the includes
 - `.place(tweet: TweetV2): PlaceV2`: Get place associated with the given tweet (*`geo.place_id`*)
 
-#### <a name='Lists'></a>Lists
+#### Lists
 
 - `.listOwner(list: ListV2): UserV2`: Get list owner of the given list (*`owner_id`*)
 
-#### <a name='Spaces'></a>Spaces
+#### Spaces
 
 - `.spaceCreator(space: SpaceV2): UserV2`: Get creator of the given space (*`creator_id`*)
 - `.spaceHosts(space: SpaceV2): UserV2[]`: Get current hosts of the given space (*`host_ids`*)
@@ -156,9 +157,9 @@ const invitedUsers = includes.spaceInvitedUsers(spacesBySearch.data[0]);
 const creatorUser = includes.spaceCreator(spacesBySearch.data[0]);
 ```
 
-### <a name='Usagewithoutinstanciation'></a>Usage without instanciation
+### Usage without instantiation
 
-You can use the helper without instanciate it, by using its `static` methods.
+You can use the helper without instantiate it, by using its `static` methods.
 Every helper method is available under the form `methodName(responseObject, ...restParameter)`.
 
 Examples:
@@ -173,14 +174,14 @@ TwitterV2IncludesHelper.retweets(response, tweet)
 TwitterV2IncludesHelper.medias(response, tweet)
 ```
 
-## <a name='Extracterrorsinanarray'></a>Extract errors in an array
+## Extract errors in an array
 
 Get returned errors in a thrown `TwitterApiError` object.
 
 **Method**: `TwitterApi.getErrors()`
 
 **Arguments**:
-  - `error: any`: Catched error
+  - `error: any`: Caught error
 
 **Returns**: `(ErrorV1 | ErrorV2)[]`
 
@@ -195,7 +196,7 @@ try {
 }
 ```
 
-## <a name='Changeimagesizeofaprofilepicture'></a>Change image size of a profile picture
+## Change image size of a profile picture
 
 Extract another image size than obtained in `profile_image_url` or `profile_image_url_https` field of a user object.
 

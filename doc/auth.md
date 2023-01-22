@@ -21,7 +21,7 @@ For example, if you have a Twitter developer app, you can make API requests on b
 
 This method is **fairly the most complex** of authentication flow options, but it is, at least for now, the **most used method across Twitter API**.
 
-It is named "3-legged" because it is splitted in 3 parts:
+It is named "3-legged" because it is split in 3 parts:
 1. You (the app/server) generate a auth link that is clickable by a external user, and gives you *temporary* access tokens
 2. The user clicks on the link, approves the application, it gives you a verifier token
 3. You use the *temporary* access tokens and verifier token to obtain **user-specific** *persistent* access tokens
@@ -136,7 +136,7 @@ App-only flow use a single OAuth 2.0 Bearer Token that authenticates requests on
 As this method is specific to the App, it does not involve any users.
 This method is typically for developers that need read-only access to public information.
 
-You can instanciate a Twitter API client with two ways:
+You can instantiate a Twitter API client with two ways:
 - If you already know your Bearer token (you can obtain it in the developer portal), you can use it directly in the constructor as a `string`:
 ```ts
 const client = new TwitterApi(MY_BEARER_TOKEN);
@@ -162,12 +162,12 @@ const client = new TwitterApi({ username: MY_USERNAME, password: MY_PASSWORD });
 ## OAuth2 user-wide authentication flow
 
 Alternatively of OAuth 1.0a method, you can use OAuth2 user-context, which is restricted to **v2 of Twitter API**.
-This process is very similar of one used in OAuth 1.0a, so it's recommand to read it first to understand what's happening below.
+This process is very similar of one used in OAuth 1.0a, so it's recommended to read it first to understand what's happening below.
 
 The main advantage of this method is that you can **explicitly specify which part of data you'll need from the Twitter user's account**.
 These parts are called **scopes**.
 
-This authentification is splitted into 3 parts:
+This authentication is split into 3 parts:
 1. You (the app/server) generate a auth link with your client ID that is clickable by an external user
 2. The user clicks on the link, approves the application, it gives you a client code
 3. You use a code verifier generated at the first step along the client code to obtain **user-specific** access token; this token has a dedicated lifetime that can be extended with refresh tokens
@@ -205,7 +205,7 @@ When Twitter redirects to your page, it provides two query string parameters: `c
 
 **NOTE**: If the user refuses app access, `code` will not be provided.
 
-You need to extract those tokens, find the linked `codeVerifier` from given `state` (using your session store!), then ask for accesss token.
+You need to extract those tokens, find the linked `codeVerifier` from given `state` (using your session store!), then ask for access token.
 
 Create a client with your **client ID** (and the **client secret** if it's needed), like at step 1.
 

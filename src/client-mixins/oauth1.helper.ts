@@ -186,10 +186,10 @@ function sortObject<T extends object>(data: T) {
 }
 
 function deParam(string: string) {
-  const splitted = string.split('&');
+  const split = string.split('&');
   const data: { [key: string]: string | string[] } = {};
 
-  for (const coupleKeyValue of splitted) {
+  for (const coupleKeyValue of split) {
     const [key, value = ''] = coupleKeyValue.split('=');
 
     // check if the key already exists

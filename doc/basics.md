@@ -116,6 +116,6 @@ const proxy = process.env.HTTP_PROXY || 'https://1.1.1.1:3000';
 // create an instance of the `HttpProxyAgent` class with the proxy server information
 const httpAgent = new HttpProxyAgent(proxy);
 
-// Instanciate helper with the agent
+// Instantiate helper with the agent
 const client = new TwitterApi('<bearerToken>', { httpAgent });
 ```

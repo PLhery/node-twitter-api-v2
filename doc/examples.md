@@ -12,29 +12,29 @@ For each implemented endpoint, you have a link to documentation available in JSD
 **Note:** Top-level use of `await` is not available in most of Node.js usage. You might need to wrap `await`s into async functions. See [MDN related documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
 
 <!-- vscode-markdown-toc -->
-* [Create a client](#Createaclient)
-	* [With user credentials (act as a logged user)](#Withusercredentialsactasaloggeduser)
-	* [With app-only credentials](#Withapp-onlycredentials)
-	* [Select the right level of your client](#Selecttherightlevelofyourclient)
-* [Tweets](#Tweets)
-	* [Fetch and navigate through home timeline](#Fetchandnavigatethroughhometimeline)
-	* [Fetch and navigate through a user timeline](#Fetchandnavigatethroughausertimeline)
-	* [Post a new tweet with multiple images](#Postanewtweetwithmultipleimages)
-	* [Reply to a tweet with a video that have subtitles](#Replytoatweetwithavideothathavesubtitles)
-	* [Stream tweets in real time](#Streamtweetsinrealtime)
-* [Users](#Users)
-	* [Search users](#Searchusers)
-	* [Update profile banner](#Updateprofilebanner)
-	* [List pending follow requests](#Listpendingfollowrequests)
-* [Direct messages](#Directmessages)
-	* [Send a direct message with an image](#Sendadirectmessagewithanimage)
-	* [Set a welcome direct message](#Setawelcomedirectmessage)
-* [Auth flow](#Authflow)
-	* [Generate a auth link and get access tokens (OAuth 1.0a)](#GenerateaauthlinkandgetaccesstokensOAuth1.0a)
-	* [Generate a auth link and get access tokens (OAuth 2)](#GenerateaauthlinkandgetaccesstokensOAuth2)
-* [HTTP wrappers](#HTTPwrappers)
-	* [Make a GET HTTP request to a Twitter endpoint](#MakeaGETHTTPrequesttoaTwitterendpoint)
-	* [Build a POST query with a custom body](#BuildaPOSTquerywithacustombody)
+* [Create a client](#create-a-client)
+	* [With user credentials (act as a logged user)](#with-user-credentials-act-as-a-logged-user)
+	* [With app-only credentials](#with-app-only-credentials)
+	* [Select the right level of your client](#select-the-right-level-of-your-client)
+* [Tweets](#tweets)
+	* [Fetch and navigate through home timeline](#fetch-and-navigate-through-home-timeline)
+	* [Fetch and navigate through a user timeline](#fetch-and-navigate-through-a-user-timeline)
+	* [Post a new tweet with multiple images](#post-a-new-tweet-with-multiple-images)
+	* [Reply to a tweet with a video that have subtitles](#reply-to-a-tweet-with-a-video-that-have-subtitles)
+	* [Stream tweets in real time](#stream-tweets-in-real-time)
+* [Users](#users)
+	* [Search users](#search-users)
+	* [Update profile banner](#update-profile-banner)
+	* [List pending follow requests](#list-pending-follow-requests)
+* [Direct messages](#direct-messages)
+	* [Send a direct message with an image](#send-a-direct-message-with-an-image)
+	* [Set a welcome direct message](#set-a-welcome-direct-message)
+* [Auth flow](#auth-flow)
+	* [Generate a auth link and get access tokens (OAuth 1.0a)](#generate-a-auth-link-and-get-access-tokens-oauth-10a)
+	* [Generate a auth link and get access tokens (OAuth 2)](#generate-a-auth-link-and-get-access-tokens-oauth-2)
+* [HTTP wrappers](#http-wrappers)
+	* [Make a GET HTTP request to a Twitter endpoint](#make-a-get-http-request-to-a-twitter-endpoint)
+	* [Build a POST query with a custom body](#build-a-post-query-with-a-custom-body)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -42,18 +42,18 @@ For each implemented endpoint, you have a link to documentation available in JSD
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-## <a name='Createaclient'></a>Create a client
+## Create a client
 
-### <a name='Withusercredentialsactasaloggeduser'></a>With user credentials (act as a logged user)
+### With user credentials (act as a logged user)
 
-This kind of auth is needed for endpoint mentionned with `"OAuth 1.0a User context"` or `"OAuth 2.0 Authorization Code with PKCE"` in Twitter documentation.
+This kind of auth is needed for endpoint mentioned with `"OAuth 1.0a User context"` or `"OAuth 2.0 Authorization Code with PKCE"` in Twitter documentation.
 Usually, this is used to act on behalf of a user.
 
 Access token and access secret are obtained through [the 3-legged auth flow](./auth.md).
 
 - OAuth 1.0a User context (the most common, supports API v1.1 & v2)
 
-This authentification method requires to use a couple of 4 keys, 2 are your app keys and 2 are obtained with the 3-legged auth flow.
+This authentication method requires to use a couple of 4 keys, 2 are your app keys and 2 are obtained with the 3-legged auth flow.
 ```ts
 const client = new TwitterApi({
   appKey: '<YOUR-TWITTER-APP-TOKEN>',
@@ -66,7 +66,7 @@ const client = new TwitterApi({
 
 - OAuth 2.0 Authorization Code with PKCE (fine-grained scopes, API v2 only)
 
-This authentification method only requires to use the obtained **access token** with the 3-legged OAuth2 auth flow.
+This authentication method only requires to use the obtained **access token** with the 3-legged OAuth2 auth flow.
 ```ts
 const client = new TwitterApi('<YOUR-ACCESS-TOKEN>');
 ```
@@ -79,7 +79,7 @@ const { client: refreshedClient, accessToken, refreshToken } = await client.refr
 // Use {refreshedClient}, and save {accessToken} and {refreshToken} in your storage to use them later
 ```
 
-### <a name='Withapp-onlycredentials'></a>With app-only credentials
+### With app-only credentials
 
 This kind of auth is accepted on Twitter endpoints with `"OAuth 2.0 Bearer token"` (or Application context) mentioned in documentation.
 
@@ -87,7 +87,7 @@ This kind of auth is accepted on Twitter endpoints with `"OAuth 2.0 Bearer token
 const client = new TwitterApi('<YOUR-TWITTER-BEARER-TOKEN>');
 ```
 
-### <a name='Selecttherightlevelofyourclient'></a>Select the right level of your client
+### Select the right level of your client
 
 Twitter API v2 let you customize the right-level of your client. This should match your app-level defined in Twitter Apps portal.
 This doesn't enforce anything at request level, but it will filter listed endpoint wrappers by your IDE through code suggestions.
@@ -105,9 +105,9 @@ const rwClient = client.readWrite;
 const roClient = client.readOnly;
 ```
 
-## <a name='Tweets'></a>Tweets
+## Tweets
 
-### <a name='Fetchandnavigatethroughhometimeline'></a>Fetch and navigate through home timeline
+### Fetch and navigate through home timeline
 
 Download tweets of home timeline and consume them with a paginator.
 
@@ -122,7 +122,7 @@ const nextHomePage = await homeTimeline.next();
 console.log('Fetched tweet IDs in next page:', nextHomePage.tweets.map(tweet => tweet.id_str));
 ```
 
-### <a name='Fetchandnavigatethroughausertimeline'></a>Fetch and navigate through a user timeline
+### Fetch and navigate through a user timeline
 
 Download tweets of user timeline using v2 API and consume them with a paginator.
 
@@ -148,7 +148,7 @@ for await (const tweet of jackTimeline) {
 }
 ```
 
-### <a name='Postanewtweetwithmultipleimages'></a>Post a new tweet with multiple images
+### Post a new tweet with multiple images
 
 ```ts
 // First, post all your images to Twitter
@@ -163,7 +163,7 @@ const mediaIds = await Promise.all([
 await client.v1.tweet('My tweet text with two images!', { media_ids: mediaIds });
 ```
 
-### <a name='Replytoatweetwithavideothathavesubtitles'></a>Reply to a tweet with a video that have subtitles
+### Reply to a tweet with a video that have subtitles
 
 ```ts
 // A video which is more than 15MB must be uploaded with 'longmp4'
@@ -177,7 +177,7 @@ await client.v1.createMediaSubtitles(mediaIdVideo, [{ language_code: 'en', displ
 await client.v1.reply('Look at my video!', tweetIdToReply, { media_ids: mediaIdVideo });
 ```
 
-### <a name='Streamtweetsinrealtime'></a>Stream tweets in real time
+### Stream tweets in real time
 
 Listen for a bunch of words using v2 stream filter API.
 
@@ -214,9 +214,9 @@ stream.on(ETwitterStreamEvent.Data, async tweet => {
 });
 ```
 
-## <a name='Users'></a>Users
+## Users
 
-### <a name='Searchusers'></a>Search users
+### Search users
 
 ```ts
 const foundUsers = await client.v1.searchUsers('alki');
@@ -227,7 +227,7 @@ for await (const user of foundUsers) {
 }
 ```
 
-### <a name='Updateprofilebanner'></a>Update profile banner
+### Update profile banner
 
 ```ts
 // Upload from a path (the same sources as .uploadMedia are accepted)
@@ -238,7 +238,7 @@ const allBannerSizes = await client.v1.userProfileBannerSizes({ user_id: updated
 console.log('New banner! Max size at URL:', allBannerSizes.sizes['1500x500'].url);
 ```
 
-### <a name='Listpendingfollowrequests'></a>List pending follow requests
+### List pending follow requests
 
 ```ts
 const pendingRequests = await client.v1.friendshipsIncoming();
@@ -249,9 +249,9 @@ for (const user of hydratedUsers) {
 }
 ```
 
-## <a name='Directmessages'></a>Direct messages
+## Direct messages
 
-### <a name='Sendadirectmessagewithanimage'></a>Send a direct message with an image
+### Send a direct message with an image
 
 ```ts
 const imgMediaId = await client.v1.uploadMedia('./test-image.mp4', { target: 'dm' });
@@ -263,7 +263,7 @@ await client.v1.sendDm({
 });
 ```
 
-### <a name='Setawelcomedirectmessage'></a>Set a welcome direct message
+### Set a welcome direct message
 
 ```ts
 const welcomeDm = await client.v1.newWelcomeDm('Welcome DM hello :)', { text: 'Welcome to our chat! Please tell us whats happening.' });
@@ -272,13 +272,13 @@ const welcomeDm = await client.v1.newWelcomeDm('Welcome DM hello :)', { text: 'W
 await client.v1.setWelcomeDm(welcomeDm[EDirectMessageEventTypeV1.WelcomeCreate].id);
 ```
 
-## <a name='Authflow'></a>Auth flow
+## Auth flow
 
 You can see a [real-life example of a 3-legged auth flow here](https://github.com/alkihis/twitter-api-v2-user-oauth-flow-example).
 
-See also [authentication documentation](./auth.md) for examples and explainations about Twitter auth flow.
+See also [authentication documentation](./auth.md) for examples and explanations about Twitter auth flow.
 
-### <a name='GenerateaauthlinkandgetaccesstokensOAuth1.0a'></a>Generate a auth link and get access tokens (OAuth 1.0a)
+### Generate a auth link and get access tokens (OAuth 1.0a)
 
 ```ts
 // Create a partial client for auth links
@@ -301,7 +301,7 @@ const { accessToken, accessSecret } = connecterClient.login('<THE_OAUTH_VERIFIER
 console.log('Access token and secret for logged client:', accessToken, accessSecret);
 ```
 
-### <a name='GenerateaauthlinkandgetaccesstokensOAuth2'></a>Generate a auth link and get access tokens (OAuth 2)
+### Generate a auth link and get access tokens (OAuth 2)
 
 ```ts
 // Create a partial client for auth links
@@ -318,14 +318,14 @@ console.log('Access token for logged client:', accessToken);
 console.log('Refresh token to store for client:', refreshToken);
 ```
 
-## <a name='HTTPwrappers'></a>HTTP wrappers
+## HTTP wrappers
 
 You can directly use HTTP wrappers to make custom requests.
 Requests under `.v1` are prefixed with `https://api.twitter.com/1.1/`, and under `.v2` are prefixed with `https://api.twitter/2/`.
 
 It means that if you need to use a different domain, for example `https://upload.twitter.com/1.1/`, you **must specify it manually** (see below).
 
-### <a name='MakeaGETHTTPrequesttoaTwitterendpoint'></a>Make a GET HTTP request to a Twitter endpoint
+### Make a GET HTTP request to a Twitter endpoint
 
 ```ts
 // With default prefix
@@ -341,7 +341,7 @@ const mediaStatus = await client.v1.get<MediaStatusV1Result>(
 console.log('Media is ready:', mediaStatus.processing_info.state === 'succeeded');
 ```
 
-### <a name='BuildaPOSTquerywithacustombody'></a>Build a POST query with a custom body
+### Build a POST query with a custom body
 
 By default, `twitter-api-v2` tries to auto-detect the body format needed for the desired endpoint.
 But if this doesn't work (fe Twitter error of invalid body format), you can build a request with a fixed body format.
