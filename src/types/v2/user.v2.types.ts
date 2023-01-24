@@ -98,6 +98,7 @@ export interface UserV2 {
   url?: string;
   description?: string;
   verified?: boolean;
+  verified_type?: "none" | "blue" | "business" | "government";
   entities?: {
     url?: { urls: UrlEntity[] };
     description: {
