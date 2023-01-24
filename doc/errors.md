@@ -44,7 +44,7 @@ const client = new TwitterApi(tokens, { compression: false });
 ## Advanced: Debug a single request
 
 If you want to debug a single request made through direct HTTP handlers `.get`/`.post`/`.delete`,
-you can use an additionnal property named `requestEventDebugHandler`.
+you can use an additional property named `requestEventDebugHandler`.
 
 ```ts
 client.v1.get(

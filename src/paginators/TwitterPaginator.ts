@@ -161,7 +161,7 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   }
 
   /**
-   * Iterate over items "undefinitely" (until rate limit is hit / they're no more items available)
+   * Iterate over items "indefinitely" (until rate limit is hit / they're no more items available)
    * This will **mutate the current instance** and fill data, metas, etc. inside this instance.
    *
    * If you need to handle concurrent requests, or you need to rely on immutability, please use `.fetchAndIterate()` instead.
@@ -187,7 +187,7 @@ export abstract class TwitterPaginator<TApiResult, TApiParams extends object, TI
   }
 
   /**
-   * Iterate over items "undefinitely" without modifying the current instance (until rate limit is hit / they're no more items available)
+   * Iterate over items "indefinitely" without modifying the current instance (until rate limit is hit / they're no more items available)
    *
    * This will **NOT** mutate the current instance, meaning that current instance will not inherit from `includes` and `meta` (v2 API only).
    * Use `Symbol.asyncIterator` (`for-await of`) to directly access items with current instance mutation.

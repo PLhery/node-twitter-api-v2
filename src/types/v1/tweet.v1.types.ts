@@ -39,7 +39,7 @@ export interface TweetV1 {
   lang: string;
   display_text_range?: [number, number];
 
-  // Additionnal attributes
+  // Additional attributes
   current_user_retweet?: { id: number, id_str: string };
   withheld_copyright?: boolean;
   withheld_in_countries?: string[];

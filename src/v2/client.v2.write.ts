@@ -235,7 +235,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * The user (in the path) must match the user context authorizing the request.
    * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/post-users-user_id-blocking
    *
-   * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
+   * **Note**: You must specify the currently logged user ID; you can obtain it through v1.1 API.
    */
   public block(loggedUserId: string, targetUserId: string) {
     return this.post<UserV2BlockResult>('users/:id/blocking', { target_user_id: targetUserId }, { params: { id: loggedUserId } });

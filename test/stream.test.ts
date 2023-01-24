@@ -61,7 +61,7 @@ describe('Tweet stream API v2', () => {
     expect(numberOfTweets).to.equal(3);
   }).timeout(1000 * 120);
 
-  it('In 10 seconds, should have the same tweets registred by async iterator and event handler, where stream is manually started', async () => {
+  it('In 10 seconds, should have the same tweets registered by async iterator and event handler, where stream is manually started', async () => {
     const streamV2 = clientBearer.v2.sampleStream({ autoConnect: false });
 
     const eventTweetIds = [] as string[];

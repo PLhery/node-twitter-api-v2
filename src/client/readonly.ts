@@ -75,7 +75,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * Generate the OAuth request token link for user-based OAuth 1.0 auth.
    *
    * ```ts
-   * // Instanciate TwitterApi with consumer keys
+   * // Instantiate TwitterApi with consumer keys
    * const client = new TwitterApi({ appKey: 'consumer_key', appSecret: 'consumer_secret' });
    *
    * const tokenRequest = await client.generateAuthLink('oob-or-your-callback-url');
@@ -124,7 +124,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * Obtain access to user-based OAuth 1.0 auth.
    *
    * After user is redirect from your callback, use obtained oauth_token and oauth_verifier to
-   * instanciate the new TwitterApi instance.
+   * instantiate the new TwitterApi instance.
    *
    * ```ts
    * // Use the saved oauth_token_secret associated to oauth_token returned by callback
@@ -170,7 +170,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
   /**
    * Enable application-only authentication.
    *
-   * To make the request, instanciate TwitterApi with consumer and secret.
+   * To make the request, instantiate TwitterApi with consumer and secret.
    *
    * ```ts
    * const requestClient = new TwitterApi({ appKey: 'consumer', appSecret: 'secret' });
@@ -203,7 +203,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * See https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token for details.
    *
    * ```ts
-   * // Instanciate TwitterApi with client ID
+   * // Instantiate TwitterApi with client ID
    * const client = new TwitterApi({ clientId: 'yourClientId' });
    *
    * // Generate a link to callback URL that will gives a token with tweet+user read access
@@ -265,7 +265,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * Obtain access to user-based OAuth 2.0 auth.
    *
    * After user is redirect from your callback, use obtained code to
-   * instanciate the new TwitterApi instance.
+   * instantiate the new TwitterApi instance.
    *
    * You need to obtain `codeVerifier` from a call to `.generateOAuth2AuthLink`.
    *

@@ -5,7 +5,7 @@ Plugins are objects exposing specific functions, called by the library at specif
 
 ## Using plugins
 
-Import your plugin, instanciate them (if needed), and give them in the `plugins` array of client settings.
+Import your plugin, instantiate them (if needed), and give them in the `plugins` array of client settings.
 
 ```ts
 import { TwitterApi } from 'twitter-api-v2'

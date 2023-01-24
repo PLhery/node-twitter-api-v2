@@ -329,7 +329,7 @@ export enum EApiV1ErrorCode {
   CannotSendDMToThisUser = 349,
   DMTextTooLong = 354,
 
-  // Appication misconfiguration
+  // Application misconfiguration
   SubscriptionAlreadyExists = 355,
   CallbackUrlNotApproved = 415,
   SuspendedApplication = 416,

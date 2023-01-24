@@ -28,11 +28,11 @@ abstract class TweetTimelineV1Paginator<
   }
 
   protected getNextQueryParams(maxResults?: number) {
-    const lastestId = BigInt(this._realData[this._realData.length - 1].id_str);
+    const latestId = BigInt(this._realData[this._realData.length - 1].id_str);
 
     return {
       ...this.injectQueryParams(maxResults),
-      max_id: (lastestId - BigInt(1)).toString(),
+      max_id: (latestId - BigInt(1)).toString(),
     };
   }
 

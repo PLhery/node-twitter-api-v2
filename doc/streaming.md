@@ -3,20 +3,20 @@
 This lib supports streaming for v1 and v2 API.
 
 <!-- vscode-markdown-toc -->
-* [Using streaming](#Usingstreaming)
-	* [Note: Use streaming without auto-connection feature](#Note:Usestreamingwithoutauto-connectionfeature)
-* [Specific API v1.1 implementations](#SpecificAPIv1.1implementations)
-	* [Filter endpoint](#Filterendpoint)
-	* [Sample endpoint](#Sampleendpoint)
-* [Specific API v2 implementations](#SpecificAPIv2implementations)
-	* [Search endpoint](#Searchendpoint)
-	* [Search endpoint - Get applied rules](#Searchendpoint-Getappliedrules)
-	* [Search endpoint - Add or delete rules](#Searchendpoint-Addordeleterules)
-	* [Sample endpoint](#Sampleendpoint-1)
-* [Make a custom request](#Makeacustomrequest)
-* [`TweetStream` reference](#TweetStreamreference)
-	* [Methods / properties](#Methodsproperties)
-	* [Events](#Events)
+* [Using streaming](#using-streaming)
+	* [Note: Use streaming without auto-connection feature](#note-use-streaming-without-auto-connection-feature)
+* [Specific API v1.1 implementations](#specific-api-v11-implementations)
+	* [Filter endpoint](#filter-endpoint)
+	* [Sample endpoint](#sample-endpoint)
+* [Specific API v2 implementations](#specific-api-v2-implementations)
+	* [Search endpoint](#search-endpoint)
+	* [Search endpoint - Get applied rules](#search-endpoint---get-applied-rules)
+	* [Search endpoint - Add or delete rules](#search-endpoint---add-or-delete-rules)
+	* [Sample endpoint](#sample-endpoint-1)
+* [Make a custom request](#make-a-custom-request)
+* [`TweetStream` reference](#tweetstream-reference)
+	* [Methods / properties](#methods--properties)
+	* [Events](#events)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -24,7 +24,7 @@ This lib supports streaming for v1 and v2 API.
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-## <a name='Usingstreaming'></a>Using streaming
+## Using streaming
 
 For both V1 and V2 APIs, streaming methods returns a `TweetStream` object.
 
@@ -76,7 +76,7 @@ for await (const { data } of stream) {
 }
 ```
 
-### <a name='Note:Usestreamingwithoutauto-connectionfeature'></a>Note: Use streaming without auto-connection feature
+### Note: Use streaming without auto-connection feature
 
 You can create streams that doesn't connect immediately.
 This leads to the advantage of that endpoint wrappers will directly returns a `TweetStream` object, not wrapped in a `Promise`.
@@ -99,11 +99,11 @@ stream.on(ETwitterStreamEvent.Connected, () => console.log('Stream is started.')
 await stream.connect({ autoReconnect: true, autoReconnectRetries: Infinity });
 ```
 
-## <a name='SpecificAPIv1.1implementations'></a>Specific API v1.1 implementations
+## Specific API v1.1 implementations
 
 API v1.1 streaming-related endpoints works only with classic OAuth 1.0a authentication.
 
-### <a name='Filterendpoint'></a>Filter endpoint
+### Filter endpoint
 
 Method: **`v1.filterStream`**.
 
@@ -125,7 +125,7 @@ const streamFilter = await client.v1.filterStream({
 // Event data will be tweets of v1 API.
 ```
 
-### <a name='Sampleendpoint'></a>Sample endpoint
+### Sample endpoint
 
 Method: **`v1.sampleStream`**.
 
@@ -143,11 +143,11 @@ const stream = await client.v1.sampleStream();
 // Event data will be tweets of v1 API.
 ```
 
-## <a name='SpecificAPIv2implementations'></a>Specific API v2 implementations
+## Specific API v2 implementations
 
 API v2 streaming-related endpoints works only with Bearer OAuth2 authentication.
 
-### <a name='Searchendpoint'></a>Search endpoint
+### Search endpoint
 
 Method: **`v2.searchStream`**.
 
@@ -165,7 +165,7 @@ const stream = await client.v2.searchStream();
 // Event data will be tweets of v2 API.
 ```
 
-### <a name='Searchendpoint-Getappliedrules'></a>Search endpoint - Get applied rules
+### Search endpoint - Get applied rules
 
 Method: **`v2.streamRules`**.
 
@@ -186,7 +186,7 @@ const rules = await client.v2.streamRules();
 console.log(rules.data.map(rule => rule.id));
 ```
 
-### <a name='Searchendpoint-Addordeleterules'></a>Search endpoint - Add or delete rules
+### Search endpoint - Add or delete rules
 
 Method: **`v2.updateStreamRules`**.
 
@@ -218,7 +218,7 @@ const deleteRules = await client.v2.updateStreamRules({
 });
 ```
 
-### <a name='Sampleendpoint-1'></a>Sample endpoint
+### Sample endpoint
 
 Method: **`v2.sampleStream`**.
 
@@ -236,7 +236,7 @@ const stream = await client.v2.sampleStream();
 // Event data will be tweets of v2 API.
 ```
 
-## <a name='Makeacustomrequest'></a>Make a custom request
+## Make a custom request
 
 If you know endpoint and parameters (or you don't want them to be parsed),
 you can make raw requests using shortcuts by HTTP methods:
@@ -255,21 +255,21 @@ const streamFilter = await client.v1.stream.getStream('statuses/filter.json', { 
 const sampleFilterv2 = await client.v2.getStream('tweets/sample/stream');
 ```
 
-## <a name='TweetStreamreference'></a>`TweetStream` reference
+## `TweetStream` reference
 
-### <a name='Methodsproperties'></a>Methods / properties
+### Methods / properties
 
 - `.autoReconnect: boolean` / defaults `false` / Set this to `true` to enable reconnect feature.
 - `.autoReconnectRetries: number` / default `5` / If `autoReconnect` is `true`, maximum tries made until give up. Each try is spaced by return of `.nextRetryTimeout()` call milliseconds.
-- `.keepAliveTimeoutMs: number` / default `120000` (2 minutes) / Defined whenever connection should be automatically closed if nothing is received from Twitter during this time (it should not happend in any situation, because Twitter sends keep-alive packets). **Can be set to `Infinity` to disable this feature**.
-- `.nextRetryTimeout: TStreamConnectRetryFn` / Override this function that takes a `tryOccurence` (starting from 1) and returns the number of milliseconds to wait before trying to reconnect to Twitter.
+- `.keepAliveTimeoutMs: number` / default `120000` (2 minutes) / Defined whenever connection should be automatically closed if nothing is received from Twitter during this time (it should not happen in any situation, because Twitter sends keep-alive packets). **Can be set to `Infinity` to disable this feature**.
+- `.nextRetryTimeout: TStreamConnectRetryFn` / Override this function that takes a `tryOccurrence` (starting from 1) and returns the number of milliseconds to wait before trying to reconnect to Twitter.
 - `.close()`: Emits `ConnectionClosed` event and terminates connection.
-- `.destroy()`: Same as `close()`, but unbind all registred event listeners before.
+- `.destroy()`: Same as `close()`, but unbind all registered event listeners before.
 - `.clone(): Promise<TweetStream>`: Returns a new `TweetStream` with the same request parameters, with the same event listeners bound.
 - `.reconnect(): Promise<void>`: Tries to make a new request to Twitter with the same original parameters. If successful, continue streaming with new response.
 - `.connect(params?: IConnectTweetStreamParams): Promise<TweetStream>`: Connect the stream. Only if `autoConnect` has been set to `false` when stream is created.
 
-### <a name='Events'></a>Events
+### Events
 
 All events are part of enum `ETwitterStreamEvent` exported by the package.
 
