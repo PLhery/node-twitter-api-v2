@@ -1,6 +1,11 @@
+1.14.1
+------
+- feat: add verified_type to user schema #442 (@dkulyk)
+- chore: fix typos and markdown links #443 (@Jiralite)
+
 1.14.0
 ------
-- feat: improve search query params #431
+- feat: improve search query params #431 (@itsjustbrian)
 - breaking change: DM Ids should be strings #436
 
 1.13.0
