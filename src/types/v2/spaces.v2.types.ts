@@ -12,7 +12,7 @@ export interface SpaceV2FieldsParams {
 export type TSpaceV2Expansion = 'invited_user_ids' | 'speaker_ids' | 'creator_id' | 'host_ids';
 export type TSpaceV2SpaceField = 'host_ids' | 'created_at' | 'creator_id' | 'id' | 'lang'
   | 'invited_user_ids' | 'participant_count' | 'speaker_ids' | 'started_at' | 'state' | 'title'
-  | 'updated_at' | 'scheduled_start' | 'is_ticketed' | 'topic_ids' | 'ended_at';
+  | 'updated_at' | 'scheduled_start' | 'is_ticketed' | 'topic_ids' | 'ended_at' | 'subscriber_count';
 export type TSpaceV2State = 'live' | 'scheduled';
 
 // - Requests -
