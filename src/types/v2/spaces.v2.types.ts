@@ -57,5 +57,5 @@ export interface SpaceV2 {
   updated_at?: string;
   topic_ids?: string[];
   ended_at?: string;
-  subscriber_count?: number
+  subscriber_count?: number;
 }
