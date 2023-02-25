@@ -1,3 +1,8 @@
+1.14.2
+------
+- feat: add subscriber_count to spaces typings #452 (@florrdv)
+- chore: Fix typo #454 (@will2022)
+
 1.14.1
 ------
 - feat: add verified_type to user schema #442 (@dkulyk)
