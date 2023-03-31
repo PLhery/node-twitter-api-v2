@@ -10,14 +10,15 @@ Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 an
 
 Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.buymeacoffee.com/alkihis" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" height="20px" marginTop="10px"></a>
 
-## Warning notes
+## Important Note
 
-Twitter will drastically reduce its API capabilities by end of April by migrating current users to free and "basic" tiers ([see this thread](https://twitter.com/TwitterDev/status/1641222782594990080)).
+Twitter will significantly reduce its API capabilities by end of April ([see this thread](https://twitter.com/TwitterDev/status/1641222782594990080)).
 
-Due to massive implications of those changes, this library might not be maintened anymore, and we discourage usage of official API access due to drastic announced imposed limitations.
-We are really disappointed and discouraged about the turn of current events in Twitter since Elon Musk takeover and we are very saddened to see how much of the hard work of the past few years on the API, by the amazing team led by people like @andypiper, has been shelved.
+This change has major implications, and as a result, this library may no longer be maintained.
 
-A better explanation can be [found here](https://github.com/PLhery/node-twitter-api-v2/discussions/459).
+We are disappointed and discouraged by the recent turn of events at Twitter since the takeover by Elon Musk. We are saddened to see that much of the hard work of the past few years on the API, led by an amazing team including @andypiper, has been shelved.
+
+For a more detailed explanation, please see [this discussion](https://github.com/PLhery/node-twitter-api-v2/discussions/459).
 
 ## Highlights
 
