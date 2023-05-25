@@ -78,6 +78,7 @@ function getMimeByName(name: string) {
   if (name.endsWith('.webp')) return EUploadMimeType.Webp;
   if (name.endsWith('.gif')) return EUploadMimeType.Gif;
   if (name.endsWith('.mpeg4') || name.endsWith('.mp4')) return EUploadMimeType.Mp4;
+  if (name.endsWith('.mov') || name.endsWith('.mov')) return EUploadMimeType.Mov;
   if (name.endsWith('.srt')) return EUploadMimeType.Srt;
 
   safeDeprecationWarning({
@@ -105,12 +106,13 @@ function getMimeByType(type: TUploadTypeV1 | string) {
   if (type === 'webp') return EUploadMimeType.Webp;
   if (type === 'srt') return EUploadMimeType.Srt;
   if (type === 'mp4' || type === 'longmp4') return EUploadMimeType.Mp4;
+  if (type === 'mov') return EUploadMimeType.Mov;
 
   return type;
 }
 
 export function getMediaCategoryByMime(name: string, target: 'tweet' | 'dm') {
-  if (name === EUploadMimeType.Mp4) return target === 'tweet' ? 'TweetVideo' : 'DmVideo';
+  if (name === EUploadMimeType.Mp4 || name === EUploadMimeType.Mov) return target === 'tweet' ? 'TweetVideo' : 'DmVideo';
   if (name === EUploadMimeType.Gif) return target === 'tweet' ? 'TweetGif' : 'DmGif';
   if (name === EUploadMimeType.Srt) return 'Subtitles';
   else return target === 'tweet' ? 'TweetImage' : 'DmImage';

@@ -1,7 +1,7 @@
-import type { BooleanString, NumberString } from '../shared.types';
 import type * as fs from 'fs';
-import { UserV1 } from './user.v1.types';
+import type { BooleanString, NumberString } from '../shared.types';
 import { CoordinateV1, PlaceV1, TweetEntitiesV1, TweetExtendedEntitiesV1 } from './entities.v1.types';
+import { UserV1 } from './user.v1.types';
 
 // - Entity -
 
@@ -102,11 +102,12 @@ export interface SendTweetV1Params extends AskTweetV1Params {
   place_id?: string;
 }
 
-export type TUploadTypeV1 = 'mp4' | 'longmp4' | 'gif' | 'jpg' | 'png' | 'srt' | 'webp';
+export type TUploadTypeV1 = 'mp4' | 'longmp4' | 'mov' |  'gif' | 'jpg' | 'png' | 'srt' | 'webp';
 
 export enum EUploadMimeType {
   Jpeg = 'image/jpeg',
   Mp4 = 'video/mp4',
+  Mov = 'video/quicktime',
   Gif = 'image/gif',
   Png = 'image/png',
   Srt = 'text/plain',
