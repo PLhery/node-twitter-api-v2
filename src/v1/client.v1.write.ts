@@ -1,36 +1,36 @@
+import * as fs from 'fs';
 import { API_V1_1_PREFIX, API_V1_1_UPLOAD_PREFIX } from '../globals';
-import TwitterApiv1ReadOnly from './client.v1.read';
+import { hasMultipleItems } from '../helpers';
 import {
-  MediaStatusV1Result,
+  AccountProfileV1Params,
+  AccountSettingsV1,
+  AccountSettingsV1Params,
+  AddOrRemoveListMembersV1Params,
+  EUploadMimeType,
+  FriendshipCreateOrDestroyV1,
+  FriendshipCreateV1Params,
+  FriendshipDestroyV1Params,
+  FriendshipUpdateV1Params,
+  FriendshipV1,
+  GetListV1Params,
   InitMediaV1Result,
+  ListCreateV1Params,
+  ListV1,
   MediaMetadataV1Params,
+  MediaStatusV1Result,
   MediaSubtitleV1Param,
+  ProfileBannerUpdateV1Params,
+  ProfileImageUpdateV1Params,
+  ReportSpamV1Params,
   SendTweetV1Params,
   TUploadableMedia,
   TweetV1,
+  UpdateListV1Params,
   UploadMediaV1Params,
   UserV1,
-  ReportSpamV1Params,
-  AccountSettingsV1,
-  AccountSettingsV1Params,
-  ProfileBannerUpdateV1Params,
-  ProfileImageUpdateV1Params,
-  AccountProfileV1Params,
-  FriendshipV1,
-  FriendshipUpdateV1Params,
-  FriendshipCreateV1Params,
-  FriendshipDestroyV1Params,
-  FriendshipCreateOrDestroyV1,
-  ListV1,
-  ListCreateV1Params,
-  GetListV1Params,
-  AddOrRemoveListMembersV1Params,
-  UpdateListV1Params,
-  EUploadMimeType,
 } from '../types';
-import * as fs from 'fs';
-import { getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs, TFileHandle } from './media-helpers.v1';
-import { hasMultipleItems } from '../helpers';
+import TwitterApiv1ReadOnly from './client.v1.read';
+import { TFileHandle, getFileHandle, getFileSizeFromFileHandle, getMediaCategoryByMime, getMimeType, readFileIntoBuffer, readNextPartOf, sleepSecs } from './media-helpers.v1';
 
 const UPLOAD_ENDPOINT = 'media/upload.json';
 
@@ -318,13 +318,13 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   /**
-   * Upload a media (JPG/PNG/GIF/MP4/WEBP) or subtitle (SRT) to Twitter and return the media_id to use in tweet/DM send.
+   * Upload a media (JPG/PNG/GIF/MP4/MOV/WEBP) or subtitle (SRT) to Twitter and return the media_id to use in tweet/DM send.
    *
    * @param file If `string`, filename is supposed.
    * A `Buffer` is a raw file.
    * `fs.promises.FileHandle` or `number` are file pointers.
    *
-   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'png' | 'gif' | 'srt' | 'webp').
+   * @param options.type File type (Enum 'jpg' | 'longmp4' | 'mp4' | 'mov | 'png' | 'gif' | 'srt' | 'webp').
    * If filename is given, it could be guessed with file extension, otherwise this parameter is mandatory.
    * If type is not part of the enum, it will be used as mime type.
    *
