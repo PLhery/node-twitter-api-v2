@@ -1,3 +1,7 @@
+1.14.3
+------
+- fix: support mov video type #478 (@wass08)
+
 1.14.2
 ------
 - feat: add subscriber_count to spaces typings #452 (@florrdv)
