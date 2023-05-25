@@ -6,7 +6,7 @@ import { getAppClient, getUserClient } from '../src/test/utils';
 // OAuth 1.0a
 const clientOauth = getUserClient();
 
-describe('Tweet stream API v1.1', () => {
+describe.skip('Tweet stream API v1.1', () => {
   it('Should stream 3 tweets without any network error for statuses/filter using events', async () => {
     const streamv1Filter = await clientOauth.v1.filterStream({ track: 'JavaScript' });
 

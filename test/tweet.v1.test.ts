@@ -10,7 +10,7 @@ describe('Tweets endpoints for v1.1 API', () => {
     client = getUserClient();
   });
 
-  it('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
+  it.skip('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
     // Using raw HTTP method and URL
     const response1 = await client.get('https://api.twitter.com/1.1/search/tweets.json?q=@jack&count=2');
     // Using query parser
