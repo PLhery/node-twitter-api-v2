@@ -185,7 +185,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       throw new Error('You must setup TwitterApi instance with consumer keys to accept app-only login');
 
     // Create a client with Basic authentication
-    const basicClient = new TwitterApi({ username: tokens.appKey, password: tokens.appSecret });
+    const basicClient = new TwitterApi({ username: tokens.appKey, password: tokens.appSecret }, this._requestMaker.clientSettings);
     const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
     // New object with Bearer token
