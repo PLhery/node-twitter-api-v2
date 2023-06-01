@@ -1,3 +1,7 @@
+1.15.0
+------
+- fix: Add missing client settings when fetching the token #480 (@qfish)
+
 1.14.3
 ------
 - fix: support mov video type #478 (@wass08)
