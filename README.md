@@ -58,7 +58,7 @@ const readOnlyClient = twitterClient.readOnly;
 
 // Play with the built in methods
 const user = await readOnlyClient.v2.userByUsername('plhery');
-await twitterClient.v1.tweet('Hello, this is a test.');
+await twitterClient.v2.tweet('Hello, this is a test.');
 // You can upload media easily!
 await twitterClient.v1.uploadMedia('./big-buck-bunny.mp4');
 ```
