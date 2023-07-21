@@ -146,6 +146,7 @@ export interface TweetPublicMetricsV2 {
   reply_count: number;
   like_count: number;
   quote_count: number;
+  impression_count: number;
 }
 
 export interface TweetNonPublicMetricsV2 {
