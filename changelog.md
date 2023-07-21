@@ -1,3 +1,8 @@
+1.15.1
+------
+- fix: Update tweet.definition.v2.ts to add public view count #494 (@sebastianspiegel)
+- chore: Update documentation #486 (@ry0y4n)
+
 1.15.0
 ------
 - fix: Add missing client settings when fetching the token #480 (@qfish)
