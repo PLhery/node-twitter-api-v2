@@ -47,7 +47,7 @@ import { ApiResponseError } from 'twitter-api-v2';
 
 try {
   // Get a single tweet
-  await client.v1.tweet('20');
+  await client.v2.tweet('20');
 } catch (error) {
   if (error instanceof ApiResponseError && error.rateLimitError && error.rateLimit) {
     console.log(`You just hit the rate limit! Limit for this endpoint is ${error.rateLimit.limit} requests!`);
@@ -85,7 +85,7 @@ async function autoRetryOnRateLimitError<T>(callback: () => T | Promise<T>) {
 }
 
 // Then use it...
-await autoRetryOnRateLimitError(() => client.v1.tweet('20'));
+await autoRetryOnRateLimitError(() => client.v2.tweet('20'));
 ```
 
 ## Special case of paginators

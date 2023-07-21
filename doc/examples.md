@@ -160,7 +160,10 @@ const mediaIds = await Promise.all([
 ]);
 
 // mediaIds is a string[], can be given to .tweet
-await client.v1.tweet('My tweet text with two images!', { media_ids: mediaIds });
+await client.v2.tweet({
+  text: 'My tweet text with two images!',
+  media: { media_ids: mediaIds }
+});
 ```
 
 ### Reply to a tweet with a video that have subtitles
