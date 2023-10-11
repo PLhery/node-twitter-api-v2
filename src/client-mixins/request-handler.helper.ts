@@ -204,6 +204,14 @@ export class RequestHandlerHelper<T> {
         reset: Number(res.headers['x-rate-limit-reset']),
       };
 
+      if (res.headers['x-app-limit-24hour-limit']) {
+        rateLimit.day = {
+          limit: Number(res.headers['x-app-limit-24hour-limit']),
+          remaining: Number(res.headers['x-app-limit-24hour-remaining']),
+          reset: Number(res.headers['x-app-limit-24hour-reset']),
+        };
+      }
+
       if (this.requestData.rateLimitSaver) {
         this.requestData.rateLimitSaver(rateLimit);
       }

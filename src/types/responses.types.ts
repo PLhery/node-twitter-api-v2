@@ -6,8 +6,12 @@ export interface TwitterResponse<T> {
   rateLimit?: TwitterRateLimit;
 }
 
-export interface TwitterRateLimit {
+export interface SingleTwitterRateLimit {
   limit: number;
   reset: number;
   remaining: number;
+}
+
+export interface TwitterRateLimit extends SingleTwitterRateLimit {
+  day?: SingleTwitterRateLimit;
 }
