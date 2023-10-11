@@ -208,7 +208,7 @@ export class RequestHandlerHelper<T> {
       if (res.headers['x-app-limit-24hour-limit']) {
         rateLimit.day = {
           limit: Number(res.headers['x-app-limit-24hour-limit']),
-          remaining: Number(res.headers['x-rate-limit-remaining']),
+          remaining: Number(res.headers['x-app-limit-24hour-remaining']),
           reset: Number(res.headers['x-app-limit-24hour-reset']),
         };
       }
