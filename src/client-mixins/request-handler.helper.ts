@@ -8,6 +8,7 @@ import type { ErrorV1, ErrorV2, TwitterRateLimit, TwitterResponse } from '../typ
 import type { TRequestFullData, TRequestFullStreamData, TResponseParseMode } from '../types/request-maker.mixin.types';
 import * as zlib from 'zlib';
 import { Readable } from 'stream';
+import { EventEmitter } from 'events';
 
 type TRequestReadyPayload = { req: ClientRequest, res: Readable, originalResponse: IncomingMessage, requestData: TRequestFullData | TRequestFullStreamData };
 type TReadyRequestResolver = (value: TRequestReadyPayload) => void;
@@ -207,7 +208,7 @@ export class RequestHandlerHelper<T> {
       if (res.headers['x-app-limit-24hour-limit']) {
         rateLimit.day = {
           limit: Number(res.headers['x-app-limit-24hour-limit']),
-          remaining: Number(res.headers['x-app-limit-24hour-remaining']),
+          remaining: Number(res.headers['x-rate-limit-remaining']),
           reset: Number(res.headers['x-app-limit-24hour-reset']),
         };
       }
@@ -222,8 +223,11 @@ export class RequestHandlerHelper<T> {
 
   /* Request event handlers */
 
-  protected onSocketEventHandler(reject: TRequestRejecter, socket: Socket) {
-    socket.on('close', this.onSocketCloseHandler.bind(this, reject));
+  protected onSocketEventHandler(reject: TRequestRejecter, cleanupListener: EventEmitter, socket: Socket) {
+    const onClose = this.onSocketCloseHandler.bind(this, reject);
+
+    socket.on('close', onClose);
+    cleanupListener.on('complete', () => socket.off('close', onClose));
   }
 
   protected onSocketCloseHandler(reject: TRequestRejecter) {
@@ -411,13 +415,24 @@ export class RequestHandlerHelper<T> {
   makeRequest() {
     this.buildRequest();
 
-    return new Promise<TwitterResponse<T>>((resolve, reject) => {
+    return new Promise<TwitterResponse<T>>((_resolve, _reject) => {
+      // Hooks to call when promise is fulfulled to cleanup the socket (shared between requests)
+      const resolve: typeof _resolve = value => {
+        cleanupListener.emit('complete');
+        _resolve(value);
+      };
+      const reject: typeof _reject = value => {
+        cleanupListener.emit('complete');
+        _reject(value);
+      };
+
+      const cleanupListener = new EventEmitter();
       const req = this.req;
 
       // Handle request errors
       req.on('error', this.requestErrorHandler.bind(this, reject));
 
-      req.on('socket', this.onSocketEventHandler.bind(this, reject));
+      req.on('socket', this.onSocketEventHandler.bind(this, reject, cleanupListener));
 
       req.on('response', this.classicResponseHandler.bind(this, resolve, reject));
 
