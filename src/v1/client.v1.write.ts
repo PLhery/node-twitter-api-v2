@@ -403,12 +403,13 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
         return;
       }
 
-      if (processing_info.state === 'failed') {
-        if (processing_info.error) {
-          const { name, message } = processing_info.error;
-          throw new Error(`Failed to process media: ${name} - ${message}.`);
-        }
+      if (processing_info.error?.code) {
+        const { name, message } = processing_info.error;
+        throw new Error(`Failed to process media: ${name} - ${message}.`);
+      }
 
+      if (processing_info.state === 'failed') {
+        // No error data
         throw new Error('Failed to process the media.');
       }
 

@@ -1,3 +1,9 @@
+1.15.2
+------
+- fix: Cleanup socket listeners after a request is either rejected or resolved #455
+- feat: Support 24-hour rate limit parsing #495
+- fix: Correctly return error on media upload even if status stays to "in_progress" #483
+
 1.15.1
 ------
 - fix: Update tweet.definition.v2.ts to add public view count #494 (@sebastianspiegel)
