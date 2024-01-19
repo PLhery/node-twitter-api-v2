@@ -341,6 +341,8 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    *
    * @param returnFullMediaData If set to true, returns the whole media information instead of just the media_id
    */
+  public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params>, returnFullMediaData: true): Promise<MediaStatusV1Result>;
+  public async uploadMedia(file: TUploadableMedia, options?: Partial<UploadMediaV1Params>): Promise<string>;
   public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params> = {}, returnFullMediaData = false) {
     const chunkLength = options.chunkLength ?? (1024 * 1024);
 
