@@ -338,8 +338,10 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    *
    * @param options.target Target type `tweet` or `dm`. Defaults to `tweet`.
    * You must specify it if you send a media to use in DMs.
+   *
+   * @param returnFullMediaData If set to true, returns the whole media information instead of just the media_id
    */
-  public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params> = {}) {
+  public async uploadMedia(file: TUploadableMedia, options: Partial<UploadMediaV1Params> = {}, returnFullMediaData = false) {
     const chunkLength = options.chunkLength ?? (1024 * 1024);
 
     const { fileHandle, mediaCategory, fileSize, mimeType } = await this.getUploadMediaRequirements(file, options);
@@ -379,7 +381,11 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
       }
 
       // Video is ready, return media_id
-      return fullMediaData.media_id_string;
+      if (returnFullMediaData) {
+        return fullMediaData;
+      } else {
+        return fullMediaData.media_id_string;
+      }
     } finally {
       // Close file if any
       if (typeof file === 'number') {
