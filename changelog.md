@@ -1,3 +1,7 @@
+1.16.0
+------
+- feat: Add the ability to return whole media information while uploading #506 (@qedr @HapLifeMan)
+
 1.15.2
 ------
 - fix: Cleanup socket listeners after a request is either rejected or resolved #455
