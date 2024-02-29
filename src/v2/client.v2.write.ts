@@ -304,7 +304,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Adds a member to a list.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-lists-id-members
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/post-lists-id-members
    */
   public addListMember(listId: string, userId: string) {
     return this.post<ListMemberV2Result>('lists/:id/members', { user_id: userId }, { params: { id: listId } });
@@ -312,7 +312,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Remember a member to a list.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-lists-id-members-user_id
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/delete-lists-id-members-user_id
    */
   public removeListMember(listId: string, userId: string) {
     return this.delete<ListMemberV2Result>('lists/:id/members/:user_id', undefined, { params: { id: listId, user_id: userId } });
