@@ -1,3 +1,8 @@
+1.16.1
+------
+- feat: add connection_status user field #520 (@fzn0x)
+- chore: Update documentation #518 (@pranavmalvawala)
+
 1.16.0
 ------
 - feat: Add the ability to return whole media information while uploading #506 (@qedr @HapLifeMan)
