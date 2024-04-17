@@ -213,6 +213,7 @@ export interface TweetV2 {
   lang?: string;
   reply_settings?: 'everyone' | 'mentionedUsers' | 'following';
   source?: string;
+  note_tweet?: { text: string, entities?: TweetEntitiesV2 };
 }
 
 export interface ApiV2Includes {
