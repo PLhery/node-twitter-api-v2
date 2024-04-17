@@ -165,6 +165,13 @@ export interface TweetOrganicMetricsV2 {
 
 export type TweetPromotedMetricsV2 = TweetOrganicMetricsV2;
 
+export interface NoteTweetV2 {
+  text: string;
+  entities?: NoteTweetEntitiesV2;
+}
+
+export type NoteTweetEntitiesV2 = Omit<TweetEntitiesV2, 'annotations'>;
+
 export type TTweetReplySettingsV2 = 'mentionedUsers' | 'following' | 'everyone';
 
 export interface SendTweetV2Params {
@@ -213,7 +220,7 @@ export interface TweetV2 {
   lang?: string;
   reply_settings?: 'everyone' | 'mentionedUsers' | 'following';
   source?: string;
-  note_tweet?: { text: string, entities?: TweetEntitiesV2 };
+  note_tweet?: NoteTweetV2;
 }
 
 export interface ApiV2Includes {
