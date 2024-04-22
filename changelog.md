@@ -1,3 +1,7 @@
+1.16.2
+------
+- fix: add type support for Tweets with more than 280 characters #526 (@weswalla)
+
 1.16.1
 ------
 - feat: add connection_status user field #520 (@fzn0x)
