@@ -1,3 +1,7 @@
+1.16.3
+------
+- fix: add canceled and ended space state #523 (@petrbela)
+
 1.16.2
 ------
 - fix: add type support for Tweets with more than 280 characters #526 (@weswalla)
