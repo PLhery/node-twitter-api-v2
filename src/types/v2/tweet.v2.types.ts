@@ -52,7 +52,7 @@ export type TTweetv2PollField = 'duration_minutes' | 'end_datetime' | 'id' | 'op
 export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotations' | 'conversation_id'
   | 'created_at' | 'entities' | 'geo' | 'id' | 'in_reply_to_user_id' | 'lang'
   | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics' | 'edit_controls'
-  | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_text';
+  | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_tweet';
 export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id' | 'location'
   | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'protected' | 'public_metrics'
   | 'url' | 'username' | 'verified' | 'verified_type' | 'withheld' | 'connection_status';
