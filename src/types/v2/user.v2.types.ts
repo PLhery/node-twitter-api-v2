@@ -1,10 +1,10 @@
 // Users
 import type { CashtagEntity, HashtagEntity, MentionEntity, UrlEntity } from '../entities.types';
-import type { ApiV2Includes } from './tweet.definition.v2';
-import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
-import type { TTweetv2MediaField, TTweetv2PlaceField, TTweetv2PollField, TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
 import type { TypeOrArrayOf } from '../shared.types';
+import type { DataAndIncludeV2, DataMetaAndIncludeV2, DataV2 } from './shared.v2.types';
 import { PaginableCountMetaV2 } from './shared.v2.types';
+import type { ApiV2Includes } from './tweet.definition.v2';
+import type { TTweetv2MediaField, TTweetv2PlaceField, TTweetv2PollField, TTweetv2TweetField, TTweetv2UserField } from './tweet.v2.types';
 
 export type TUserV2Expansion = 'pinned_tweet_id';
 
@@ -114,6 +114,7 @@ export interface UserV2 {
     following_count?: number;
     tweet_count?: number;
     listed_count?: number;
+    like_count?: number;
   }
   pinned_tweet_id?: string;
   connection_status?: string[];
