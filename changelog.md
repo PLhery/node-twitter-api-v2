@@ -1,3 +1,7 @@
+1.16.4
+------
+- fix: Added missing types to public_metrics #529 (@solojungle)
+
 1.16.3
 ------
 - fix: add canceled and ended space state #523 (@petrbela)
