@@ -324,9 +324,9 @@ console.log('Refresh token to store for client:', refreshToken);
 ## HTTP wrappers
 
 You can directly use HTTP wrappers to make custom requests.
-Requests under `.v1` are prefixed with `https://api.twitter.com/1.1/`, and under `.v2` are prefixed with `https://api.twitter/2/`.
+Requests under `.v1` are prefixed with `https://api.x.com/1.1/`, and under `.v2` are prefixed with `https://api.twitter/2/`.
 
-It means that if you need to use a different domain, for example `https://upload.twitter.com/1.1/`, you **must specify it manually** (see below).
+It means that if you need to use a different domain, for example `https://upload.x.com/1.1/`, you **must specify it manually** (see below).
 
 ### Make a GET HTTP request to a Twitter endpoint
 
@@ -339,7 +339,7 @@ console.log(result.data); // TweetV2[]
 const mediaStatus = await client.v1.get<MediaStatusV1Result>(
   'media/upload.json',
   { command: 'STATUS', media_id: '20' },
-  { prefix: 'https://upload.twitter.com/1.1/' },
+  { prefix: 'https://upload.x.com/1.1/' },
 );
 console.log('Media is ready:', mediaStatus.processing_info.state === 'succeeded');
 ```
@@ -360,6 +360,6 @@ But if this doesn't work (fe Twitter error of invalid body format), you can buil
 await client.v1.post(
   'media/upload.json',
   { command: 'APPEND', media_id: '20', segment_index: '0', media: fs.readFileSync('./media.jpg') },
-  { prefix: 'https://upload.twitter.com/1.1/', forceBodyMode: 'form-data' },
+  { prefix: 'https://upload.x.com/1.1/', forceBodyMode: 'form-data' },
 );
 ```

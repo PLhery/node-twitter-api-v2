@@ -13,7 +13,7 @@ describe('Tweets endpoints for v2 API', () => {
 
   it('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
     // Using raw HTTP method and URL
-    const response1 = await client.get('https://api.twitter.com/2/tweets?ids=20,1306166445135605761&expansions=author_id&tweet.fields=public_metrics&user.fields=name,public_metrics');
+    const response1 = await client.get('https://api.x.com/2/tweets?ids=20,1306166445135605761&expansions=author_id&tweet.fields=public_metrics&user.fields=name,public_metrics');
     // Using query parser
     const response2 = await client.v2.get('tweets', {
       ids: '20,1306166445135605761',

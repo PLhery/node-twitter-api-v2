@@ -36,7 +36,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Publishes a new message_create event resulting in a Direct Message sent to a specified user from the authenticating user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/new-event
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/new-event
    */
   public sendDm({ recipient_id, custom_profile_id, ...params }: SendDMV1Params) {
     const args: CreateDMEventV1Args = {
@@ -61,7 +61,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
   /**
    * Returns a single Direct Message event by the given id.
    *
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/get-event
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/get-event
    */
   public getDmEvent(id: string) {
     return this.get<ReceivedDMEventV1>('direct_messages/events/show.json', { id });
@@ -70,7 +70,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
   /**
    * Deletes the direct message specified in the required ID parameter.
    * The authenticating user must be the recipient of the specified direct message.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/delete-message-event
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/delete-message-event
    */
   public deleteDm(id: string) {
     return this.delete<void>('direct_messages/events/destroy.json', { id });
@@ -80,7 +80,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Returns all Direct Message events (both sent and received) within the last 30 days.
    * Sorted in reverse-chronological order.
    *
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/list-events
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/list-events
    */
   public async listDmEvents(args: Partial<GetDmListV1Args> = {}) {
     const queryParams = { ...args };
@@ -98,7 +98,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Creates a new Welcome Message that will be stored and sent in the future from the authenticating user in defined circumstances.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/new-welcome-message
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/new-welcome-message
    */
   public newWelcomeDm(name: string, data: MessageCreateDataV1) {
     const args: CreateWelcomeDMEventV1Args = {
@@ -115,7 +115,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Returns a Welcome Message by the given id.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/get-welcome-message
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/get-welcome-message
    */
   public getWelcomeDm(id: string) {
     return this.get<WelcomeDirectMessageCreateV1Result>('direct_messages/welcome_messages/show.json', { id });
@@ -123,7 +123,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Deletes a Welcome Message by the given id.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/delete-welcome-message
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/delete-welcome-message
    */
   public deleteWelcomeDm(id: string) {
     return this.delete<void>('direct_messages/welcome_messages/destroy.json', { id });
@@ -132,7 +132,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
   /**
    * Updates a Welcome Message by the given ID.
    * Updates to the welcome_message object are atomic.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/update-welcome-message
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/update-welcome-message
    */
   public updateWelcomeDm(id: string, data: MessageCreateDataV1) {
     const args = { message_data: data };
@@ -146,7 +146,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
    * Returns all Direct Message events (both sent and received) within the last 30 days.
    * Sorted in reverse-chronological order.
    *
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/list-events
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/sending-and-receiving/api-reference/list-events
    */
   public async listWelcomeDms(args: Partial<GetDmListV1Args> = {}) {
     const queryParams = { ...args };
@@ -164,7 +164,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Creates a new Welcome Message Rule that determines which Welcome Message will be shown in a given conversation.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/new-welcome-message-rule
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/new-welcome-message-rule
    */
   public newWelcomeDmRule(welcomeMessageId: string) {
     return this.post<WelcomeDmRuleV1Result>('direct_messages/welcome_messages/rules/new.json', {
@@ -176,7 +176,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Returns a Welcome Message Rule by the given id.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/get-welcome-message-rule
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/get-welcome-message-rule
    */
   public getWelcomeDmRule(id: string) {
     return this.get<WelcomeDmRuleV1Result>('direct_messages/welcome_messages/rules/show.json', { id });
@@ -184,7 +184,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Deletes a Welcome Message Rule by the given id.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/delete-welcome-message-rule
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/delete-welcome-message-rule
    */
   public deleteWelcomeDmRule(id: string) {
     return this.delete<void>('direct_messages/welcome_messages/rules/destroy.json', { id });
@@ -192,7 +192,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Retrieves all welcome DM rules for this account.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/list-welcome-message-rules
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/welcome-messages/api-reference/list-welcome-message-rules
    */
   public async listWelcomeDmRules(args: Partial<GetDmListV1Args> = {}) {
     const queryParams = { ...args };
@@ -225,7 +225,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Marks a message as read in the recipient’s Direct Message conversation view with the sender.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-read-receipt
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-read-receipt
    */
   public markDmAsRead(lastEventId: string, recipientId: string) {
     return this.post<void>('direct_messages/mark_read.json', {
@@ -236,7 +236,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Displays a visual typing indicator in the recipient’s Direct Message conversation view with the sender.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-typing-indicator
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/typing-indicator-and-read-receipts/api-reference/new-typing-indicator
    */
   public indicateDmTyping(recipientId: string) {
     return this.post<void>('direct_messages/indicate_typing.json', {
@@ -248,7 +248,7 @@ export class TwitterApiv1 extends TwitterApiv1ReadWrite {
 
   /**
    * Get a single image attached to a direct message. TwitterApi client must be logged with OAuth 1.0a.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/direct-messages/message-attachments/guides/retrieving-media
+   * https://developer.x.com/en/docs/twitter-api/v1/direct-messages/message-attachments/guides/retrieving-media
    */
   public async downloadDmImage(urlOrDm: string | DirectMessageCreateV1) {
     if (typeof urlOrDm !== 'string') {
