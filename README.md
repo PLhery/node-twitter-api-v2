@@ -10,7 +10,7 @@ Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.b
 
 ## Important Note
 
-Twitter will significantly reduce its API capabilities by end of April ([see this thread](https://twitter.com/TwitterDev/status/1641222782594990080)).
+Twitter will significantly reduce its API capabilities by end of April ([see this thread](https://x.com/TwitterDev/status/1641222782594990080)).
 
 This change has major implications, and as a result, this library may no longer be maintained.
 

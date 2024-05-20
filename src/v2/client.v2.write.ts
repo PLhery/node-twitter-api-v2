@@ -53,7 +53,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Hides or unhides a reply to a Tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/hide-replies/api-reference/put-tweets-id-hidden
+   * https://developer.x.com/en/docs/twitter-api/tweets/hide-replies/api-reference/put-tweets-id-hidden
    */
   public hideReply(tweetId: string, makeHidden: boolean) {
     return this.put<TweetV2HideReplyResult>('tweets/:id/hidden', { hidden: makeHidden }, { params: { id: tweetId } });
@@ -61,7 +61,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Causes the user ID identified in the path parameter to Like the target Tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/post-users-user_id-likes
+   * https://developer.x.com/en/docs/twitter-api/tweets/likes/api-reference/post-users-user_id-likes
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -72,7 +72,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Allows a user or authenticated user ID to unlike a Tweet.
    * The request succeeds with no action when the user sends a request to a user they're not liking the Tweet or have already unliked the Tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-id-likes-tweet_id
+   * https://developer.x.com/en/docs/twitter-api/tweets/likes/api-reference/delete-users-id-likes-tweet_id
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -84,7 +84,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Causes the user ID identified in the path parameter to Retweet the target Tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/post-users-id-retweets
+   * https://developer.x.com/en/docs/twitter-api/tweets/retweets/api-reference/post-users-id-retweets
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -95,7 +95,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Allows a user or authenticated user ID to remove the Retweet of a Tweet.
    * The request succeeds with no action when the user sends a request to a user they're not Retweeting the Tweet or have already removed the Retweet of.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/delete-users-id-retweets-tweet_id
+   * https://developer.x.com/en/docs/twitter-api/tweets/retweets/api-reference/delete-users-id-retweets-tweet_id
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -107,7 +107,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Creates a Tweet on behalf of an authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   * https://developer.x.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
    */
   public tweet(status: string, payload?: Partial<SendTweetV2Params>): Promise<TweetV2PostTweetResult>;
   public tweet(payload: SendTweetV2Params): Promise<TweetV2PostTweetResult>;
@@ -123,7 +123,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Reply to a Tweet on behalf of an authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   * https://developer.x.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
    */
   public reply(status: string, toTweetId: string, payload: Partial<SendTweetV2Params> = {}) {
     const reply = { in_reply_to_tweet_id: toTweetId, ...payload.reply ?? {} };
@@ -133,7 +133,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Quote an existing Tweet on behalf of an authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   * https://developer.x.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
    */
   public quote(status: string, quotedTweetId: string, payload: Partial<SendTweetV2Params> = {}) {
     return this.tweet(status, { ...payload, quote_tweet_id: quotedTweetId });
@@ -141,7 +141,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Post a series of tweets.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   * https://developer.x.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
    */
   public async tweetThread(tweets: (SendTweetV2Params | string)[]) {
     const postedTweets: TweetV2PostTweetResult[] = [];
@@ -167,7 +167,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Allows a user or authenticated user ID to delete a Tweet
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
+   * https://developer.x.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/delete-tweets-id
    */
   public deleteTweet(tweetId: string) {
     return this.delete<TweetV2DeleteTweetResult>('tweets/:id', undefined, {
@@ -181,7 +181,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Causes the user ID of an authenticated user identified in the path parameter to Bookmark the target Tweet provided in the request body.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/post-users-id-bookmarks
+   * https://developer.x.com/en/docs/twitter-api/tweets/bookmarks/api-reference/post-users-id-bookmarks
    *
    * OAuth2 scopes: `users.read` `tweet.read` `bookmark.write`
    */
@@ -192,7 +192,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Allows a user or authenticated user ID to remove a Bookmark of a Tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/delete-users-id-bookmarks-tweet_id
+   * https://developer.x.com/en/docs/twitter-api/tweets/bookmarks/api-reference/delete-users-id-bookmarks-tweet_id
    *
    * OAuth2 scopes: `users.read` `tweet.read` `bookmark.write`
    */
@@ -206,7 +206,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Allows a user ID to follow another user.
    * If the target user does not have public Tweets, this endpoint will send a follow request.
-   * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/post-users-source_user_id-following
+   * https://developer.x.com/en/docs/twitter-api/users/follows/api-reference/post-users-source_user_id-following
    *
    * OAuth2 scope: `follows.write`
    *
@@ -218,7 +218,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Allows a user ID to unfollow another user.
-   * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/delete-users-source_id-following
+   * https://developer.x.com/en/docs/twitter-api/users/follows/api-reference/delete-users-source_id-following
    *
    * OAuth2 scope: `follows.write`
    *
@@ -233,7 +233,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Causes the user (in the path) to block the target user.
    * The user (in the path) must match the user context authorizing the request.
-   * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/post-users-user_id-blocking
+   * https://developer.x.com/en/docs/twitter-api/users/blocks/api-reference/post-users-user_id-blocking
    *
    * **Note**: You must specify the currently logged user ID; you can obtain it through v1.1 API.
    */
@@ -243,7 +243,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Allows a user or authenticated user ID to unblock another user.
-   * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/delete-users-user_id-blocking
+   * https://developer.x.com/en/docs/twitter-api/users/blocks/api-reference/delete-users-user_id-blocking
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -255,7 +255,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Allows an authenticated user ID to mute the target user.
-   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/post-users-user_id-muting
+   * https://developer.x.com/en/docs/twitter-api/users/mutes/api-reference/post-users-user_id-muting
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -266,7 +266,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Allows an authenticated user ID to unmute the target user.
    * The request succeeds with no action when the user sends a request to a user they're not muting or have already unmuted.
-   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/delete-users-user_id-muting
+   * https://developer.x.com/en/docs/twitter-api/users/mutes/api-reference/delete-users-user_id-muting
    *
    * **Note**: You must specify the currently logged user ID ; you can obtain it through v1.1 API.
    */
@@ -280,7 +280,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Creates a new list for the authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-lists
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-lists
    */
   public createList(options: ListCreateV2Params) {
     return this.post<ListCreateV2Result>('lists', options);
@@ -288,7 +288,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Updates the specified list. The authenticated user must own the list to be able to update it.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/put-lists-id
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/put-lists-id
    */
   public updateList(listId: string, options: ListUpdateV2Params = {}) {
     return this.put<ListUpdateV2Result>('lists/:id', options, { params: { id: listId } });
@@ -296,7 +296,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Deletes the specified list. The authenticated user must own the list to be able to destroy it.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-lists-id
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-lists-id
    */
   public removeList(listId: string) {
     return this.delete<ListDeleteV2Result>('lists/:id', undefined, { params: { id: listId } });
@@ -304,7 +304,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Adds a member to a list.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/post-lists-id-members
+   * https://developer.x.com/en/docs/twitter-api/lists/list-members/api-reference/post-lists-id-members
    */
   public addListMember(listId: string, userId: string) {
     return this.post<ListMemberV2Result>('lists/:id/members', { user_id: userId }, { params: { id: listId } });
@@ -312,7 +312,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Remember a member to a list.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/delete-lists-id-members-user_id
+   * https://developer.x.com/en/docs/twitter-api/lists/list-members/api-reference/delete-lists-id-members-user_id
    */
   public removeListMember(listId: string, userId: string) {
     return this.delete<ListMemberV2Result>('lists/:id/members/:user_id', undefined, { params: { id: listId, user_id: userId } });
@@ -320,7 +320,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Subscribes the authenticated user to the specified list.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-users-id-followed-lists
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-users-id-followed-lists
    */
   public subscribeToList(loggedUserId: string, listId: string) {
     return this.post<ListFollowV2Result>('users/:id/followed_lists', { list_id: listId }, { params: { id: loggedUserId } });
@@ -328,7 +328,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Unsubscribes the authenticated user to the specified list.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-users-id-followed-lists-list_id
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-users-id-followed-lists-list_id
    */
   public unsubscribeOfList(loggedUserId: string, listId: string) {
     return this.delete<ListFollowV2Result>('users/:id/followed_lists/:list_id', undefined, { params: { id: loggedUserId, list_id: listId } });
@@ -336,7 +336,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Enables the authenticated user to pin a List.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-users-id-pinned-lists
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/post-users-id-pinned-lists
    */
   public pinList(loggedUserId: string, listId: string) {
     return this.post<ListPinV2Result>('users/:id/pinned_lists', { list_id: listId }, { params: { id: loggedUserId } });
@@ -344,7 +344,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Enables the authenticated user to unpin a List.
-   * https://developer.twitter.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-users-id-pinned-lists-list_id
+   * https://developer.x.com/en/docs/twitter-api/lists/manage-lists/api-reference/delete-users-id-pinned-lists-list_id
    */
   public unpinList(loggedUserId: string, listId: string) {
     return this.delete<ListPinV2Result>('users/:id/pinned_lists/:list_id', undefined, { params: { id: loggedUserId, list_id: listId } });
@@ -354,7 +354,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Creates a Direct Message on behalf of an authenticated user, and adds it to the specified conversation.
-   * https://developer.twitter.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations-dm_conversation_id-messages
+   * https://developer.x.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations-dm_conversation_id-messages
    */
   public sendDmInConversation(conversationId: string, message: PostDMInConversationParams) {
     return this.post<PostDMInConversationResult>('dm_conversations/:dm_conversation_id/messages', message, { params: { dm_conversation_id: conversationId } });
@@ -363,7 +363,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   /**
    * Creates a one-to-one Direct Message and adds it to the one-to-one conversation.
    * This method either creates a new one-to-one conversation or retrieves the current conversation and adds the Direct Message to it.
-   * https://developer.twitter.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations-with-participant_id-messages
+   * https://developer.x.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations-with-participant_id-messages
    */
   public sendDmToParticipant(participantId: string, message: PostDMInConversationParams) {
     return this.post<PostDMInConversationResult>('dm_conversations/with/:participant_id/messages', message, { params: { participant_id: participantId } });
@@ -371,7 +371,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
 
   /**
    * Creates a new group conversation and adds a Direct Message to it on behalf of an authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations
+   * https://developer.x.com/en/docs/twitter-api/direct-messages/manage/api-reference/post-dm_conversations
    */
   public createDmConversation(options: CreateDMConversationParams) {
     return this.post<PostDMInConversationResult>('dm_conversations', options);
