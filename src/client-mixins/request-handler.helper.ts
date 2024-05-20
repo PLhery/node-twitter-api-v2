@@ -43,7 +43,7 @@ export class RequestHandlerHelper<T> {
   }
 
   protected isFormEncodedEndpoint() {
-    return this.requestData.url.href.startsWith('https://api.twitter.com/oauth/');
+    return this.requestData.url.href.startsWith('https://api.x.com/oauth/');
   }
 
   /* Error helpers */

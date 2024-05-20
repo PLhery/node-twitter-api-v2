@@ -29,7 +29,7 @@ Sometimes, you need to customize request settings (API prefix, body mode, respon
 ```ts
 // [prefix]
 // Customize API prefix (prefix that will be prepended to URL in first argument)
-client.v1.post('media/upload.json', { media: Buffer.alloc(1024) }, { prefix: 'https://upload.twitter.com/1.1/' })
+client.v1.post('media/upload.json', { media: Buffer.alloc(1024) }, { prefix: 'https://upload.x.com/1.1/' })
 
 // [forceBodyMode]
 // Customize body mode (if automatic body detection don't work)

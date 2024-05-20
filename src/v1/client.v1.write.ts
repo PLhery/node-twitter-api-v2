@@ -51,7 +51,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Post a new tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
+   * https://developer.x.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
   public tweet(status: string, payload: Partial<SendTweetV1Params> = {}) {
     const queryParams: Partial<SendTweetV1Params> = {
@@ -65,16 +65,16 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Quote an existing tweet.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
+   * https://developer.x.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
   public async quote(status: string, quotingStatusId: string, payload: Partial<SendTweetV1Params> = {}) {
-    const url = 'https://twitter.com/i/statuses/' + quotingStatusId;
+    const url = 'https://x.com/i/statuses/' + quotingStatusId;
     return this.tweet(status, { ...payload, attachment_url: url });
   }
 
   /**
    * Post a series of tweets.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
+   * https://developer.x.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
   public async tweetThread(tweets: (SendTweetV1Params | string)[]) {
     const postedTweets: TweetV1[] = [];
@@ -100,7 +100,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Reply to an existing tweet. Shortcut to `.tweet` with tweaked parameters.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
+   * https://developer.x.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update
    */
   public reply(status: string, in_reply_to_status_id: string, payload: Partial<SendTweetV1Params> = {}) {
     return this.tweet(status, {
@@ -112,7 +112,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Delete an existing tweet belonging to you.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-destroy-id
+   * https://developer.x.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-destroy-id
    */
   public deleteTweet(tweetId: string) {
     return this.post<TweetV1>('statuses/destroy/:id.json', { tweet_mode: 'extended' }, { params: { id: tweetId } });
@@ -123,7 +123,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   /**
    * Report the specified user as a spam account to Twitter.
    * Additionally, optionally performs the equivalent of POST blocks/create on behalf of the authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/post-users-report_spam
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/mute-block-report-users/api-reference/post-users-report_spam
    */
   public reportUserAsSpam(options: ReportSpamV1Params) {
     return this.post<UserV1>('users/report_spam.json', { tweet_mode: 'extended', ...options });
@@ -131,7 +131,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Turn on/off Retweets and device notifications from the specified user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-update
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-update
    */
   public updateFriendship(options: Partial<FriendshipUpdateV1Params>) {
     return this.post<FriendshipV1>('friendships/update.json', options);
@@ -139,7 +139,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Follow the specified user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-create
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-create
    */
    public createFriendship(options: Partial<FriendshipCreateV1Params>) {
     return this.post<FriendshipCreateOrDestroyV1>('friendships/create.json', options);
@@ -147,7 +147,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Unfollow the specified user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy
    */
    public destroyFriendship(options: Partial<FriendshipDestroyV1Params>) {
     return this.post<FriendshipCreateOrDestroyV1>('friendships/destroy.json', options);
@@ -157,7 +157,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Update current account settings for authenticating user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-settings
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/get-account-settings
    */
   public updateAccountSettings(options: Partial<AccountSettingsV1Params>) {
     return this.post<AccountSettingsV1>('account/settings.json', options);
@@ -165,7 +165,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Sets some values that users are able to set under the "Account" tab of their settings page.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile
    */
   public updateAccountProfile(options: Partial<AccountProfileV1Params>) {
     return this.post<UserV1>('account/update_profile.json', options);
@@ -173,7 +173,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Uploads a profile banner on behalf of the authenticating user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_banner
    */
   public async updateAccountProfileBanner(file: TUploadableMedia, options: Partial<ProfileBannerUpdateV1Params> = {}) {
     const queryParams = {
@@ -185,7 +185,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Updates the authenticating user's profile image.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
    */
   public async updateAccountProfileImage(file: TUploadableMedia, options: Partial<ProfileImageUpdateV1Params> = {}) {
     const queryParams = {
@@ -198,7 +198,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Removes the uploaded profile banner for the authenticating user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-remove_profile_banner
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/manage-account-settings/api-reference/post-account-remove_profile_banner
    */
   public removeAccountProfileBanner() {
     return this.post<void>('account/remove_profile_banner.json');
@@ -208,7 +208,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Creates a new list for the authenticated user.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-create
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-create
    */
   public createList(options: ListCreateV1Params) {
     return this.post<ListV1>('lists/create.json', { tweet_mode: 'extended', ...options });
@@ -216,7 +216,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Updates the specified list. The authenticated user must own the list to be able to update it.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-update
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-update
    */
   public updateList(options: UpdateListV1Params) {
     return this.post<ListV1>('lists/update.json', { tweet_mode: 'extended', ...options });
@@ -224,7 +224,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Deletes the specified list. The authenticated user must own the list to be able to destroy it.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-destroy
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-destroy
    */
   public removeList(options: GetListV1Params) {
     return this.post<ListV1>('lists/destroy.json', { tweet_mode: 'extended', ...options });
@@ -234,7 +234,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * Adds multiple members to a list, by specifying a comma-separated list of member ids or screen names.
    * If you add a single `user_id` or `screen_name`, it will target `lists/members/create.json`, otherwise
    * it will target `lists/members/create_all.json`.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-create_all
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-create_all
    */
   public addListMembers(options: AddOrRemoveListMembersV1Params) {
     const hasMultiple = (options.user_id && hasMultipleItems(options.user_id)) || (options.screen_name && hasMultipleItems(options.screen_name));
@@ -247,7 +247,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * Removes multiple members to a list, by specifying a comma-separated list of member ids or screen names.
    * If you add a single `user_id` or `screen_name`, it will target `lists/members/destroy.json`, otherwise
    * it will target `lists/members/destroy_all.json`.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-destroy_all
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-destroy_all
    */
   public removeListMembers(options: AddOrRemoveListMembersV1Params) {
     const hasMultiple = (options.user_id && hasMultipleItems(options.user_id)) || (options.screen_name && hasMultipleItems(options.screen_name));
@@ -258,7 +258,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Subscribes the authenticated user to the specified list.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-create
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-create
    */
   public subscribeToList(options: GetListV1Params) {
     return this.post<ListV1>('lists/subscribers/create.json', { tweet_mode: 'extended', ...options });
@@ -266,7 +266,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Unsubscribes the authenticated user of the specified list.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-destroy
+   * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-destroy
    */
   public unsubscribeOfList(options: GetListV1Params) {
     return this.post<ListV1>('lists/subscribers/destroy.json', { tweet_mode: 'extended', ...options });
@@ -277,7 +277,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   /**
    * This endpoint can be used to provide additional information about the uploaded media_id.
    * This feature is currently only supported for images and GIFs.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-metadata-create
+   * https://developer.x.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-metadata-create
    */
   public createMediaMetadata(mediaId: string, metadata: Partial<MediaMetadataV1Params>) {
     return this.post<void>(
@@ -291,7 +291,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
    * Use this endpoint to associate uploaded subtitles to an uploaded video. You can associate subtitles to video before or after Tweeting.
    * **To obtain subtitle media ID, you must upload each subtitle file separately using `.uploadMedia()` method.**
    *
-   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-create
+   * https://developer.x.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-create
    */
   public createMediaSubtitles(mediaId: string, subtitles: MediaSubtitleV1Param[]) {
     return this.post<void>(
@@ -303,7 +303,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
 
   /**
    * Use this endpoint to dissociate subtitles from a video and delete the subtitles. You can dissociate subtitles from a video before or after Tweeting.
-   * https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-delete
+   * https://developer.x.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-subtitles-delete
    */
   public deleteMediaSubtitles(mediaId: string, ...languages: string[]) {
     return this.post<void>(
