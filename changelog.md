@@ -1,3 +1,7 @@
+1.17.0
+------
+- feat: update domain from twitter.com to x.com #532 (@melvinmcrn)
+
 1.16.4
 ------
 - fix: Added missing types to public_metrics #529 (@solojungle)
