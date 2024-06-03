@@ -1,7 +1,7 @@
 # Twitter API v2
 
-[![Twitter API v2 badge](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.x.com/en/docs/twitter-api/early-access)
-[![Twitter API v1.1 badge](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fstandard)](https://developer.x.com/en/docs/twitter-api/v1)
+[![Twitter API v2 badge](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fv2)](https://developer.twitter.com/en/docs/twitter-api/early-access)
+[![Twitter API v1.1 badge](https://img.shields.io/endpoint?url=https%3A%2F%2Ftwbadges.glitch.me%2Fbadges%2Fstandard)](https://developer.twitter.com/en/docs/twitter-api/v1)
 [![Version badge](https://badgen.net/github/release/PLhery/node-twitter-api-v2)](https://github.com/PLhery/node-twitter-api-v2)
 [![Checks badge](https://github.com/PLhery/node-twitter-api-v2/actions/workflows/CI.yml/badge.svg)](https://github.com/PLhery/node-twitter-api-v2/actions/workflows/CI.yml)
 [![Package size badge](https://badgen.net/bundlephobia/minzip/twitter-api-v2)](https://bundlephobia.com/package/twitter-api-v2)
@@ -12,7 +12,7 @@ Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.b
 
 ## Important Note
 
-Twitter will significantly reduce its API capabilities by end of April ([see this thread](https://x.com/TwitterDev/status/1641222782594990080)).
+Twitter will significantly reduce its API capabilities by end of April ([see this thread](https://twitter.com/TwitterDev/status/1641222782594990080)).
 
 This change has major implications, and as a result, this library may no longer be maintained.
 

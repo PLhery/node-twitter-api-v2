@@ -94,10 +94,10 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     }: Partial<RequestTokenArgs> = {}
   ) {
     const oauthResult = await this.post<RequestTokenResult>(
-      'https://api.x.com/oauth/request_token',
+      'https://api.twitter.com/oauth/request_token',
       { oauth_callback, x_auth_access_type: authAccessType }
     );
-    let url = `https://api.x.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauthResult.oauth_token)}`;
+    let url = `https://api.twitter.com/oauth/${linkMode}?oauth_token=${encodeURIComponent(oauthResult.oauth_token)}`;
 
     if (forceLogin !== undefined) {
       url += `&force_login=${encodeURIComponent(forceLogin)}`;
@@ -147,7 +147,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       throw new Error('You must setup TwitterApi instance with consumer keys to accept OAuth 1.0 login');
 
     const oauth_result = await this.post<AccessTokenResult>(
-      'https://api.x.com/oauth/access_token',
+      'https://api.twitter.com/oauth/access_token',
       { oauth_token: tokens.accessToken, oauth_verifier }
     );
 
@@ -186,7 +186,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
 
     // Create a client with Basic authentication
     const basicClient = new TwitterApi({ username: tokens.appKey, password: tokens.appSecret }, this._requestMaker.clientSettings);
-    const res = await basicClient.post<BearerTokenResult>('https://api.x.com/oauth2/token', { grant_type: 'client_credentials' });
+    const res = await basicClient.post<BearerTokenResult>('https://api.twitter.com/oauth2/token', { grant_type: 'client_credentials' });
 
     // New object with Bearer token
     return new TwitterApi(res.access_token, this._requestMaker.clientSettings);
@@ -200,7 +200,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
    * - **You can only use v2 API endpoints with this authentication method.**
    * - **You need to specify which scope you want to have when you create your auth link. Make sure it matches your needs.**
    *
-   * See https://developer.x.com/en/docs/authentication/oauth-2-0/user-access-token for details.
+   * See https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token for details.
    *
    * ```ts
    * // Instantiate TwitterApi with client ID
@@ -230,7 +230,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
     const rawScope = options.scope ?? '';
     const scope = Array.isArray(rawScope) ? rawScope.join(' ') : rawScope;
 
-    const url = new URL('https://x.com/i/oauth2/authorize');
+    const url = new URL('https://twitter.com/i/oauth2/authorize');
     const query = {
       response_type: 'code',
       client_id: this._requestMaker.clientId,
@@ -293,7 +293,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       );
     }
 
-    const accessTokenResult = await this.post<AccessOAuth2TokenResult>('https://api.x.com/2/oauth2/token', {
+    const accessTokenResult = await this.post<AccessOAuth2TokenResult>('https://api.twitter.com/2/oauth2/token', {
       code,
       code_verifier: codeVerifier,
       redirect_uri: redirectUri,
@@ -323,7 +323,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       );
     }
 
-    const accessTokenResult = await this.post<AccessOAuth2TokenResult>('https://api.x.com/2/oauth2/token', {
+    const accessTokenResult = await this.post<AccessOAuth2TokenResult>('https://api.twitter.com/2/oauth2/token', {
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
       client_id: this._requestMaker.clientId,
@@ -347,7 +347,7 @@ export default class TwitterApiReadOnly extends TwitterApiBase {
       );
     }
 
-    return await this.post<void>('https://api.x.com/2/oauth2/revoke', {
+    return await this.post<void>('https://api.twitter.com/2/oauth2/revoke', {
       client_id: this._requestMaker.clientId,
       client_secret: this._requestMaker.clientSecret,
       token,

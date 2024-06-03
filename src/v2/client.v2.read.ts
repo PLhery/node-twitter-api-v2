@@ -99,7 +99,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * The recent search endpoint returns Tweets from the last seven days that match a search query.
-   * https://developer.x.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-recent
    */
   public async search(options: Tweetv2SearchParams): Promise<TweetSearchRecentV2Paginator>;
   public async search(query: string, options?: Partial<Tweetv2SearchParams>): Promise<TweetSearchRecentV2Paginator>
@@ -122,7 +122,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * since the first Tweet was created March 26, 2006.
    *
    * This endpoint is only available to those users who have been approved for the Academic Research product track.
-   * https://developer.x.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
    */
   public async searchAll(query: string, options: Partial<Tweetv2SearchParams> = {}) {
     const queryParams = { ...options, query };
@@ -138,7 +138,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a variety of information about a single Tweet specified by the requested ID.
-   * https://developer.x.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets-id
    *
    * OAuth2 scope: `users.read`, `tweet.read`
    */
@@ -148,7 +148,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a variety of information about tweets specified by list of IDs.
-   * https://developer.x.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
    *
    * OAuth2 scope: `users.read`, `tweet.read`
    */
@@ -159,7 +159,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * The recent Tweet counts endpoint returns count of Tweets from the last seven days that match a search query.
    * OAuth2 Bearer auth only.
-   * https://developer.x.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-recent
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-recent
    */
   public tweetCountRecent(query: string, options: Partial<TweetV2CountParams> = {}) {
     return this.get<TweetV2CountResult>('tweets/counts/recent', { query, ...options });
@@ -171,7 +171,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * since the first Tweet was created March 26, 2006.
    * OAuth2 Bearer auth only.
    * **This endpoint has pagination, yet it is not supported by bundled paginators. Use `next_token` to fetch next page.**
-   * https://developer.x.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-all
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/counts/api-reference/get-tweets-counts-all
    */
   public tweetCountAll(query: string, options: Partial<TweetV2CountAllParams> = {}) {
     return this.get<TweetV2CountAllResult>('tweets/counts/all', { query, ...options });
@@ -179,7 +179,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Allows you to get information about who has Retweeted a Tweet.
-   * https://developer.x.com/en/docs/twitter-api/tweets/retweets/api-reference/get-tweets-id-retweeted_by
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/retweets/api-reference/get-tweets-id-retweeted_by
    */
   public tweetRetweetedBy(tweetId: string, options?: Partial<TweetRetweetedOrLikedByV2ParamsWithoutPaginator>): Promise<TweetV2RetweetedByResult>;
   public tweetRetweetedBy(tweetId: string, options: TweetRetweetedOrLikedByV2ParamsWithPaginator): Promise<TweetRetweetersUsersV2Paginator>;
@@ -205,7 +205,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Allows you to get information about who has Liked a Tweet.
-   * https://developer.x.com/en/docs/twitter-api/tweets/likes/api-reference/get-tweets-id-liking_users
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-tweets-id-liking_users
    */
   public tweetLikedBy(tweetId: string, options?: Partial<TweetRetweetedOrLikedByV2ParamsWithoutPaginator>): Promise<TweetV2LikedByResult>;
   public tweetLikedBy(tweetId: string, options: TweetRetweetedOrLikedByV2ParamsWithPaginator): Promise<TweetLikingUsersV2Paginator>;
@@ -232,7 +232,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Allows you to retrieve a collection of the most recent Tweets and Retweets posted by you and users you follow, also known as home timeline.
    * This endpoint returns up to the last 3200 Tweets.
-   * https://developer.x.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-reverse-chronological
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-reverse-chronological
    *
    * OAuth 2 scopes: `tweet.read` `users.read`
    */
@@ -257,7 +257,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns Tweets composed by a single user, specified by the requested user ID.
    * By default, the most recent ten Tweets are returned per request.
    * Using pagination, the most recent 3,200 Tweets can be retrieved.
-   * https://developer.x.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
    */
   public async userTimeline(userId: string, options: Partial<TweetV2UserTimelineParams> = {}) {
     const initialRq = await this.get<TweetV2UserTimelineResult>('users/:id/tweets', options, {
@@ -278,7 +278,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Returns Tweets mentioning a single user specified by the requested user ID.
    * By default, the most recent ten Tweets are returned per request.
    * Using pagination, up to the most recent 800 Tweets can be retrieved.
-   * https://developer.x.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-mentions
    */
   public async userMentionTimeline(userId: string, options: Partial<TweetV2PaginableTimelineParams> = {}) {
     const initialRq = await this.get<TweetV2UserTimelineResult>('users/:id/mentions', options, {
@@ -297,7 +297,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns Quote Tweets for a Tweet specified by the requested Tweet ID.
-   * https://developer.x.com/en/docs/twitter-api/tweets/quote-tweets/api-reference/get-tweets-id-quote_tweets
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/quote-tweets/api-reference/get-tweets-id-quote_tweets
    *
    * OAuth2 scopes: `users.read` `tweet.read`
    */
@@ -320,7 +320,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Allows you to get information about a authenticated user’s 800 most recent bookmarked Tweets.
-   * https://developer.x.com/en/docs/twitter-api/tweets/bookmarks/api-reference/get-users-id-bookmarks
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/bookmarks/api-reference/get-users-id-bookmarks
    *
    * OAuth2 scopes: `users.read` `tweet.read` `bookmark.read`
    */
@@ -344,7 +344,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns information about an authorized user.
-   * https://developer.x.com/en/docs/twitter-api/users/lookup/api-reference/get-users-me
+   * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-me
    *
    * OAuth2 scopes: `tweet.read` & `users.read`
    */
@@ -354,7 +354,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a variety of information about a single user specified by the requested ID.
-   * https://developer.x.com/en/docs/twitter-api/users/lookup/api-reference/get-users-id
+   * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-id
    */
   public user(userId: string, options: Partial<UsersV2Params> = {}) {
     return this.get<UserV2Result>('users/:id', options, { params: { id: userId } });
@@ -362,7 +362,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a variety of information about one or more users specified by the requested IDs.
-   * https://developer.x.com/en/docs/twitter-api/users/lookup/api-reference/get-users
+   * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users
    */
   public users(userIds: string | string[], options: Partial<UsersV2Params> = {}) {
     const ids = Array.isArray(userIds) ? userIds.join(',') : userIds;
@@ -371,7 +371,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a variety of information about a single user specified by their username.
-   * https://developer.x.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by-username-username
+   * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by-username-username
    */
   public userByUsername(username: string, options: Partial<UsersV2Params> = {}) {
     return this.get<UserV2Result>('users/by/username/:username', options, { params: { username } });
@@ -379,7 +379,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a variety of information about one or more users specified by their usernames.
-   * https://developer.x.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by
+   * https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by
    *
    * OAuth2 scope: `users.read`, `tweet.read`
    */
@@ -390,7 +390,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of users who are followers of the specified user ID.
-   * https://developer.x.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-followers
+   * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-followers
    */
   public followers(userId: string, options?: Partial<FollowersV2ParamsWithoutPaginator>): Promise<UserV2TimelineResult>;
   public followers(userId: string, options: FollowersV2ParamsWithPaginator): Promise<UserFollowersV2Paginator>;
@@ -415,7 +415,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of users the specified user ID is following.
-   * https://developer.x.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-following
+   * https://developer.twitter.com/en/docs/twitter-api/users/follows/api-reference/get-users-id-following
    *
    * OAuth2 scope: `follows.read`
    */
@@ -442,7 +442,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Allows you to get information about a user’s liked Tweets.
-   * https://developer.x.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/likes/api-reference/get-users-id-liked_tweets
    */
   public async userLikedTweets(userId: string, options: Partial<TweetV2PaginableListParams> = {}) {
     const params = { id: userId };
@@ -459,7 +459,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of users who are blocked by the authenticating user.
-   * https://developer.x.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
+   * https://developer.twitter.com/en/docs/twitter-api/users/blocks/api-reference/get-users-blocking
    */
   public async userBlockingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
     const params = { id: userId };
@@ -476,7 +476,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of users who are muted by the authenticating user.
-   * https://developer.x.com/en/docs/twitter-api/users/mutes/api-reference/get-users-muting
+   * https://developer.twitter.com/en/docs/twitter-api/users/mutes/api-reference/get-users-muting
    */
   public async userMutingUsers(userId: string, options: Partial<UserV2TimelineParams> = {}) {
     const params = { id: userId };
@@ -495,7 +495,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns the details of a specified List.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-lists-id
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-lists-id
    */
   public list(id: string, options: Partial<GetListV2Params> = {}) {
     return this.get<ListGetV2Result>('lists/:id', options, { params: { id } });
@@ -503,7 +503,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns all Lists owned by the specified user.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-users-id-owned_lists
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-lookup/api-reference/get-users-id-owned_lists
    */
   public async listsOwned(userId: string, options: Partial<GetListTimelineV2Params> = {}) {
     const params = { id: userId };
@@ -520,7 +520,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns all Lists a specified user is a member of.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-members/api-reference/get-users-id-list_memberships
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/get-users-id-list_memberships
    */
   public async listMemberships(userId: string, options: Partial<GetListTimelineV2Params> = {}) {
     const params = { id: userId };
@@ -537,7 +537,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns all Lists a specified user follows.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-follows/api-reference/get-users-id-followed_lists
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-follows/api-reference/get-users-id-followed_lists
    */
   public async listFollowed(userId: string, options: Partial<GetListTimelineV2Params> = {}) {
     const params = { id: userId };
@@ -554,7 +554,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of Tweets from the specified List.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-tweets/api-reference/get-lists-id-tweets
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-tweets/api-reference/get-lists-id-tweets
    */
   public async listTweets(listId: string, options: Partial<TweetV2PaginableListParams> = {}) {
     const params = { id: listId };
@@ -571,7 +571,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of users who are members of the specified List.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-members/api-reference/get-lists-id-members
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-members/api-reference/get-lists-id-members
    */
   public async listMembers(listId: string, options: Partial<UserV2TimelineParams> = {}) {
     const params = { id: listId };
@@ -588,7 +588,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of users who are followers of the specified List.
-   * https://developer.x.com/en/docs/twitter-api/lists/list-follows/api-reference/get-lists-id-followers
+   * https://developer.twitter.com/en/docs/twitter-api/lists/list-follows/api-reference/get-lists-id-followers
    */
   public async listFollowers(listId: string, options: Partial<UserV2TimelineParams> = {}) {
     const params = { id: listId };
@@ -612,7 +612,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    *
    * OAuth 2 scopes: `dm.read`, `tweet.read`, `user.read`
    *
-   * https://developer.x.com/en/docs/twitter-api/direct-messages/lookup/api-reference/get-dm_events
+   * https://developer.twitter.com/en/docs/twitter-api/direct-messages/lookup/api-reference/get-dm_events
    */
   public async listDmEvents(options: Partial<GetDMEventV2Params> = {}) {
     const initialRq = await this.get<GetDMEventV2Result>('dm_events', options, { fullResponse: true });
@@ -631,7 +631,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    *
    * OAuth 2 scopes: `dm.read`, `tweet.read`, `user.read`
    *
-   * https://developer.x.com/en/docs/twitter-api/direct-messages/lookup/api-reference/get-dm_conversations-dm_conversation_id-dm_events
+   * https://developer.twitter.com/en/docs/twitter-api/direct-messages/lookup/api-reference/get-dm_conversations-dm_conversation_id-dm_events
    */
   public async listDmEventsWithParticipant(participantId: string, options: Partial<GetDMEventV2Params> = {}) {
     const params = { participant_id: participantId };
@@ -652,7 +652,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    *
    * OAuth 2 scopes: `dm.read`, `tweet.read`, `user.read`
    *
-   * https://developer.x.com/en/docs/twitter-api/direct-messages/lookup/api-reference/get-dm_conversations-dm_conversation_id-dm_events
+   * https://developer.twitter.com/en/docs/twitter-api/direct-messages/lookup/api-reference/get-dm_conversations-dm_conversation_id-dm_events
    */
   public async listDmEventsOfConversation(dmConversationId: string, options: Partial<GetDMEventV2Params> = {}) {
     const params = { dm_conversation_id: dmConversationId };
@@ -671,7 +671,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Get a single space by ID.
-   * https://developer.x.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id
    *
    * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
@@ -681,7 +681,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Get spaces using their IDs.
-   * https://developer.x.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces
    *
    * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
@@ -691,7 +691,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Get spaces using their creator user ID(s). (no pagination available)
-   * https://developer.x.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-by-creator-ids
    *
    * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
@@ -701,7 +701,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Search through spaces using multiple params. (no pagination available)
-   * https://developer.x.com/en/docs/twitter-api/spaces/search/api-reference/get-spaces-search
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/search/api-reference/get-spaces-search
    */
   public searchSpaces(options: SpaceV2SearchParams) {
     return this.get<SpaceV2LookupResult>('spaces/search', options as Partial<SpaceV2SearchParams>);
@@ -713,7 +713,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    *
    * **OAuth 2.0 Access Token required**
    *
-   * https://developer.x.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-buyers
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-buyers
    *
    * OAuth2 scopes: `tweet.read`, `users.read`, `space.read`.
    */
@@ -723,7 +723,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns Tweets shared in the requested Spaces.
-   * https://developer.x.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-tweets
+   * https://developer.twitter.com/en/docs/twitter-api/spaces/lookup/api-reference/get-spaces-id-tweets
    *
    * OAuth2 scope: `users.read`, `tweet.read`, `space.read`
    */
@@ -735,7 +735,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Streams Tweets in real-time based on a specific set of filter rules.
-   * https://developer.x.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
    */
   public searchStream(options?: Partial<TweetSearchV2StreamParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleStreamResult>>;
   public searchStream(options: Partial<TweetSearchV2StreamParams> & { autoConnect: false }): TweetStream<TweetV2SingleStreamResult>;
@@ -747,7 +747,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Return a list of rules currently active on the streaming endpoint, either as a list or individually.
-   * https://developer.x.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
    */
   public streamRules(options: Partial<StreamingV2GetRulesParams> = {}) {
     return this.get<StreamingV2GetRulesResult>('tweets/search/stream/rules', options);
@@ -757,7 +757,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * Add or delete rules to your stream.
    * To create one or more rules, submit an add JSON body with an array of rules and operators.
    * Similarly, to delete one or more rules, submit a delete JSON body with an array of list of existing rule IDs.
-   * https://developer.x.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
    */
   public updateStreamRules(options: StreamingV2AddRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesAddResult>;
   public updateStreamRules(options: StreamingV2DeleteRulesParams, query?: Partial<StreamingV2UpdateRulesQuery>): Promise<StreamingV2UpdateRulesDeleteResult>;
@@ -771,7 +771,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Streams about 1% of all Tweets in real-time.
-   * https://developer.x.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample-stream
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample-stream
    */
   public sampleStream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleResult>>;
   public sampleStream(options: Partial<Tweetv2FieldsParams> & { autoConnect: false }): TweetStream<TweetV2SingleResult>;
@@ -783,7 +783,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Streams about 10% of all Tweets in real-time.
-   * https://developer.x.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample10-stream
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample10-stream
    */
   public sample10Stream(options?: Partial<Tweetv2FieldsParams> & { autoConnect?: true }): Promise<TweetStream<TweetV2SingleResult>>;
   public sample10Stream(options: Partial<Tweetv2FieldsParams> & { autoConnect: false }): TweetStream<TweetV2SingleResult>;
@@ -797,7 +797,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Returns a list of recent compliance jobs.
-   * https://developer.x.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs
    */
   public complianceJobs(options: BatchComplianceSearchV2Params) {
     return this.get<BatchComplianceListV2Result>('compliance/jobs', options as Partial<BatchComplianceSearchV2Params>);
@@ -805,7 +805,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Get a single compliance job with the specified ID.
-   * https://developer.x.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs-id
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/get-compliance-jobs-id
    */
   public complianceJob(jobId: string) {
     return this.get<BatchComplianceV2Result>('compliance/jobs/:id', undefined, { params: { id: jobId } });
@@ -816,7 +816,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
    * You can run one batch job at a time. Returns the created job, but **not the job result!**.
    *
    * You can obtain the result (**after job is completed**) with `.complianceJobResult`.
-   * https://developer.x.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/post-compliance-jobs
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/post-compliance-jobs
    */
   public async sendComplianceJob(jobParams: BatchComplianceV2Params) {
     const job = await this.post<BatchComplianceV2Result>('compliance/jobs', { type: jobParams.type, name: jobParams.name });
@@ -837,7 +837,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
   /**
    * Get the result of a running or completed job, obtained through `.complianceJob`, `.complianceJobs` or `.sendComplianceJob`.
    * If job is still running (`in_progress`), it will await until job is completed. **This could be quite long!**
-   * https://developer.x.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/post-compliance-jobs
+   * https://developer.twitter.com/en/docs/twitter-api/compliance/batch-compliance/api-reference/post-compliance-jobs
    */
   public async complianceJobResult(job: BatchComplianceJobV2) {
     let runningJob = job;

@@ -109,7 +109,7 @@ Method: **`v1.filterStream`**.
 
 Endpoint: `statuses/filter.json`.
 
-Reference: https://developer.x.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
+Reference: https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/api-reference/post-statuses-filter
 
 Level: **Read-only**.
 
@@ -131,7 +131,7 @@ Method: **`v1.sampleStream`**.
 
 Endpoint: `statuses/sample.json`.
 
-Reference: https://developer.x.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
+Reference: https://developer.twitter.com/en/docs/twitter-api/v1/tweets/sample-realtime/api-reference/get-statuses-sample
 
 Level: **Read-only**.
 
@@ -153,7 +153,7 @@ Method: **`v2.searchStream`**.
 
 Endpoint: `tweets/search/stream`.
 
-Reference: https://developer.x.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
 
 Level: **Read-only**.
 
@@ -171,7 +171,7 @@ Method: **`v2.streamRules`**.
 
 Endpoint: `tweets/search/stream/rules (GET)`.
 
-Reference: https://developer.x.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
 
 Level: **Read-only**.
 
@@ -192,7 +192,7 @@ Method: **`v2.updateStreamRules`**.
 
 Endpoint: `tweets/search/stream/rules (POST)`.
 
-Reference: https://developer.x.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/post-tweets-search-stream-rules
 
 Level: **Read-write**.
 
@@ -224,7 +224,7 @@ Method: **`v2.sampleStream`**.
 
 Endpoint: `tweets/sample/stream`.
 
-Reference: https://developer.x.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
+Reference: https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/api-reference/get-tweets-sample-stream
 
 Level: **Read-only**.
 

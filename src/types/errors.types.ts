@@ -338,23 +338,23 @@ export enum EApiV1ErrorCode {
 
 export enum EApiV2ErrorCode {
   // Request errors
-  InvalidRequest = 'https://developer.x.com/en/support/x-api/error-troubleshooting#invalid-request',
-  ClientForbidden = 'https://developer.x.com/en/support/x-api/error-troubleshooting#client-forbidden',
-  UnsupportedAuthentication = 'https://developer.x.com/en/support/x-api/error-troubleshooting#unsupported-authentication',
+  InvalidRequest = 'https://api.twitter.com/2/problems/invalid-request',
+  ClientForbidden = 'https://api.twitter.com/2/problems/client-forbidden',
+  UnsupportedAuthentication = 'https://api.twitter.com/2/problems/unsupported-authentication',
 
   // Stream rules errors
-  InvalidRules = 'https://developer.x.com/en/support/x-api/error-troubleshooting#invalid-rules',
-  TooManyRules = 'https://developer.x.com/en/support/x-api/error-troubleshooting#rule-cap',
-  DuplicatedRules = 'https://developer.x.com/en/support/x-api/error-troubleshooting#duplicate-rules',
+  InvalidRules = 'https://api.twitter.com/2/problems/invalid-rules',
+  TooManyRules = 'https://api.twitter.com/2/problems/rule-cap',
+  DuplicatedRules = 'https://api.twitter.com/2/problems/duplicate-rules',
 
   // Twitter errors
-  RateLimitExceeded = 'https://developer.x.com/en/support/x-api/error-troubleshooting#usage-capped',
-  ConnectionError = 'https://developer.x.com/en/support/x-api/error-troubleshooting#streaming-connection',
-  ClientDisconnected = 'https://developer.x.com/en/support/x-api/error-troubleshooting#client-disconnected',
-  TwitterDisconnectedYou = 'https://developer.x.com/en/support/x-api/error-troubleshooting#operational-disconnect',
+  RateLimitExceeded = 'https://api.twitter.com/2/problems/usage-capped',
+  ConnectionError = 'https://api.twitter.com/2/problems/streaming-connection',
+  ClientDisconnected = 'https://api.twitter.com/2/problems/client-disconnected',
+  TwitterDisconnectedYou = 'https://api.twitter.com/2/problems/operational-disconnect',
 
   // Resource errors
-  ResourceNotFound = 'https://developer.x.com/en/support/x-api/error-troubleshooting#resource-not-found',
-  ResourceUnauthorized = 'https://developer.x.com/en/support/x-api/error-troubleshooting#not-authorized-for-resource',
-  DisallowedResource = 'https://developer.x.com/en/support/x-api/error-troubleshooting#disallowed-resource',
+  ResourceNotFound = 'https://api.twitter.com/2/problems/resource-not-found',
+  ResourceUnauthorized = 'https://api.twitter.com/2/problems/not-authorized-for-resource',
+  DisallowedResource = 'https://api.twitter.com/2/problems/disallowed-resource',
 }

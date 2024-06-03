@@ -93,8 +93,8 @@ const v2LabsClient = client.v2.labs;
 ```
 
 Using the versioned client **auto-prefix requests** with default prefixes
-(for v1: `https://api.x.com/1.1/`, for v2: `https://api.x.com/2/`,
-for labs v2: `https://api.x.com/labs/2/`)
+(for v1: `https://api.twitter.com/1.1/`, for v2: `https://api.twitter.com/2/`,
+for labs v2: `https://api.twitter.com/labs/2/`)
 and this gives you access to endpoint-wrapper methods!
 
 ## Use the endpoint-wrapper methods

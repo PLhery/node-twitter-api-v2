@@ -7,7 +7,7 @@ export interface AskTweetStreamV1Params {
 }
 
 /**
- * See https://developer.x.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/basic-stream-parameters
+ * See https://developer.twitter.com/en/docs/twitter-api/v1/tweets/filter-realtime/guides/basic-stream-parameters
  * for detailed documentation.
  */
 export interface FilterStreamV1Params extends AskTweetStreamV1Params {

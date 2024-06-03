@@ -39,7 +39,7 @@ export class RequestParamHelpers {
       return 'json';
     }
 
-    if (url.hostname === 'upload.x.com') {
+    if (url.hostname === 'upload.twitter.com') {
       if (url.pathname === '/1.1/media/upload.json') {
         return 'form-data';
       }
@@ -165,7 +165,7 @@ export class RequestParamHelpers {
 
   /**
    * Replace URL parameters available in pathname, like `:id`, with data given in `parameters`:
-   * `https://x.com/:id.json` + `{ id: '20' }` => `https://x.com/20.json`
+   * `https://twitter.com/:id.json` + `{ id: '20' }` => `https://twitter.com/20.json`
    */
   static applyRequestParametersToUrl(url: URL, parameters: TRequestQuery) {
     url.pathname = url.pathname.replace(/:([A-Z_-]+)/ig, (fullMatch, paramName: string) => {
