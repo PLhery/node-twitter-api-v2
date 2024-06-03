@@ -1,3 +1,7 @@
+1.17.1
+------
+- revert #532 which broke the auth flow (thank you @dubzer)
+
 1.17.0
 ------
 - feat: update domain from twitter.com to x.com #532 (@melvinmcrn)
