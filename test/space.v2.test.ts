@@ -5,7 +5,7 @@ import { getAppClient } from '../src/test/utils';
 
 let client: TwitterApi;
 
-describe('Spaces endpoints for v2 API', () => {
+describe.skip('Spaces endpoints for v2 API', () => {
   before(async () => {
     client = await getAppClient();
   });

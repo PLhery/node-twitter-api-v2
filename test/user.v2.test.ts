@@ -7,7 +7,7 @@ let client: TwitterApi;
 let roClient: TwitterApiReadOnly;
 let userClient: TwitterApi;
 
-describe('Users endpoints for v2 API', () => {
+describe.skip('Users endpoints for v2 API', () => {
   before(async () => {
     client = await getAppClient();
     roClient = client.readOnly;

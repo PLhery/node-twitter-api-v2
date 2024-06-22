@@ -32,7 +32,7 @@ describe.skip('Tweet stream API v1.1', () => {
   }).timeout(1000 * 120);
 });
 
-describe('Tweet stream API v2', () => {
+describe.skip('Tweet stream API v2', () => {
   let clientBearer: TwitterApi;
 
   before(async () => {

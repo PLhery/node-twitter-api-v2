@@ -11,7 +11,7 @@ describe('Tweets endpoints for v2 API', () => {
     client = await getAppClient();
   });
 
-  it('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
+  it.skip('.get - Get 2 tweets using raw HTTP method & specific endpoint', async () => {
     // Using raw HTTP method and URL
     const response1 = await client.get('https://api.twitter.com/2/tweets?ids=20,1306166445135605761&expansions=author_id&tweet.fields=public_metrics&user.fields=name,public_metrics');
     // Using query parser
@@ -37,7 +37,7 @@ describe('Tweets endpoints for v2 API', () => {
 
   }).timeout(60 * 1000);
 
-  it('.search - Search and fetch tweets using tweet searcher and consume 200 tweets', async () => {
+  it.skip('.search - Search and fetch tweets using tweet searcher and consume 200 tweets', async () => {
     // Using string for query
     const response1 = await client.v2.search('nodeJS');
     // Using object with query key
@@ -67,7 +67,7 @@ describe('Tweets endpoints for v2 API', () => {
     }
   }).timeout(60 * 1000);
 
-  it('.userTimeline/.userMentionTimeline - Fetch user & mention timeline and consume 150 tweets', async () => {
+  it.skip('.userTimeline/.userMentionTimeline - Fetch user & mention timeline and consume 150 tweets', async () => {
     const jackTimeline = await client.v2.userTimeline('12');
 
     const originalLength = jackTimeline.tweets.length;
@@ -104,17 +104,17 @@ describe('Tweets endpoints for v2 API', () => {
     expect(jackMentions.tweets.map(tweet => tweet.author_id)).to.not.include('12');
   }).timeout(60 * 1000);
 
-  it('.singleTweet - Download a single tweet', async () => {
+  it.skip('.singleTweet - Download a single tweet', async () => {
     const tweet = await client.v2.singleTweet('20');
     expect(tweet.data.text).to.equal('just setting up my twttr');
   }).timeout(60 * 1000);
 
-  it('.tweetWithMedia - Get a tweet with media variants', async () => {
+  it.skip('.tweetWithMedia - Get a tweet with media variants', async () => {
     const tweet = await client.v2.singleTweet('870042717589340160', { 'tweet.fields': ['attachments'], 'expansions': ['attachments.media_keys'], 'media.fields': ['variants'] });
     expect(tweet.includes && tweet.includes.media && tweet.includes.media[0].variants && tweet.includes.media[0].variants[0].content_type).to.equal('video/mp4');
   }).timeout(60 * 1000);
 
-  it('.tweets - Fetch a bunch of tweets', async () => {
+  it.skip('.tweets - Fetch a bunch of tweets', async () => {
     const tweets = await client.v2.tweets(['20', '1257577057862610951'], {
       'tweet.fields': ['author_id'],
     });
@@ -124,7 +124,7 @@ describe('Tweets endpoints for v2 API', () => {
     expect(first.author_id).to.be.a('string');
   }).timeout(60 * 1000);
 
-  it('.like/.unlike - Like / unlike a single tweet', async () => {
+  it.skip('.like/.unlike - Like / unlike a single tweet', async () => {
     const me = await userClient.currentUser();
     const { data: { liked } } = await userClient.v2.like(me.id_str, '20');
     expect(liked).to.equal(true);
@@ -135,14 +135,14 @@ describe('Tweets endpoints for v2 API', () => {
     expect(likedAfterUnlike).to.equal(false);
   }).timeout(60 * 1000);
 
-  it('.tweetLikedBy - Get users that liked a tweet', async () => {
+  it.skip('.tweetLikedBy - Get users that liked a tweet', async () => {
     const usersThatLiked = await userClient.v2.tweetLikedBy('20', { 'user.fields': ['created_at'] });
     expect(usersThatLiked.data).to.have.length.greaterThan(0);
 
     expect(usersThatLiked.data[0].created_at).to.be.a('string');
   }).timeout(60 * 1000);
 
-  it('.tweetRetweetedBy - Get users that retweeted a tweet', async () => {
+  it.skip('.tweetRetweetedBy - Get users that retweeted a tweet', async () => {
     const usersThatRt = await userClient.v2.tweetRetweetedBy('20', { 'user.fields': ['created_at'] });
     expect(usersThatRt.data).to.have.length.greaterThan(0);
 

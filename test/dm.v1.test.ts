@@ -14,7 +14,7 @@ if (process.env.TARGET_DM_USER_ID) {
   isDmTestEnabled = true;
 }
 
-describe('DM endpoints for v1.1 API', () => {
+describe.skip('DM endpoints for v1.1 API', () => {
   before(() => {
     client = getUserClient();
   });

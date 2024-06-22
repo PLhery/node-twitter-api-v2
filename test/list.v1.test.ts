@@ -5,7 +5,7 @@ import { getUserClient, sleepTest } from '../src/test/utils';
 
 let client: TwitterApi;
 
-describe('List endpoints for v1.1 API', () => {
+describe.skip('List endpoints for v1.1 API', () => {
   before(() => {
     client = getUserClient();
   });

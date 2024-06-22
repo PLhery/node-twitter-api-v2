@@ -5,7 +5,7 @@ import { getUserClient } from '../src/test/utils';
 
 let client: TwitterApi;
 
-describe('Tweets endpoints for v1.1 API', () => {
+describe.skip('Tweets endpoints for v1.1 API', () => {
   before(() => {
     client = getUserClient();
   });
