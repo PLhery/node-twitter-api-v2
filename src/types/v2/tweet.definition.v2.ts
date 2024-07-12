@@ -182,7 +182,11 @@ export interface SendTweetV2Params {
     place_id: string;
   };
   media?: {
-    media_ids?: string[];
+    media_ids?:
+      | [string]
+      | [string, string]
+      | [string, string, string]
+      | [string, string, string, string];
     tagged_user_ids?: string[];
   };
   poll?: {
