@@ -1,3 +1,7 @@
+1.17.2
+------
+- fix: limit media_ids count from 1 to 4 #539 (@rare0b)
+
 1.17.1
 ------
 - revert #532 which broke the auth flow (thank you @dubzer)
