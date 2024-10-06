@@ -1,3 +1,7 @@
+1.18.0
+------
+- feat: update again domain from twitter.com to x.com #532 (@melvinmcrn)
+
 1.17.2
 ------
 - fix: limit media_ids count from 1 to 4 #539 (@rare0b)
