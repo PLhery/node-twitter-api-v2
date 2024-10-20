@@ -98,7 +98,7 @@ export interface UserV2 {
   url?: string;
   description?: string;
   verified?: boolean;
-  verified_type?: "none" | "blue" | "business" | "government";
+  verified_type?: 'none' | 'blue' | 'business' | 'government';
   entities?: {
     url?: { urls: UrlEntity[] };
     description: {
@@ -118,4 +118,5 @@ export interface UserV2 {
   }
   pinned_tweet_id?: string;
   connection_status?: string[];
+  most_recent_tweet_id?: string;
 }
