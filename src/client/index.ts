@@ -1,35 +1,49 @@
 import TwitterApiv1 from '../v1/client.v1';
 import TwitterApiv2 from '../v2/client.v2';
 import { TwitterApiError } from '../types';
-import TwitterApiReadWrite from './readwrite';
+import TwitterApiBase from '../client.base';
 
+// Lazy load TwitterApiReadWrite
+const TwitterApiReadWritePromise = import('./readwrite').then(module => module.default);
 
 // "Real" exported client for usage of TwitterApi.
 /**
  * Twitter v1.1 and v2 API client.
  */
-export class TwitterApi extends TwitterApiReadWrite {
+export class TwitterApi extends TwitterApiBase {
   protected _v1?: TwitterApiv1;
   protected _v2?: TwitterApiv2;
+  private _readWriteInstance?: any;
+
+  constructor(...args: ConstructorParameters<typeof TwitterApiBase>) {
+    super(...args);
+    TwitterApiReadWritePromise.then(TwitterApiReadWrite => {
+      this._readWriteInstance = new TwitterApiReadWrite(...args);
+    });
+  }
 
   /* Direct access to subclients */
   public get v1() {
     if (this._v1) return this._v1;
 
-    return this._v1 = new TwitterApiv1(this);
+    return this._v1 = new TwitterApiv1(this as TwitterApiBase);
   }
 
   public get v2() {
     if (this._v2) return this._v2;
 
-    return this._v2 = new TwitterApiv2(this);
+    return this._v2 = new TwitterApiv2(this as TwitterApiBase);
   }
 
   /**
    * Get a client with read/write rights.
    */
-  public get readWrite() {
-    return this as TwitterApiReadWrite;
+  public async readWrite() {
+    if (!this._readWriteInstance) {
+      const TwitterApiReadWrite = await TwitterApiReadWritePromise;
+      this._readWriteInstance = new TwitterApiReadWrite(this);
+    }
+    return this._readWriteInstance;
   }
 
   /* Static helpers */
@@ -71,6 +85,6 @@ export class TwitterApi extends TwitterApiReadWrite {
   }
 }
 
-export { default as TwitterApiReadWrite } from './readwrite';
+export { TwitterApiReadWritePromise as TwitterApiReadWrite };
 export { default as TwitterApiReadOnly } from './readonly';
 export default TwitterApi;
