@@ -1,3 +1,7 @@
+1.18.1
+------
+- feat: add most_recent_tweet_id field #545 (@RenKoya1)
+
 1.18.0
 ------
 - feat: update again domain from twitter.com to x.com #532 (@melvinmcrn)
