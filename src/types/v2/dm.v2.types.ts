@@ -45,12 +45,13 @@ export interface PostDMInConversationResult {
 // Types
 
 export interface BaseDMEventV2 {
-    id: string;
-    created_at?: string;
-    sender_id?: string;
-    dm_conversation_id?: string;
-    attachments?: DMEventAttachmentV2;
-    referenced_tweets?: ReferencedTweetV2[];
+  id: string;
+  created_at?: string;
+  sender_id?: string;
+  dm_conversation_id?: string;
+  attachments?: DMEventAttachmentV2;
+  referenced_tweets?: ReferencedTweetV2[];
+  text: string;
 }
 
 export interface DMEventAttachmentV2 {
@@ -59,7 +60,7 @@ export interface DMEventAttachmentV2 {
 
 export type DMEventV2 = ({
     event_type: 'MessageCreate',
-    text: string;
+
 } & BaseDMEventV2) | ({
     event_type: Extract<TDMEventV2EventType, 'ParticipantsJoin' | 'ParticipantsLeave'>
 } & BaseDMEventV2);
