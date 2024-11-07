@@ -51,7 +51,6 @@ export interface BaseDMEventV2 {
   dm_conversation_id?: string;
   attachments?: DMEventAttachmentV2;
   referenced_tweets?: ReferencedTweetV2[];
-  text: string;
   participant_ids?: string[];
 }
 
@@ -61,7 +60,7 @@ export interface DMEventAttachmentV2 {
 
 export type DMEventV2 = ({
     event_type: 'MessageCreate',
-
+    text: string;
 } & BaseDMEventV2) | ({
     event_type: Extract<TDMEventV2EventType, 'ParticipantsJoin' | 'ParticipantsLeave'>
 } & BaseDMEventV2);
