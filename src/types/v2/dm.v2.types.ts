@@ -3,7 +3,7 @@ import { TTweetv2MediaField, TTweetv2TweetField, TTweetv2UserField } from './twe
 import { ApiV2Includes, ReferencedTweetV2 } from './tweet.definition.v2';
 import { DataMetaAndIncludeV2, PaginableCountMetaV2 } from './shared.v2.types';
 
-export type TDMEventV2Field = 'created_at' | 'follower_count' | 'member_count' | 'private' | 'description' | 'owner_id' | 'dm_conversation_id';
+export type TDMEventV2Field = 'created_at' | 'dm_conversation_id' | 'sender_id' | 'participant_ids' | 'referenced_tweets' | 'attachments';
 export type TDMEventV2Expansion = 'attachments.media_keys' | 'referenced_tweets.id' | 'sender_id' | 'participant_ids';
 export type TDMEventV2EventType = 'MessageCreate' | 'ParticipantsJoin' | 'ParticipantsLeave';
 
@@ -52,6 +52,7 @@ export interface BaseDMEventV2 {
   attachments?: DMEventAttachmentV2;
   referenced_tweets?: ReferencedTweetV2[];
   text: string;
+  participant_ids?: string[];
 }
 
 export interface DMEventAttachmentV2 {
