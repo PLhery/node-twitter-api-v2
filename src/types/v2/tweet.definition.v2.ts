@@ -153,6 +153,7 @@ export interface TweetPublicMetricsV2 {
 export interface TweetNonPublicMetricsV2 {
   impression_count: number;
   url_link_clicks: number;
+  user_profile_clicks: number;
 }
 
 export interface TweetOrganicMetricsV2 {
