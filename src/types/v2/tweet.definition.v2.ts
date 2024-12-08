@@ -106,6 +106,7 @@ export interface TweetEntityUrlV2 {
   description?: string;
   status?: string;
   images?: TweetEntityUrlImageV2[];
+  media_key?: string;
 }
 
 export interface TweetEntityUrlImageV2 {
