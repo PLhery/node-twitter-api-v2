@@ -54,6 +54,8 @@ import {
   TweetV2PaginableTimelineResult,
   TweetV2HomeTimelineParams,
   TweetV2HomeTimelineResult,
+  TweetUsageV2Params,
+  TweetV2UsageResult,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -861,5 +863,16 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       .split('\n')
       .filter(line => line)
       .map(line => JSON.parse(line)) as BatchComplianceV2JobResult[];
+  }
+
+  /* Usage */
+
+  /**
+   * Allows you to retrieve your project usage.
+   * 
+   * https://developer.x.com/en/docs/x-api/usage/tweets/introduction
+   */
+  public async usage(options: Partial<TweetUsageV2Params> = {}) {
+    return this.get<TweetV2UsageResult>('usage/tweets', options);
   }
 }

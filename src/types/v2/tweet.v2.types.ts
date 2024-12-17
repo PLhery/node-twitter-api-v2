@@ -186,3 +186,32 @@ export interface BatchComplianceV2JobResult {
 export type BatchComplianceListV2Result = DataV2<BatchComplianceJobV2[]>;
 
 export type BatchComplianceV2Result = DataV2<BatchComplianceJobV2>;
+
+/// -- Usage --
+
+type TUsageField = 'cap_reset_day' | 'daily_client_app_usage' | 'daily_project_usage' | 'project_cap' | 'project_id' | 'project_usage';
+
+export type TweetUsageV2Params = {
+  days?: number;
+  'usage.fields'?: TUsageField[];
+}
+
+type TUsageDaily = {
+  /** ISO date string */
+  date: string;
+  usage: string;
+};
+
+export type TweetV2UsageResult = DataV2<{
+  project_id?: string;
+  project_cap?: string;
+  project_usage?: string;
+  cap_reset_day?: number;
+  daily_project_usage?: {
+    project_id: string;
+    usage: TUsageDaily[];
+  }[];
+  daily_client_app_usage?: {
+    usage: TUsageDaily[];
+  }[];
+}>;
