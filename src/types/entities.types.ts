@@ -11,11 +11,11 @@ export interface UrlEntity extends Entity {
 }
 
 export interface HashtagEntity extends Entity {
-  hashtag: string;
+  tag: string;
 }
 
 export interface CashtagEntity extends Entity {
-  cashtag: string;
+  tag: string;
 }
 
 export interface MentionEntity extends Entity {

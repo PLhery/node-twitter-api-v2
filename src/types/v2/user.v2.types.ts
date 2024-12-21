@@ -115,6 +115,7 @@ export interface UserV2 {
     tweet_count?: number;
     listed_count?: number;
     like_count?: number;
+    media_count?: number;
   }
   pinned_tweet_id?: string;
   connection_status?: string[];
