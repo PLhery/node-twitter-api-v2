@@ -30,7 +30,7 @@ export interface UserV2TimelineParams {
   pagination_token?: string;
 }
 
-export interface TweetRetweetedOrLikedByV2Params extends Partial<UsersV2Params> {
+export interface TweetRetweetedOrLikedByV2Params extends UserV2TimelineParams {
   asPaginator?: boolean;
 }
 
