@@ -1,3 +1,9 @@
+1.19.0
+------
+- fix: type definition for TweetRetweetedOrLikedByV2Params #550 (@dogukanakkaya)
+- fix: add and correct field names #554 (@lin-stephanie)
+- feat: get tweet usage v2 #555 (@jiahuijiang)
+
 1.18.2
 ------
 - add missing options from dm_event.fields enum #547 (@RenKoya1)
