@@ -1,3 +1,7 @@
+1.19.1
+------
+- Add community id to tweet payload and response #560 (@enszrlu)
+
 1.19.0
 ------
 - fix: type definition for TweetRetweetedOrLikedByV2Params #550 (@dogukanakkaya)
