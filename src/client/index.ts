@@ -2,6 +2,7 @@ import TwitterApiv1 from '../v1/client.v1';
 import TwitterApiv2 from '../v2/client.v2';
 import { TwitterApiError } from '../types';
 import TwitterApiReadWrite from './readwrite';
+import TwitterAds from '../ads/client.ads';
 
 
 // "Real" exported client for usage of TwitterApi.
@@ -11,6 +12,7 @@ import TwitterApiReadWrite from './readwrite';
 export class TwitterApi extends TwitterApiReadWrite {
   protected _v1?: TwitterApiv1;
   protected _v2?: TwitterApiv2;
+  protected _ads?: TwitterAds;
 
   /* Direct access to subclients */
   public get v1() {
@@ -30,6 +32,14 @@ export class TwitterApi extends TwitterApiReadWrite {
    */
   public get readWrite() {
     return this as TwitterApiReadWrite;
+  }
+
+  /**
+   * Get Twitter Ads API client
+   */
+  public get ads() {
+    if (this._ads) return this._ads;
+    return this._ads = new TwitterAds(this);
   }
 
   /* Static helpers */
