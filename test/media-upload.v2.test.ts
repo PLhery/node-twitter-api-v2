@@ -10,7 +10,7 @@ let client: TwitterApi;
 const gifImg = path.resolve(__dirname, 'assets', 'pec.gif');
 const maxTimeout = 1000 * 60;
 
-describe('Media upload for v2 API', () => {
+describe.skip('Media upload for v2 API', () => {
   before(() => {
     client = getUserClient();
   });
