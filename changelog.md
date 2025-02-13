@@ -1,3 +1,9 @@
+1.20.0
+------
+- feat: add v2 upload media method #562 (@leeran7)
+- feat: add clients for ads and ads sandbox #566 (@dmty)
+- add community and searchCommunities endpoints #561 (@enszrlu)
+
 1.19.1
 ------
 - Add community id to tweet payload and response #560 (@enszrlu)
