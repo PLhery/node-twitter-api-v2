@@ -177,14 +177,12 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
   }
 
   private async waitForMediaProcessing(mediaId: string): Promise<void> {
-
     const response = await this.get<MediaV2UploadResponse>('media/upload', {
       command: 'STATUS',
       media_id: mediaId,
     });
 
     const info = response.data.processing_info;
-
     if (!info) return;
 
     switch (info.state) {
@@ -197,6 +195,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
         const waitTime = info?.check_after_secs;
         if(waitTime && waitTime > 0) {
           await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
+          await this.waitForMediaProcessing(mediaId);
         }
       }
     }
