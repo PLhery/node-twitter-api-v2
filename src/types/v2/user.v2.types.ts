@@ -109,6 +109,7 @@ export interface UserV2 {
     }
   }
   profile_image_url?: string;
+  profile_banner_url?: string;
   public_metrics?: {
     followers_count?: number;
     following_count?: number;
