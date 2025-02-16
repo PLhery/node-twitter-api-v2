@@ -54,7 +54,7 @@ export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotati
   | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics' | 'edit_controls'
   | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_tweet' | 'edit_history_tweet_ids';
 export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id' | 'location'
-  | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'protected' | 'public_metrics'
+  | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'profile_banner_url' |  'protected' | 'public_metrics'
   | 'url' | 'username' | 'verified' | 'verified_type' | 'withheld' | 'connection_status' | 'most_recent_tweet_id';
 
 export interface Tweetv2FieldsParams {
