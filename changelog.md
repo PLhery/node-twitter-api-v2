@@ -1,3 +1,7 @@
+1.20.1
+------
+- fix: absence of profile_banner_url field #565 (@MysticalHeat)
+
 1.20.0
 ------
 - feat: add v2 upload media method #562 (@leeran7)
