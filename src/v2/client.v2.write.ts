@@ -134,7 +134,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public async uploadMedia(
     media: Buffer,
-    options: { media_type: EUploadMimeType; media_category?: MediaV2MediaCategory },
+    options: { media_type: `${EUploadMimeType}` | EUploadMimeType; media_category?: MediaV2MediaCategory },
     chunkSize: number = 1024 * 1024
   ): Promise<string> {
     let media_category = options.media_category;
