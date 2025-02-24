@@ -1,15 +1,17 @@
+export type MediaV2MediaCategory = 'tweet_image' | 'tweet_video' | 'tweet_gif' | 'dm_image' | 'dm_video' | 'dm_gif' | 'subtitles';
+
 export interface MediaV2UploadInitParams {
   command: 'INIT';
   media_type: string;
   total_bytes: number;
-  media_category?: string;
+  media_category?: MediaV2MediaCategory;
 }
 
 export interface MediaV2UploadAppendParams {
   command: 'APPEND';
   media_id: string;
   segment_index: number;
-  media: Buffer | string;
+  media: Buffer;
 }
 
 export interface MediaV2UploadFinalizeParams {
