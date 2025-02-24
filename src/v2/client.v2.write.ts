@@ -20,10 +20,11 @@ import type {
   UserV2MuteResult,
   UserV2UnfollowResult,
   TweetV2BookmarkResult,
+  EUploadMimeType,
 } from '../types';
 import TwitterApiv2LabsReadWrite from '../v2-labs/client.v2.labs.write';
 import { CreateDMConversationParams, PostDMInConversationParams, PostDMInConversationResult } from '../types/v2/dm.v2.types';
-import { MediaV2UploadAppendParams, MediaV2UploadFinalizeParams, MediaV2UploadInitParams, MediaV2UploadResponse } from '../types/v2/media.v2.types';
+import { MediaV2MediaCategory, MediaV2UploadAppendParams, MediaV2UploadFinalizeParams, MediaV2UploadInitParams, MediaV2UploadResponse } from '../types/v2/media.v2.types';
 
 /**
  * Base Twitter v2 client with read/write rights.
@@ -133,24 +134,37 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    */
   public async uploadMedia(
     media: Buffer,
-    options: { media_type: string; media_category?: string },
+    options: { media_type: EUploadMimeType; media_category?: MediaV2MediaCategory },
     chunkSize: number = 1024 * 1024
   ): Promise<string> {
+    let media_category = options.media_category;
+    // If no media category is provided, try to infer it from the media type
+    if (!options.media_category) {
+      if (options.media_type.includes('gif')) {
+        media_category = 'tweet_gif';
+       } else if (options.media_type.includes('image')) {
+        media_category = 'tweet_image';
+      } else if (options.media_type.includes('video')) {
+        media_category = 'tweet_video';
+      }
+    }
+
     const initArguments: MediaV2UploadInitParams = {
       command: 'INIT',
       media_type: options.media_type,
       total_bytes: media.length,
-      media_category: options.media_category,
+      media_category,
     };
 
-    const initResponse = await this.post<MediaV2UploadResponse>('media/upload', initArguments);
+    const initResponse = await this.post<MediaV2UploadResponse>('media/upload', initArguments, { forceBodyMode: 'form-data' });
     const mediaId = initResponse.data.id;
 
-    const chunks = Math.ceil(media.length / chunkSize);
-    for (let i = 0; i < chunks; i++) {
+    const chunksCount = Math.ceil(media.length / chunkSize);
+    const mediaArray = new Uint8Array(media);
+    for (let i = 0; i < chunksCount; i++) {
       const start = i * chunkSize;
       const end = Math.min(start + chunkSize, media.length);
-      const mediaChunk = Uint8Array.prototype.slice.call(media, start, end);
+      const mediaChunk = mediaArray.slice(start, end);
       const chunkedBuffer = Buffer.from(mediaChunk);
 
       const appendArguments: MediaV2UploadAppendParams = {
@@ -160,7 +174,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
         media: chunkedBuffer,
       };
 
-      await this.post('media/upload', appendArguments);
+      await this.post('media/upload', appendArguments, { forceBodyMode: 'form-data' });
     }
 
     const finalizeArguments: MediaV2UploadFinalizeParams = {
@@ -168,7 +182,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
       media_id: mediaId,
     };
 
-    const finalizeResponse = await this.post<MediaV2UploadResponse>('media/upload', finalizeArguments);
+    const finalizeResponse = await this.post<MediaV2UploadResponse>('media/upload', finalizeArguments, { forceBodyMode: 'form-data' });
     if (finalizeResponse.data.processing_info) {
       await this.waitForMediaProcessing(mediaId);
     }
