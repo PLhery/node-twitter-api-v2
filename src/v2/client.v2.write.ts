@@ -149,8 +149,6 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
       }
     }
 
-    console.log('media_category', { media_category });
-
     const initArguments: MediaV2UploadInitParams = {
       command: 'INIT',
       media_type: options.media_type,
