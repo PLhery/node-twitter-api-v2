@@ -1,3 +1,7 @@
+1.20.2
+------
+- fix: upload-media v2 endpoint #570 #571 (@leeran7)
+
 1.20.1
 ------
 - fix: absence of profile_banner_url field #565 (@MysticalHeat)
