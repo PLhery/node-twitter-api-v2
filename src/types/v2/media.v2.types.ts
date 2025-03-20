@@ -37,3 +37,16 @@ export interface MediaV2UploadResponse {
     processing_info?: MediaV2ProcessingInfo;
   };
 }
+
+export interface MediaV2MetadataCreateParams {
+  alt_text?: { text: string };
+}
+
+export interface MediaV2MetadataCreateResult {
+  data: {
+    id: string;
+    associated_metadata: {
+      alt_text: { text: string };
+    };
+  };
+}

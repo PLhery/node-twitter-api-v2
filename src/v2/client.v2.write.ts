@@ -24,7 +24,7 @@ import type {
 } from '../types';
 import TwitterApiv2LabsReadWrite from '../v2-labs/client.v2.labs.write';
 import { CreateDMConversationParams, PostDMInConversationParams, PostDMInConversationResult } from '../types/v2/dm.v2.types';
-import { MediaV2MediaCategory, MediaV2UploadAppendParams, MediaV2UploadFinalizeParams, MediaV2UploadInitParams, MediaV2UploadResponse } from '../types/v2/media.v2.types';
+import { MediaV2MediaCategory, MediaV2MetadataCreateParams, MediaV2MetadataCreateResult, MediaV2UploadAppendParams, MediaV2UploadFinalizeParams, MediaV2UploadInitParams, MediaV2UploadResponse } from '../types/v2/media.v2.types';
 
 /**
  * Base Twitter v2 client with read/write rights.
@@ -213,6 +213,15 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
         }
       }
     }
+  }
+
+  /**
+   * Creates the metadata for media to be uploaded.
+   * This feature is currently only supported for images and GIFs.
+   * https://docs.x.com/x-api/media/metadata-create
+   */
+  public createMediaMetadata(mediaId: string, metadata: Partial<MediaV2MetadataCreateParams>) {
+    return this.post<MediaV2MetadataCreateResult>('/media/metadata', { media_id: mediaId, ...metadata });
   }
 
   /**
