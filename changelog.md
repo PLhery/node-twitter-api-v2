@@ -1,3 +1,7 @@
+1.21.0
+------
+- add v2 media metadata #575 (@francistogram)
+
 1.20.2
 ------
 - fix: upload-media v2 endpoint #570 #571 (@leeran7)
