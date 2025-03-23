@@ -1,3 +1,7 @@
+1.21.1
+------
+- Fix V2 Media Alt Text #578 (@francistogram)
+
 1.21.0
 ------
 - add v2 media metadata #575 (@francistogram)
