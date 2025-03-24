@@ -1,3 +1,7 @@
+1.22.0
+------
+- Fix V2 Media Alt Text (breaking change) #580 (@francistogram)
+
 1.21.1
 ------
 - Fix V2 Media Alt Text #578 (@francistogram)
