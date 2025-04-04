@@ -30,7 +30,7 @@ export interface UserV2TimelineParams {
   pagination_token?: string;
 }
 
-export interface TweetRetweetedOrLikedByV2Params extends Partial<UsersV2Params> {
+export interface TweetRetweetedOrLikedByV2Params extends UserV2TimelineParams {
   asPaginator?: boolean;
 }
 
@@ -109,12 +109,14 @@ export interface UserV2 {
     }
   }
   profile_image_url?: string;
+  profile_banner_url?: string;
   public_metrics?: {
     followers_count?: number;
     following_count?: number;
     tweet_count?: number;
     listed_count?: number;
     like_count?: number;
+    media_count?: number;
   }
   pinned_tweet_id?: string;
   connection_status?: string[];

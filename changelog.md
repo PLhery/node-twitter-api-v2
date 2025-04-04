@@ -1,3 +1,39 @@
+1.22.0
+------
+- Fix V2 Media Alt Text (breaking change) #580 (@francistogram)
+
+1.21.1
+------
+- Fix V2 Media Alt Text #578 (@francistogram)
+
+1.21.0
+------
+- add v2 media metadata #575 (@francistogram)
+
+1.20.2
+------
+- fix: upload-media v2 endpoint #570 #571 (@leeran7)
+
+1.20.1
+------
+- fix: absence of profile_banner_url field #565 (@MysticalHeat)
+
+1.20.0
+------
+- feat: add v2 upload media method #562 (@leeran7)
+- feat: add clients for ads and ads sandbox #566 (@dmty)
+- add community and searchCommunities endpoints #561 (@enszrlu)
+
+1.19.1
+------
+- Add community id to tweet payload and response #560 (@enszrlu)
+
+1.19.0
+------
+- fix: type definition for TweetRetweetedOrLikedByV2Params #550 (@dogukanakkaya)
+- fix: add and correct field names #554 (@lin-stephanie)
+- feat: get tweet usage v2 #555 (@jiahuijiang)
+
 1.18.2
 ------
 - add missing options from dm_event.fields enum #547 (@RenKoya1)

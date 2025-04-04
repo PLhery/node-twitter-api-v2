@@ -103,7 +103,7 @@ See the [documentation for v1 client API](./v1.md) or [documentation for v2 clie
 
 ## Make requests behind a proxy
 
-If your network connection is behind a proxy and you don't be able to make requests with the default configuration, you can use a custom HTTP agent to configure this behavior.
+If your network connection is behind a proxy and you are unable to make requests with the default configuration, you can use a custom HTTP agent to configure this behavior.
 
 ```ts
 // Note: this package is an external package, it isn't bundled with Node.

@@ -52,9 +52,9 @@ export type TTweetv2PollField = 'duration_minutes' | 'end_datetime' | 'id' | 'op
 export type TTweetv2TweetField = 'attachments' | 'author_id' | 'context_annotations' | 'conversation_id'
   | 'created_at' | 'entities' | 'geo' | 'id' | 'in_reply_to_user_id' | 'lang'
   | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics' | 'edit_controls'
-  | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_tweet';
+  | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_tweet' | 'edit_history_tweet_ids';
 export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id' | 'location'
-  | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'protected' | 'public_metrics'
+  | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'profile_banner_url' |  'protected' | 'public_metrics'
   | 'url' | 'username' | 'verified' | 'verified_type' | 'withheld' | 'connection_status' | 'most_recent_tweet_id';
 
 export interface Tweetv2FieldsParams {
@@ -186,3 +186,32 @@ export interface BatchComplianceV2JobResult {
 export type BatchComplianceListV2Result = DataV2<BatchComplianceJobV2[]>;
 
 export type BatchComplianceV2Result = DataV2<BatchComplianceJobV2>;
+
+/// -- Usage --
+
+type TUsageField = 'cap_reset_day' | 'daily_client_app_usage' | 'daily_project_usage' | 'project_cap' | 'project_id' | 'project_usage';
+
+export type TweetUsageV2Params = {
+  days?: number;
+  'usage.fields'?: TUsageField[];
+}
+
+type TUsageDaily = {
+  /** ISO date string */
+  date: string;
+  usage: string;
+};
+
+export type TweetV2UsageResult = DataV2<{
+  project_id?: string;
+  project_cap?: string;
+  project_usage?: string;
+  cap_reset_day?: number;
+  daily_project_usage?: {
+    project_id: string;
+    usage: TUsageDaily[];
+  }[];
+  daily_client_app_usage?: {
+    usage: TUsageDaily[];
+  }[];
+}>;

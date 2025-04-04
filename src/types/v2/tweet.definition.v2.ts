@@ -106,6 +106,7 @@ export interface TweetEntityUrlV2 {
   description?: string;
   status?: string;
   images?: TweetEntityUrlImageV2[];
+  media_key?: string;
 }
 
 export interface TweetEntityUrlImageV2 {
@@ -201,6 +202,7 @@ export interface SendTweetV2Params {
   };
   reply_settings?: TTweetReplySettingsV2 | string;
   text?: string;
+  community_id?: string;
 }
 
 //// FINALLY, TweetV2
@@ -227,6 +229,7 @@ export interface TweetV2 {
   reply_settings?: 'everyone' | 'mentionedUsers' | 'following';
   source?: string;
   note_tweet?: NoteTweetV2;
+  community_id?: string;
 }
 
 export interface ApiV2Includes {

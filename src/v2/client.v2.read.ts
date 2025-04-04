@@ -54,6 +54,12 @@ import {
   TweetV2PaginableTimelineResult,
   TweetV2HomeTimelineParams,
   TweetV2HomeTimelineResult,
+  TweetUsageV2Params,
+  TweetV2UsageResult,
+  CommunityV2Result,
+  CommunitiesV2Result,
+  CommunityByIDV2Params,
+  CommunitySearchV2Params,
 } from '../types';
 import {
   TweetSearchAllV2Paginator,
@@ -861,5 +867,32 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
       .split('\n')
       .filter(line => line)
       .map(line => JSON.parse(line)) as BatchComplianceV2JobResult[];
+  }
+
+  /* Usage */
+
+  /**
+   * Allows you to retrieve your project usage.
+   * 
+   * https://developer.x.com/en/docs/x-api/usage/tweets/introduction
+   */
+  public async usage(options: Partial<TweetUsageV2Params> = {}) {
+    return this.get<TweetV2UsageResult>('usage/tweets', options);
+  }
+
+  /**
+   * Returns a variety of information about a single Community specified by ID.
+   * https://docs.x.com/x-api/communities/communities-lookup-by-community-id
+   */
+  public community(communityId: string, options: Partial<CommunityByIDV2Params> = {}) {
+    return this.get<CommunityV2Result>('communities/:id', options, { params: { id: communityId } });
+  }
+
+  /**
+   * Search for Communities based on keywords.
+   * https://docs.x.com/x-api/communities/search-communities
+   */
+  public searchCommunities(query: string, options: Partial<CommunitySearchV2Params> = {}) {
+    return this.get<CommunitiesV2Result>('communities/search', { query, ...options });
   }
 }
