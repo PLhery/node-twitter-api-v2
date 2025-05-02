@@ -24,7 +24,7 @@ import type {
 } from '../types';
 import TwitterApiv2LabsReadWrite from '../v2-labs/client.v2.labs.write';
 import { CreateDMConversationParams, PostDMInConversationParams, PostDMInConversationResult } from '../types/v2/dm.v2.types';
-import { MediaV2MediaCategory, MediaV2MetadataCreateParams, MediaV2MetadataCreateResult, MediaV2UploadAppendParams, MediaV2UploadFinalizeParams, MediaV2UploadInitParams, MediaV2UploadResponse } from '../types/v2/media.v2.types';
+import { MediaV2MediaCategory, MediaV2MetadataCreateParams, MediaV2MetadataCreateResult, MediaV2UploadAppendParams, MediaV2UploadInitParams, MediaV2UploadResponse } from '../types/v2/media.v2.types';
 
 /**
  * Base Twitter v2 client with read/write rights.
@@ -150,13 +150,12 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
     }
 
     const initArguments: MediaV2UploadInitParams = {
-      command: 'INIT',
       media_type: options.media_type,
       total_bytes: media.length,
       media_category,
     };
 
-    const initResponse = await this.post<MediaV2UploadResponse>('media/upload', initArguments, { forceBodyMode: 'form-data' });
+    const initResponse = await this.post<MediaV2UploadResponse>('media/upload/initialize', initArguments, { forceBodyMode: 'form-data' });
     const mediaId = initResponse.data.id;
 
     const chunksCount = Math.ceil(media.length / chunkSize);
@@ -168,21 +167,14 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
       const chunkedBuffer = Buffer.from(mediaChunk);
 
       const appendArguments: MediaV2UploadAppendParams = {
-        command: 'APPEND',
-        media_id: mediaId,
         segment_index: i,
         media: chunkedBuffer,
       };
 
-      await this.post('media/upload', appendArguments, { forceBodyMode: 'form-data' });
+      await this.post(`media/upload/${mediaId}/append`, appendArguments, { forceBodyMode: 'form-data' });
     }
 
-    const finalizeArguments: MediaV2UploadFinalizeParams = {
-      command: 'FINALIZE',
-      media_id: mediaId,
-    };
-
-    const finalizeResponse = await this.post<MediaV2UploadResponse>('media/upload', finalizeArguments, { forceBodyMode: 'form-data' });
+    const finalizeResponse = await this.post<MediaV2UploadResponse>(`media/upload/${mediaId}/finalize`);
     if (finalizeResponse.data.processing_info) {
       await this.waitForMediaProcessing(mediaId);
     }
