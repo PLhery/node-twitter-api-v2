@@ -128,13 +128,13 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
    * https://docs.x.com/x-api/media/media-upload
    *
    * @param media The media buffer to upload
-   * @param options Upload options including media type and category
+   * @param options Upload options including media type and category, and additional owners
    * @param chunkSize Size of each chunk in bytes (default: 1MB)
    * @returns The media ID of the uploaded media
    */
   public async uploadMedia(
     media: Buffer,
-    options: { media_type: `${EUploadMimeType}` | EUploadMimeType; media_category?: MediaV2MediaCategory },
+    options: { media_type: `${EUploadMimeType}` | EUploadMimeType; media_category?: MediaV2MediaCategory, additional_owners?: string[] },
     chunkSize: number = 1024 * 1024
   ): Promise<string> {
     let media_category = options.media_category;
@@ -150,12 +150,13 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
     }
 
     const initArguments: MediaV2UploadInitParams = {
+      additional_owners: options.additional_owners,
       media_type: options.media_type,
       total_bytes: media.length,
       media_category,
     };
 
-    const initResponse = await this.post<MediaV2UploadResponse>('media/upload/initialize', initArguments, { forceBodyMode: 'form-data' });
+    const initResponse = await this.post<MediaV2UploadResponse>('media/upload/initialize', initArguments);
     const mediaId = initResponse.data.id;
 
     const chunksCount = Math.ceil(media.length / chunkSize);
@@ -167,7 +168,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
       const chunkedBuffer = Buffer.from(mediaChunk);
 
       const appendArguments: MediaV2UploadAppendParams = {
-        segment_index: i,
+        segment_index: i + 1,
         media: chunkedBuffer,
       };
 

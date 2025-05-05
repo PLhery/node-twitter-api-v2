@@ -1,9 +1,10 @@
 export type MediaV2MediaCategory = 'tweet_image' | 'tweet_video' | 'tweet_gif' | 'dm_image' | 'dm_video' | 'dm_gif' | 'subtitles';
 
 export interface MediaV2UploadInitParams {
+  additional_owners?: string[];
+  media_category?: MediaV2MediaCategory;
   media_type: string;
   total_bytes: number;
-  media_category?: MediaV2MediaCategory;
 }
 
 export interface MediaV2UploadAppendParams {
