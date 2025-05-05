@@ -1,3 +1,7 @@
+1.23.0
+------
+- Update uploadMedia v2 endpoints #584 (@avillegasn)
+
 1.22.0
 ------
 - Fix V2 Media Alt Text (breaking change) #580 (@francistogram)
