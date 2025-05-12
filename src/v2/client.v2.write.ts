@@ -168,7 +168,7 @@ export default class TwitterApiv2ReadWrite extends TwitterApiv2ReadOnly {
       const chunkedBuffer = Buffer.from(mediaChunk);
 
       const appendArguments: MediaV2UploadAppendParams = {
-        segment_index: i + 1,
+        segment_index: i,
         media: chunkedBuffer,
       };
 
