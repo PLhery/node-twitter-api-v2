@@ -1,3 +1,7 @@
+1.23.2
+------
+- Add 'article' to tweet.fields #590 (@silvercondor)
+
 1.23.1
 ------
 - Fix uploadMedia v2  issue #589 (@avillegasn)
