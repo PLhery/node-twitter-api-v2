@@ -1,3 +1,7 @@
+1.23.1
+------
+- Fix uploadMedia v2  issue #589 (@avillegasn)
+
 1.23.0
 ------
 - Update uploadMedia v2 endpoints #584 (@avillegasn)
