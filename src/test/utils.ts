@@ -74,3 +74,28 @@ export function getAppClient() {
     return requestClient.appLogin();
   }
 }
+
+/** OAuth 2.0 user-context client for testing features requiring user scopes (like email access) */
+export function getOAuth2UserClient() {
+  if (!process.env.OAUTH2_ACCESS_TOKEN) {
+    throw new Error('OAUTH2_ACCESS_TOKEN environment variable is required for OAuth 2.0 user-context authentication');
+  }
+
+  return new TwitterApi(process.env.OAUTH2_ACCESS_TOKEN);
+}
+
+/** Get OAuth 2.0 client for generating auth links (requires CLIENT_ID and CLIENT_SECRET) */
+export function getOAuth2RequestClient() {
+  return new TwitterApi({
+    clientId: process.env.CLIENT_ID!,
+    clientSecret: process.env.CLIENT_SECRET!,
+  });
+}
+
+/** Generate OAuth 2.0 auth link with email scope for testing */
+export function getOAuth2AuthLink(callback: string) {
+  const client = getOAuth2RequestClient();
+  return client.generateOAuth2AuthLink(callback, {
+    scope: ['tweet.read', 'users.read', 'users.email', 'follows.read', 'offline.access'],
+  });
+}
