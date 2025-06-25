@@ -60,7 +60,7 @@ function generateAuthorizationUrl() {
     console.log('• The page will show "This site can\'t be reached" - that\'s OK!');
 
     console.log('\n⚡ STEP 2: After authorization, IMMEDIATELY run:');
-    console.log(`node setup-oauth2.js exchange YOUR_CODE "${codeVerifier}"`);
+    console.log(`node setup-oauth2.mjs exchange YOUR_CODE "${codeVerifier}"`);
 
     console.log('\n⚠️  IMPORTANT:');
     console.log('• Copy the "code" parameter from the redirect URL');
@@ -147,7 +147,7 @@ async function exchangeCodeForToken(authCode, codeVerifier) {
       console.log('• Code expired (they expire in ~30 seconds)');
       console.log('• Code already used (each code works only once)');
       console.log('• Wrong code copied');
-      console.log('\n🔄 Try again: node setup-oauth2.js');
+      console.log('\n🔄 Try again: node setup-oauth2.mjs');
     }
   }
 }
