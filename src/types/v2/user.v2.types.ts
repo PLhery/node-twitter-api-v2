@@ -99,6 +99,7 @@ export interface UserV2 {
   description?: string;
   verified?: boolean;
   verified_type?: 'none' | 'blue' | 'business' | 'government';
+  confirmed_email?: string;
   entities?: {
     url?: { urls: UrlEntity[] };
     description: {

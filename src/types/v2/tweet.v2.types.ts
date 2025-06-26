@@ -53,7 +53,7 @@ export type TTweetv2TweetField = 'article' | 'attachments' | 'author_id' | 'cont
   | 'created_at' | 'entities' | 'geo' | 'id' | 'in_reply_to_user_id' | 'lang'
   | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics' | 'edit_controls'
   | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_tweet' | 'edit_history_tweet_ids';
-export type TTweetv2UserField = 'created_at' | 'description' | 'entities' | 'id' | 'location'
+export type TTweetv2UserField = 'created_at' | 'description' | 'confirmed_email' | 'entities' | 'id' | 'location'
   | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'profile_banner_url' |  'protected' | 'public_metrics'
   | 'url' | 'username' | 'verified' | 'verified_type' | 'withheld' | 'connection_status' | 'most_recent_tweet_id';
 

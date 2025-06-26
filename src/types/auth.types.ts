@@ -1,7 +1,7 @@
 import type TwitterApi from '../client';
 import { TypeOrArrayOf } from './shared.types';
 
-export type TOAuth2Scope = 'tweet.read' | 'tweet.write' | 'tweet.moderate.write' | 'users.read' | 'follows.read' | 'follows.write'
+export type TOAuth2Scope = 'tweet.read' | 'tweet.write' | 'tweet.moderate.write' | 'users.read' | 'users.email' | 'follows.read' | 'follows.write'
  | 'offline.access' | 'space.read' | 'mute.read' | 'mute.write' | 'like.read' | 'like.write' | 'list.read' | 'list.write'
  | 'block.read' | 'block.write' | 'bookmark.read' | 'bookmark.write' | 'dm.read' | 'dm.write';
 
