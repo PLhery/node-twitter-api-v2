@@ -1,3 +1,7 @@
+1.24.0
+------
+- Add API v2 user email retrieval support #593 (@evrimfeyyaz)
+
 1.23.2
 ------
 - Add 'article' to tweet.fields #590 (@silvercondor)
