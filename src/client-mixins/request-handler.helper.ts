@@ -98,7 +98,7 @@ export class RequestHandlerHelper<T> {
     if (data?.errors?.length) {
       const errors = data.errors as (ErrorV1 | ErrorV2)[];
 
-      if ('code' in errors[0]) {
+      if (typeof errors[0] === 'object' && 'code' in errors[0]) {
         errorString += ' - ' + this.formatV1Errors(errors as ErrorV1[]);
       }
       else {

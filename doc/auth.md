@@ -191,7 +191,8 @@ To create the authentication link, use `client.generateOAuth2AuthLink()` method.
 **You need to provide a callback URL here.**
 ```ts
 // Don't forget to specify 'offline.access' in scope list if you want to refresh your token later
-const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'offline.access', ...] });
+// Include 'users.email' if you need to access user's email address
+const { url, codeVerifier, state } = client.generateOAuth2AuthLink(CALLBACK_URL, { scope: ['tweet.read', 'users.read', 'users.email', 'offline.access', ...] });
 
 // Redirect your user to {url}, store {state} and {codeVerifier} into a DB/Redis/memory after user redirection
 ```

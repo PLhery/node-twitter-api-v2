@@ -1,3 +1,19 @@
+1.24.0
+------
+- Add API v2 user email retrieval support #593 (@evrimfeyyaz)
+
+1.23.2
+------
+- Add 'article' to tweet.fields #590 (@silvercondor)
+
+1.23.1
+------
+- Fix uploadMedia v2  issue #589 (@avillegasn)
+
+1.23.0
+------
+- Update uploadMedia v2 endpoints #584 (@avillegasn)
+
 1.22.0
 ------
 - Fix V2 Media Alt Text (breaking change) #580 (@francistogram)
