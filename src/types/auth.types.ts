@@ -3,7 +3,7 @@ import { TypeOrArrayOf } from './shared.types';
 
 export type TOAuth2Scope = 'tweet.read' | 'tweet.write' | 'tweet.moderate.write' | 'users.read' | 'users.email' | 'follows.read' | 'follows.write'
  | 'offline.access' | 'space.read' | 'mute.read' | 'mute.write' | 'like.read' | 'like.write' | 'list.read' | 'list.write'
- | 'block.read' | 'block.write' | 'bookmark.read' | 'bookmark.write' | 'dm.read' | 'dm.write';
+ | 'block.read' | 'block.write' | 'bookmark.read' | 'bookmark.write' | 'dm.read' | 'dm.write' | 'media.write';
 
 export interface BuildOAuth2RequestLinkArgs {
   scope?: TypeOrArrayOf<TOAuth2Scope> | TypeOrArrayOf<string>;
