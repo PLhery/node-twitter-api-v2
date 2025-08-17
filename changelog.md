@@ -1,3 +1,7 @@
+1.25.0
+------
+- add media write scope #596 (@RenKoya1)
+
 1.24.0
 ------
 - Add API v2 user email retrieval support #593 (@evrimfeyyaz)
