@@ -14,7 +14,7 @@ if (!['major', 'minor', 'patch'].includes(bump)) {
 
 async function main() {
   const latestTag = run('git describe --tags --abbrev=0');
-  const commitLines = run(`git log ${latestTag}..HEAD --pretty=format:%s`)\
+  const commitLines = run(`git log ${latestTag}..HEAD --pretty=format:%s`)
     .split('\n')
     .filter(Boolean);
 

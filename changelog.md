@@ -1,3 +1,23 @@
+1.26.0
+------
+- feat: add amplify_video media category #615 (@PLhery)
+- feat: add new user fields #614 (@PLhery)
+- feat: expand community fields #613 (@PLhery)
+- docs: document quote and hide reply #612 (@PLhery)
+- refactor: derive DM event field type from base event keys #611 (@PLhery)
+- feat: add topic_ids space expansion #609 (@PLhery)
+- Derive remaining field unions from interfaces #610 (@PLhery)
+- feat(stream): support delete_all query for stream rules #608 (@PLhery)
+- Add edit controls to TweetV2 #607 (@PLhery)
+- docs: clarify usage endpoint #606 (@PLhery)
+- docs: add ads api docs #605 (@PLhery)
+- docs: document communities endpoints #604 (@PLhery)
+- Revert "test: add community v2 endpoint coverage (#601)" #603 (@PLhery)
+- Avoid prototype property iteration in trimUndefinedProperties #602 (@PLhery)
+- test: add community v2 endpoint coverage #601 (@PLhery)
+- feat: add release script #600 (@PLhery)
+- Add share_with_followers in SendTweetV2Params #599 (@plbompard)
+
 1.25.0
 ------
 - add media write scope #596 (@RenKoya1)
