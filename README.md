@@ -6,17 +6,9 @@
 
 Strongly typed, full-featured, light, versatile yet powerful Twitter API v1.1 and v2 client for Node.js.
 
-Main maintainer: [@alkihis](https://github.com/alkihis) - <a href="https://www.buymeacoffee.com/alkihis" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" height="20px" marginTop="10px"></a>
-
-## Important Note
-
-Twitter will significantly reduce its API capabilities by end of April ([see this thread](https://x.com/TwitterDev/status/1641222782594990080)).
-
-This change has major implications, and as a result, this library may no longer be maintained.
+Former main contributor: [@alkihis](https://github.com/alkihis)
 
 We are disappointed and discouraged by the recent turn of events at Twitter since the takeover by Elon Musk. We are saddened to see that much of the hard work of the past few years on the API, led by an amazing team including @andypiper, has been shelved.
-
-For a more detailed explanation, please see [this discussion](https://github.com/PLhery/node-twitter-api-v2/discussions/459).
 
 ## Highlights
 
