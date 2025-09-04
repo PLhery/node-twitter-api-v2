@@ -873,7 +873,7 @@ export default class TwitterApiv2ReadOnly extends TwitterApiSubClient {
 
   /**
    * Allows you to retrieve your project usage.
-   * 
+   *
    * https://developer.x.com/en/docs/x-api/usage/tweets/introduction
    */
   public async usage(options: Partial<TweetUsageV2Params> = {}) {
