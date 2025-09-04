@@ -299,7 +299,7 @@ const connecterClient = new TwitterApi({
   accessSecret: authLink.oauth_token_secret,
 });
 // Validate verifier to get definitive access token & secret
-const { accessToken, accessSecret } = connecterClient.login('<THE_OAUTH_VERIFIER>');
+const { accessToken, accessSecret } = await connecterClient.login('<THE_OAUTH_VERIFIER>');
 
 console.log('Access token and secret for logged client:', accessToken, accessSecret);
 ```
