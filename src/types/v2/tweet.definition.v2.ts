@@ -168,6 +168,12 @@ export interface TweetOrganicMetricsV2 {
 
 export type TweetPromotedMetricsV2 = TweetOrganicMetricsV2;
 
+export interface EditControlsV2 {
+  editable_until: string;
+  edits_remaining: number;
+  is_edit_eligible: boolean;
+}
+
 export interface NoteTweetV2 {
   text: string;
   entities?: NoteTweetEntitiesV2;
@@ -225,6 +231,7 @@ export interface TweetV2 {
   non_public_metrics?: TweetNonPublicMetricsV2;
   organic_metrics?: TweetOrganicMetricsV2;
   promoted_metrics?: TweetPromotedMetricsV2;
+  edit_controls?: EditControlsV2;
   possibly_sensitive?: boolean;
   lang?: string;
   reply_settings?: 'everyone' | 'mentionedUsers' | 'following';
