@@ -14,4 +14,5 @@ export interface SingleTwitterRateLimit {
 
 export interface TwitterRateLimit extends SingleTwitterRateLimit {
   day?: SingleTwitterRateLimit;
+  userDay?: SingleTwitterRateLimit;
 }

@@ -32,6 +32,9 @@ const manualFullResponse = await client.v1.get<TweetV1TimelineResult>('statuses/
 manualFullResponse.data; // TweetV1TimelineResult
 // Rate limit information
 manualFullResponse.rateLimit; // { limit: number, remaining: number, reset: number }
+// Optional daily limits
+manualFullResponse.rateLimit.day; // Application 24h limit (if provided)
+manualFullResponse.rateLimit.userDay; // User 24h limit (if provided)
 ```
 
 ## Handle errors - Everywhere in this library

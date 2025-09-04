@@ -213,6 +213,14 @@ export class RequestHandlerHelper<T> {
         };
       }
 
+      if (res.headers['x-user-limit-24hour-limit']) {
+        rateLimit.userDay = {
+          limit: Number(res.headers['x-user-limit-24hour-limit']),
+          remaining: Number(res.headers['x-user-limit-24hour-remaining']),
+          reset: Number(res.headers['x-user-limit-24hour-reset']),
+        };
+      }
+
       if (this.requestData.rateLimitSaver) {
         this.requestData.rateLimitSaver(rateLimit);
       }
