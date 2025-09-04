@@ -244,7 +244,7 @@ export default class TwitterApiv1ReadWrite extends TwitterApiv1ReadOnly {
   }
 
   /**
-   * Removes multiple members to a list, by specifying a comma-separated list of member ids or screen names.
+   * Removes one or more members from a list, by specifying a comma-separated list of member ids or screen names.
    * If you add a single `user_id` or `screen_name`, it will target `lists/members/destroy.json`, otherwise
    * it will target `lists/members/destroy_all.json`.
    * https://developer.x.com/en/docs/twitter-api/v1/accounts-and-users/create-manage-lists/api-reference/post-lists-members-destroy_all

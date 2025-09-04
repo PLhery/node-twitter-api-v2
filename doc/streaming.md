@@ -12,7 +12,8 @@ This lib supports streaming for v1 and v2 API.
 	* [Search endpoint](#search-endpoint)
 	* [Search endpoint - Get applied rules](#search-endpoint---get-applied-rules)
 	* [Search endpoint - Add or delete rules](#search-endpoint---add-or-delete-rules)
-	* [Sample endpoint](#sample-endpoint-1)
+        * [Sample endpoint](#sample-endpoint-1)
+        * [Sample 10% endpoint](#sample-10-endpoint)
 * [Make a custom request](#make-a-custom-request)
 * [`TweetStream` reference](#tweetstream-reference)
 	* [Methods / properties](#methods--properties)
@@ -237,6 +238,33 @@ const client = ...; // (create a Bearer OAuth2 client)
 const stream = await client.v2.sampleStream();
 
 // Event data will be tweets of v2 API.
+```
+
+### Sample 10% endpoint
+
+Streams approximately 10% of the public tweet volume in real time.
+
+Method: **`v2.sample10Stream()`**.
+
+Endpoint: `tweets/sample10/stream`.
+
+Reference: https://developer.x.com/en/docs/twitter-api/tweets/volume-streams/api-reference/get-tweets-sample10-stream
+
+Level: **Read-only**.
+
+Arguments: `options?: Partial<Tweetv2FieldsParams> & { autoConnect?: boolean }`.
+
+Returns: `TweetStream<TweetV2SingleResult>`.
+
+```ts
+const stream = await client.v2.sample10Stream();
+for await (const { data } of stream) {
+  console.log(data.id);
+}
+// or create a non-auto-connected stream:
+const stream = client.v2.sample10Stream({ autoConnect: false });
+stream.on(ETwitterStreamEvent.Data, console.log);
+await stream.connect({ autoReconnect: true });
 ```
 
 ## Make a custom request
