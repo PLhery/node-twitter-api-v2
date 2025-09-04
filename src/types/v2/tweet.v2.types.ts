@@ -1,8 +1,8 @@
 // Tweets
-import type { TweetV2, ApiV2Includes } from './tweet.definition.v2';
+import type { TweetV2, ApiV2Includes, MediaObjectV2, PlaceV2, PollV2 } from './tweet.definition.v2';
 import type { TypeOrArrayOf } from '../shared.types';
 import type { DataAndIncludeV2, DataAndMetaV2, DataMetaAndIncludeV2, DataV2, MetaV2 } from './shared.v2.types';
-import { UserV2 } from './user.v2.types';
+import type { UserV2 } from './user.v2.types';
 import { PaginableCountMetaV2 } from './shared.v2.types';
 
 /// -- Timelines --
@@ -45,17 +45,11 @@ export interface TweetV2HomeTimelineParams extends TweetV2UserTimelineParams {}
 export type TTweetv2Expansion = 'attachments.poll_ids' | 'attachments.media_keys'
   | 'author_id' | 'referenced_tweets.id' | 'in_reply_to_user_id' | 'edit_history_tweet_ids'
   | 'geo.place_id' | 'entities.mentions.username' | 'referenced_tweets.id.author_id';
-export type TTweetv2MediaField = 'duration_ms' | 'height' | 'media_key' | 'preview_image_url' | 'type'
-  | 'url' | 'width' | 'public_metrics' | 'non_public_metrics' | 'organic_metrics' | 'alt_text' | 'variants';
-export type TTweetv2PlaceField = 'contained_within' | 'country' | 'country_code' | 'full_name' | 'geo' | 'id' | 'name' | 'place_type';
-export type TTweetv2PollField = 'duration_minutes' | 'end_datetime' | 'id' | 'options' | 'voting_status';
-export type TTweetv2TweetField = 'article' | 'attachments' | 'author_id' | 'context_annotations' | 'conversation_id'
-  | 'created_at' | 'entities' | 'geo' | 'id' | 'in_reply_to_user_id' | 'lang'
-  | 'public_metrics' | 'non_public_metrics' | 'promoted_metrics' | 'organic_metrics' | 'edit_controls'
-  | 'possibly_sensitive' | 'referenced_tweets' | 'reply_settings' | 'source' | 'text' | 'withheld' | 'note_tweet' | 'edit_history_tweet_ids';
-export type TTweetv2UserField = 'created_at' | 'description' | 'confirmed_email' | 'entities' | 'id' | 'location'
-  | 'name' | 'pinned_tweet_id' | 'profile_image_url' | 'profile_banner_url' |  'protected' | 'public_metrics'
-  | 'url' | 'username' | 'verified' | 'verified_type' | 'withheld' | 'connection_status' | 'most_recent_tweet_id';
+export type TTweetv2MediaField = keyof MediaObjectV2;
+export type TTweetv2PlaceField = keyof PlaceV2;
+export type TTweetv2PollField = keyof PollV2;
+export type TTweetv2TweetField = keyof TweetV2;
+export type TTweetv2UserField = keyof UserV2;
 
 export interface Tweetv2FieldsParams {
   expansions: TypeOrArrayOf<TTweetv2Expansion> | string;
