@@ -1,4 +1,4 @@
-export type MediaV2MediaCategory = 'tweet_image' | 'tweet_video' | 'tweet_gif' | 'dm_image' | 'dm_video' | 'dm_gif' | 'subtitles';
+export type MediaV2MediaCategory = 'tweet_image' | 'tweet_video' | 'tweet_gif' | 'dm_image' | 'dm_video' | 'dm_gif' | 'subtitles' | 'amplify_video';
 
 export interface MediaV2UploadInitParams {
   additional_owners?: string[];
