@@ -17,6 +17,7 @@ This is a comprehensive guide of all helpers available for the Twitter API on bo
 	* [Usage without instantiation](#usage-without-instantiation)
 * [Extract errors in an array](#extract-errors-in-an-array)
 * [Change image size of a profile picture](#change-image-size-of-a-profile-picture)
+* [Remove undefined properties from objects](#remove-undefined-properties-from-objects)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -214,4 +215,18 @@ const user = await client.currentUser();
 
 // Original profile img link
 const originalProfileImage = TwitterApi.getProfileImageInSize(user.profile_image_url_https, 'original');
+```
+
+## Remove undefined properties from objects
+
+Use `trimUndefinedProperties` to remove `undefined` values from an object's own enumerable properties.
+This helper iterates over keys returned by `Object.keys`, leaving properties defined on the prototype chain untouched.
+
+```ts
+const proto = { inherited: 'value' };
+const obj = Object.create(proto);
+obj.keep = 1;
+obj.toRemove = undefined;
+trimUndefinedProperties(obj);
+// obj is now { keep: 1 } and still inherits `inherited`
 ```
