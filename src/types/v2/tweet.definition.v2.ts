@@ -203,6 +203,7 @@ export interface SendTweetV2Params {
   reply_settings?: TTweetReplySettingsV2 | string;
   text?: string;
   community_id?: string;
+  share_with_followers?: boolean;
 }
 
 //// FINALLY, TweetV2
