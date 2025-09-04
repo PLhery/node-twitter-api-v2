@@ -3,13 +3,22 @@ import type { DataAndIncludeV2, DataMetaAndIncludeV2 } from './shared.v2.types';
 import type { TTweetv2UserField } from './tweet.v2.types';
 import type { UsersV2Params, UsersV2Result, UserV2 } from './user.v2.types';
 
+export interface TopicV2 {
+  /** The description of the given topic. */
+  description?: string;
+  /** Unique identifier of this Topic. */
+  id: string;
+  /** The name of the given topic. */
+  name: string;
+}
+
 export interface SpaceV2FieldsParams {
   expansions: TypeOrArrayOf<TSpaceV2Expansion> | string;
   'space.fields': TypeOrArrayOf<TSpaceV2SpaceField> | string;
   'user.fields': TypeOrArrayOf<TTweetv2UserField> | string;
 }
 
-export type TSpaceV2Expansion = 'invited_user_ids' | 'speaker_ids' | 'creator_id' | 'host_ids';
+export type TSpaceV2Expansion = 'invited_user_ids' | 'speaker_ids' | 'creator_id' | 'host_ids' | 'topic_ids';
 export type TSpaceV2SpaceField = 'host_ids' | 'created_at' | 'creator_id' | 'id' | 'lang'
   | 'invited_user_ids' | 'participant_count' | 'speaker_ids' | 'started_at' | 'state' | 'title'
   | 'updated_at' | 'scheduled_start' | 'is_ticketed' | 'topic_ids' | 'ended_at' | 'subscriber_count';
@@ -32,7 +41,7 @@ export interface SpaceV2BuyersParams extends Partial<UsersV2Params> {}
 
 // - Responses -
 
-type SpaceV2Includes = { users?: UserV2[] };
+type SpaceV2Includes = { users?: UserV2[]; topics?: TopicV2[] };
 
 export type SpaceV2SingleResult = DataAndIncludeV2<SpaceV2, SpaceV2Includes>;
 export type SpaceV2LookupResult = DataMetaAndIncludeV2<SpaceV2[], { result_count: number }, SpaceV2Includes>;
