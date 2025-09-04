@@ -122,4 +122,16 @@ export interface UserV2 {
   pinned_tweet_id?: string;
   connection_status?: string[];
   most_recent_tweet_id?: string;
+  affiliation?: {
+    badge_url?: string;
+    description?: string;
+    url?: string;
+    user_id?: string[];
+  };
+  is_identity_verified?: boolean;
+  parody?: boolean;
+  receives_your_dm?: boolean;
+  subscription?: boolean;
+  subscription_type?: 'Basic' | 'Premium' | 'PremiumPlus' | 'None';
+  verified_followers_count?: number;
 }
