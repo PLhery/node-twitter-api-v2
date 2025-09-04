@@ -31,4 +31,4 @@ export interface CommunitySearchV2Params {
   max_results?: number;
   next_token?: string;
   pagination_token?: string;
-} 
+}
