@@ -1,7 +1,18 @@
+export type CommunityJoinPolicy =
+  | 'Open'
+  | 'RestrictedJoinRequestsDisabled'
+  | 'RestrictedJoinRequestsRequireAdminApproval'
+  | 'RestrictedJoinRequestsRequireModeratorApproval'
+  | 'SuperFollowRequired';
+
 export interface CommunityV2 {
   id: string;
   name: string;
   created_at: string;
+  description?: string;
+  access?: 'Public' | 'Closed';
+  join_policy?: CommunityJoinPolicy;
+  member_count?: number;
 }
 
 export interface CommunityErrorV2 {
