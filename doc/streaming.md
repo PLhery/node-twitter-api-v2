@@ -216,6 +216,9 @@ const deleteRules = await client.v2.updateStreamRules({
     ids: ['281646', '1534843'],
   },
 });
+
+// Delete all rules
+await client.v2.updateStreamRules({}, { delete_all: true });
 ```
 
 ### Sample endpoint

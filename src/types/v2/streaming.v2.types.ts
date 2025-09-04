@@ -52,7 +52,13 @@ export interface StreamingV2DeleteRulesParams {
   };
 }
 
-export type StreamingV2UpdateRulesParams = StreamingV2AddRulesParams | StreamingV2DeleteRulesParams;
+/** Empty body used when deleting all rules through the `delete_all` query parameter. */
+export type StreamingV2DeleteAllRulesParams = Record<string, never>;
+
+export type StreamingV2UpdateRulesParams =
+  | StreamingV2AddRulesParams
+  | StreamingV2DeleteRulesParams
+  | StreamingV2DeleteAllRulesParams;
 
 export interface StreamingV2UpdateRulesQuery {
   /**
@@ -60,6 +66,11 @@ export interface StreamingV2UpdateRulesQuery {
    * This is useful if you want to check the syntax of a rule before removing one or more of your existing rules.
    */
   dry_run: boolean;
+  /**
+   * Delete all of the rules associated with this client app. It should be specified with no other parameters.
+   * Once deleted, rules cannot be recovered.
+   */
+  delete_all?: boolean;
 }
 
 export type StreamingV2UpdateRulesAddResult = DataAndMetaV2<StreamingV2Rule[], {
