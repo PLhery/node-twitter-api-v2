@@ -126,6 +126,7 @@ Learn how to use the full potential of `twitter-api-v2`.
   - [Handle errors](./doc/errors.md)
   - [Master `twitter-api-v2` paginators](./doc/paginators.md)
   - [Discover available helpers](./doc/helpers.md)
+- [Twitter Ads API (beta)](./doc/ads.md)
 
 ## Plugins
 
