@@ -1,3 +1,10 @@
+1.27.0
+------
+- fix: remove circular import in TwitterApiReadOnly #619 (@PLhery)
+- feat: parse user 24h rate limit headers #618 (@PLhery)
+- docs: clarify reply and quotes #617 (@PLhery)
+- docs: add missing await in auth example #616 (@PLhery)
+
 1.26.0
 ------
 - feat: add amplify_video media category #615 (@PLhery)
@@ -12,10 +19,7 @@
 - docs: clarify usage endpoint #606 (@PLhery)
 - docs: add ads api docs #605 (@PLhery)
 - docs: document communities endpoints #604 (@PLhery)
-- Revert "test: add community v2 endpoint coverage (#601)" #603 (@PLhery)
 - Avoid prototype property iteration in trimUndefinedProperties #602 (@PLhery)
-- test: add community v2 endpoint coverage #601 (@PLhery)
-- feat: add release script #600 (@PLhery)
 - Add share_with_followers in SendTweetV2Params #599 (@plbompard)
 
 1.25.0
