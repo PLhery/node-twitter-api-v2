@@ -4,11 +4,15 @@
 
 // -- Get stream rules --
 
-import { DataAndMetaV2, MetaV2, SentMeta } from './shared.v2.types';
+import { DataAndMetaV2, MetaV2, PaginableCountMetaV2, SentMeta } from './shared.v2.types';
 
 export interface StreamingV2GetRulesParams {
   /** Comma-separated list of rule IDs. If omitted, all rules are returned. */
-  ids: string;
+  ids?: string;
+  /** Maximum number of rules to return. Min 1, max 1000, default 1000. */
+  max_results?: number;
+  /** Token to retrieve the next page of results. */
+  pagination_token?: string;
 }
 
 export interface StreamingV2Rule {
@@ -20,7 +24,7 @@ export interface StreamingV2Rule {
   tag?: string;
 }
 
-export type StreamingV2GetRulesResult = DataAndMetaV2<StreamingV2Rule[], SentMeta>;
+export type StreamingV2GetRulesResult = DataAndMetaV2<StreamingV2Rule[], PaginableCountMetaV2>;
 
 // -- Add / delete stream rules --
 

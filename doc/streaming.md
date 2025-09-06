@@ -178,10 +178,21 @@ Level: **Read-only**.
 
 Returns: **`StreamingV2GetRulesResult`**.
 
+You can limit the number of rules returned per page with `max_results` (min 1, max 1000, default 1000) and paginate using `pagination_token`.
+
 ```ts
 const client = ...; // (create a Bearer OAuth2 client)
 
-const rules = await client.v2.streamRules();
+// Retrieve up to 500 rules per page
+const rules = await client.v2.streamRules({ max_results: 500 });
+
+// Fetch next page if a next_token is present
+if (rules.meta.next_token) {
+  const nextPage = await client.v2.streamRules({
+    pagination_token: rules.meta.next_token,
+    max_results: 500,
+  });
+}
 
 // Log every rule ID
 console.log(rules.data.map(rule => rule.id));
