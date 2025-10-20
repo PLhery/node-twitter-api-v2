@@ -2,18 +2,17 @@ name: npm publish
 on:
   release:
     types: [created]
+permissions:
+  contents: read
+  id-token: write
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14.x'
+          node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install
-      # Publish to npm
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm ci
+      - run: npm publish --provenance --access public
