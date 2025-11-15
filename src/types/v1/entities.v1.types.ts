@@ -109,9 +109,12 @@ export interface PollPositionV1 {
 }
 
 /** See GeoJSON. */
-export interface CoordinateV1 {
-  coordinates: number[] | number[][];
-  type: string;
+export type CoordinateV1 = {
+  coordinates: number[];
+  type: "Point";
+} | {
+  coordinates: number[][][];
+  type: "Polygon";
 }
 
 export interface PlaceV1 {
