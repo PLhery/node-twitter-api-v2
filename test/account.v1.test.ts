@@ -25,6 +25,10 @@ describe('Account endpoints for v1.1 API', () => {
     await client.v1.updateAccountProfile({ description: user.description as string });
 
     await client.v1.updateAccountSettings({ lang: 'en' });
+
+    // Wait 1sec to make sure the update happened
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     const updatedSettings = await client.v1.accountSettings();
     expect(updatedSettings.language).to.eq('en');
 
