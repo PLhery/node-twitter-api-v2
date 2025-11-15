@@ -1,3 +1,9 @@
+1.28.0
+------
+- Fix coordiante types #626 (@jiahuijiang)
+- feat: add max_results to stream rule retrieval #621 (@PLhery)
+- fix: remove unsupported previous_token from search params #620 (@PLhery)
+
 1.27.0
 ------
 - fix: remove circular import in TwitterApiReadOnly #619 (@PLhery)
